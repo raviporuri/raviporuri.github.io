@@ -728,6 +728,8 @@
                 return generateLocalResponse(userMessage);
             }
             
+            console.log('Calling OpenAI API with message:', userMessage);
+            
             try {
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
@@ -763,12 +765,17 @@ Important guidelines:
                     })
                 });
 
+                console.log('API Response status:', response.status);
+
                 if (!response.ok) {
-                    console.error('API request failed with status:', response.status);
-                    throw new Error('API request failed');
+                    const errorText = await response.text();
+                    console.error('API request failed:', errorText);
+                    throw new Error(`API request failed: ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log('API Response received:', data);
+                
                 if (data.choices && data.choices[0] && data.choices[0].message) {
                     return data.choices[0].message.content;
                 } else {
@@ -776,25 +783,28 @@ Important guidelines:
                     throw new Error('Invalid API response');
                 }
             } catch (error) {
-                console.error('OpenAI API error:', error);
+                console.error('OpenAI API error details:', error);
+                console.log('Falling back to local responses');
                 return generateLocalResponse(userMessage);
             }
         }
 
-        // Fallback responses if API fails
+        // Improved fallback responses if API fails
         function generateLocalResponse(query) {
             const lowerQuery = query.toLowerCase();
             
-            if (lowerQuery.includes('ai') || lowerQuery.includes('artificial') || lowerQuery.includes('machine learning')) {
+            if (lowerQuery.includes('cisco') || (lowerQuery.includes('how long') && lowerQuery.includes('cisco'))) {
+                return "Ravi worked at Cisco Systems for 4 years (2020-2024) as Senior Director of CX Platform Engineering. During this time, he built Cisco's first cross-product customer experience cloud platform on AWS, scaling it from MVP to $250M+ ARR and leading a team of 100+ engineers.";
+            } else if (lowerQuery.includes('ai') || lowerQuery.includes('artificial') || lowerQuery.includes('machine learning')) {
                 return "Yes, Ravi is deeply involved in AI! He's currently building 5 AI products at Equiti Ventures including Snifty (AI Photo Storyteller with patent filed), TurboPassports (computer vision for documents), Jourro (LLM-powered travel platform), Scan2Secure (AI security), and Receipts360 (AI expense management, patent pending). He works with GPT-4, Claude, TensorFlow, PyTorch, and has filed multiple AI patents.";
             } else if (lowerQuery.includes('experience') || lowerQuery.includes('background')) {
-                return "Ravi has 20+ years in technology leadership. Currently Founder of Equiti Ventures building AI products. Previously: Senior Director at Cisco ($250M+ ARR), Global Head of Data at Dropbox (pre-IPO to IPO, $850M to $1.8B growth), Director at Chegg (40% revenue increase), Senior Manager at Yahoo ($2B revenue platform for 600M+ users).";
+                return "Ravi has 20+ years in technology leadership. Currently Founder of Equiti Ventures building AI products. Previously: Senior Director at Cisco (2020-2024, $250M+ ARR), Global Head of Data at Dropbox (2017-2020, pre-IPO to IPO), Director at Chegg (2015-2017), Senior Manager at Yahoo (2007-2015).";
             } else if (lowerQuery.includes('location') || lowerQuery.includes('where')) {
                 return "Ravi is located in Fremont, California, in the San Francisco Bay Area.";
             } else if (lowerQuery.includes('contact')) {
                 return "To contact Ravi, please use the contact form below or connect via LinkedIn at linkedin.com/in/poruriravi. You can also request his full resume through the form.";
             } else {
-                return "I can provide information about Ravi's AI products, 20+ years of experience, technical expertise, patents, and leadership roles. What would you like to know specifically?";
+                return "I can provide information about Ravi's AI products, 20+ years of experience, technical expertise, patents, and leadership roles. What would you like to know specifically? For example, you can ask about his work at specific companies like Cisco, Dropbox, Yahoo, or about his current AI ventures.";
             }
         }
 
