@@ -1,4 +1,36 @@
-<!DOCTYPE html>
+// Local fallback responses (when API is not available)
+        function generateLocalResponse(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            // Check for AI-related queries
+            if (lowerQuery.includes('ai') || lowerQuery.includes('artificial') || lowerQuery.includes('machine learning') || lowerQuery.includes('ml')) {
+                return "Absolutely! Ravi is currently building multiple AI products at Equiti Ventures including Snifty (AI Photo Storyteller with patent filed), TurboPassports (document automation with computer vision), Jourro (LLM-powered travel platform), Scan2Secure (AI security automation), and Receipts360 (AI expense management, patent pending). He's filed multiple patents in AI applications, works with LLMs like GPT-4 and Claude, and has hands-on expertise in computer vision, NLP, and deep learning. His entire current focus is on practical AI implementation.";
+            } else if (lowerQuery.includes('location') || lowerQuery.includes('where') || lowerQuery.includes('based')) {
+                return "Ravi is located in Fremont, California, in the San Francisco Bay Area - the heart of technology innovation.";
+            } else if (lowerQuery.includes('experience') || lowerQuery.includes('work') || lowerQuery.includes('background')) {
+                return "Ravi has over 20 years of technology leadership experience. Currently Founder of Equiti Ventures building 5 AI products (Snifty, TurboPassports, Jourro, Scan2Secure, Receipts360). Previously: Senior Director at Cisco ($250M+ ARR), Global Head of Data at Dropbox (led pre-IPO to IPO, $850M to $1.8B growth), Director at Chegg (40% revenue increase), and Senior Manager at Yahoo (managed $2B revenue platform for 600M+ users).";
+            } else if (lowerQuery.includes('current') || lowerQuery.includes('now') || lowerQuery.includes('doing')) {
+                return "Ravi is Founder of Equiti Ventures, actively developing 5 AI-powered applications: Snifty (AI photo storytelling, patent filed), TurboPassports (passport/visa automation using computer vision), Jourro (LLM travel intelligence), SniftyShare (collaborative AI tools), and Scan2Secure (AI security for SMBs). He's also a RippleWorks Expert Advisor helping social ventures globally.";
+            } else if (lowerQuery.includes('skill') || lowerQuery.includes('expertise') || lowerQuery.includes('technical')) {
+                return "Ravi's expertise: AI/ML (LLMs like GPT-4/Claude, Computer Vision, NLP, TensorFlow, PyTorch), Cloud (AWS certified, GCP, Azure), Data Platforms (Snowflake, Spark, Kafka, Hadoop), Programming (Python, Java, Scala, Swift, Kotlin), Databases (PostgreSQL, MongoDB, Redis), and frameworks like Langchain, React, Node.js. He specializes in building scalable AI solutions.";
+            } else if (lowerQuery.includes('snifty') || lowerQuery.includes('turbo') || lowerQuery.includes('jourro') || lowerQuery.includes('receipts')) {
+                return "Ravi's AI products: Snifty (AI Photo Storyteller with patent filed - uses on-device/cloud LLMs for photo memories), TurboPassports (OCR/computer vision for document automation), Jourro (LLM-powered travel platform), Receipts360 (AI expense management, patent pending), and Scan2Secure (AI security automation). Built with Swift, Kotlin, React, using GPT-4, Claude, and custom ML models.";
+            } else if (lowerQuery.includes('cisco') || lowerQuery.includes('dropbox') || lowerQuery.includes('yahoo') || lowerQuery.includes('chegg')) {
+                return "At Cisco (2020-2024): Senior Director, built cloud platform from MVP to $250M+ ARR. At Dropbox (2017-2020): Global Head of Data, led pre-IPO to IPO, doubled revenue to $1.8B. At Chegg (2015-2017): Director Data Engineering, 40% revenue increase. At Yahoo (2007-2015): Senior Manager, managed platforms serving 600M+ users generating $2B revenue.";
+            } else if (lowerQuery.includes('education') || lowerQuery.includes('degree') || lowerQuery.includes('study')) {
+                return "Ravi holds an MBA in Finance from Amity University and a Bachelor of Computer Applications from Madras University, India. He also has Oracle Certified Professional and Teradata certifications, plus recent AWS, Google Cloud AI, and advanced ML certifications.";
+            } else if (lowerQuery.includes('patent') || lowerQuery.includes('innovation')) {
+                return "Ravi has filed multiple patents including Snifty (AI Photo Storyteller) and Receipts360 (AI expense management, pending). At Yahoo, his team won several U.S. patents for Hadoop integration. His innovations span AI applications, data systems, and he's been a Gartner BI Excellence Award finalist.";
+            } else if (lowerQuery.includes('team') || lowerQuery.includes('leadership') || lowerQuery.includes('manage')) {
+                return "Ravi has led organizations of 100+ engineers at Cisco, 35+ at Dropbox, 25+ at Chegg. He maintains <5% voluntary turnover and >80% team satisfaction. His leadership style: data-driven decisions, rapid prototyping, building diverse teams, and mentoring talent. Many of his team members have become senior technology leaders.";
+            } else if (lowerQuery.includes('contact')) {
+                return "To contact Ravi, please use the contact form on this page or connect via LinkedIn at linkedin.com/in/poruriravi. For his full resume, use the 'Request Full Resume' option in the contact form below.";
+            } else if (lowerQuery.includes('aws') || lowerQuery.includes('cloud')) {
+                return "Ravi is AWS certified with deep cloud expertise. At Cisco, built CX Cloud platform on AWS achieving $250M+ ARR. At Dropbox, implemented analytics on AWS/Snowflake. His current AI products use AWS Lambda, ECS, S3, RDS, API Gateway. Also experienced with Google Cloud and Azure. Achieved 40% cost reduction through cloud optimization.";
+            } else if (lowerQuery.includes('data') || lowerQuery.includes('big data')) {
+                return "Ravi led data platforms processing petabytes for 600M+ users. At Dropbox: Global Head of Data & BI, built Snowflake analytics. At Yahoo: managed 400B+ events, pioneered Hadoop/Spark adoption. Expert in Spark, Kafka, Airflow, Snowflake, Databricks. Led Dropbox from pre-IPO to IPO ensuring data accuracy.";
+            } else {
+                return "I can provide detailed information about Ravi's AI products, 20+ years of experience, technical expertise, patents, and leadership roles. What<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -627,8 +659,8 @@
         const OPENAI_API_KEY = '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';
         
         async function getAIResponse(userMessage) {
-            // Check if API key is placeholder
-            if (OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+            // Check if API key is placeholder or empty
+            if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE' || OPENAI_API_KEY.length < 20) {
                 return generateLocalResponse(userMessage);
             }
             
@@ -650,28 +682,35 @@ ${PROFILE_CONTEXT}
 
 Important guidelines:
 1. Only answer questions about Ravi's professional profile
-2. Never provide personal contact details (email/phone)
-3. For contact requests, direct people to use the contact form or connect on LinkedIn
-4. Be concise and professional
-5. If asked about something not in the context, politely say you can only discuss Ravi's professional background
-6. Don't make up or invent information`
+2. Be conversational and engaging, not robotic
+3. Provide specific details from his background when relevant
+4. For contact requests, direct people to use the contact form or LinkedIn
+5. Be concise but informative
+6. If asked about something not in the context, politely say you can only discuss Ravi's professional background
+7. Don't make up information - stick to what's provided`
                             },
                             {
                                 role: 'user',
                                 content: userMessage
                             }
                         ],
-                        max_tokens: 150,
+                        max_tokens: 200,
                         temperature: 0.7
                     })
                 });
 
                 if (!response.ok) {
+                    console.error('API request failed with status:', response.status);
                     throw new Error('API request failed');
                 }
 
                 const data = await response.json();
-                return data.choices[0].message.content;
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    return data.choices[0].message.content;
+                } else {
+                    console.error('Unexpected API response structure:', data);
+                    throw new Error('Invalid API response');
+                }
             } catch (error) {
                 console.error('OpenAI API error:', error);
                 // Fallback to local response if API fails
