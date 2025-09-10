@@ -817,11 +817,11 @@
         `;
 
         // Initialize OpenAI API (You'll need to add your API key)
-        const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY_HERE'; // IMPORTANT: Replace with your actual API key
+        const OPENAI_API_KEY = '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'; // IMPORTANT: Replace with your actual API key
         
         async function getAIResponse(userMessage) {
             // If API key is not set, fall back to local responses
-            if (OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+            if (OPENAI_API_KEY === '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') {
                 return generateLocalResponse(userMessage);
             }
             
