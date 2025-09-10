@@ -718,15 +718,28 @@
         - Keep responses professional and accurate to provided information
         `;
 
-        // Your OpenAI API Key with $5 budget limit
-        const OPENAI_API_KEY = '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';
-        
+       
         async function getAIResponse(userMessage) {
-            // Check if API key is valid
-            if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE' || OPENAI_API_KEY.length < 20) {
-                console.log('Invalid API key, using fallback responses');
-                return generateLocalResponse(userMessage);
-            }
+    try {
+        const response = await fetch('/.netlify/functions/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: userMessage })
+        });
+
+        if (!response.ok) {
+            throw new Error('Function call failed');
+        }
+
+        const data = await response.json();
+        return data.reply;
+    } catch (error) {
+        console.error('API error:', error);
+        return generateLocalResponse(userMessage);
+    }
+}
             
             console.log('Calling OpenAI API with message:', userMessage);
             
