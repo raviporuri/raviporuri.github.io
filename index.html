@@ -529,10 +529,16 @@
             </div>
         </div>
 
-        <div class="cta-section">
+        <div class="cta-section" id="contact">
             <h2>Let's Connect</h2>
             <p>Interested in discussing AI innovation, technology leadership, or potential collaborations?</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://linkedin.com/in/poruriravi" target="_blank" style="display: inline-block; margin: 10px; padding: 12px 30px; background: #0077B5; color: white; text-decoration: none; border-radius: 30px; font-size: 1.1em; font-weight: 500; box-shadow: 0 4px 15px rgba(0,119,181,0.3); transition: transform 0.3s;">
+                    Connect on LinkedIn
+                </a>
+            </div>
             <form class="contact-form" action="#" method="POST">
+                <h3 style="color: #667eea; margin-bottom: 20px;">Request Full Resume or Send Message</h3>
                 <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" required>
@@ -542,10 +548,19 @@
                     <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" required></textarea>
+                    <label for="subject">Subject</label>
+                    <select id="subject" name="subject" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                        <option value="resume">Request Full Resume</option>
+                        <option value="opportunity">Discuss Opportunity</option>
+                        <option value="collaboration">Potential Collaboration</option>
+                        <option value="other">Other Inquiry</option>
+                    </select>
                 </div>
-                <button type="submit" class="submit-btn">Send Message</button>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Please provide details about your inquiry or why you'd like my full resume..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Send Request</button>
             </form>
         </div>
     </div>
@@ -668,20 +683,32 @@ Important guidelines:
         function generateLocalResponse(query) {
             const lowerQuery = query.toLowerCase();
             
-            if (lowerQuery.includes('experience') || lowerQuery.includes('work')) {
-                return "Ravi has over 20 years of technology leadership experience. He's currently the Founder of Equiti Ventures and a RippleWorks Expert Advisor. Previously, he held senior positions at Cisco, Dropbox, Chegg, and Yahoo.";
-            } else if (lowerQuery.includes('current') || lowerQuery.includes('now')) {
-                return "Ravi is currently the Founder of Equiti Ventures, developing AI-powered applications. He also serves as a RippleWorks Expert Advisor.";
-            } else if (lowerQuery.includes('skill') || lowerQuery.includes('expertise')) {
-                return "Ravi specializes in AI/ML, enterprise architecture, data platforms, cloud technologies, and digital transformation.";
-            } else if (lowerQuery.includes('contact')) {
-                return "To contact Ravi, please use the contact form on this page or connect via LinkedIn. For detailed information, you can request his full resume.";
+            if (lowerQuery.includes('location') || lowerQuery.includes('where') || lowerQuery.includes('based')) {
+                return "Ravi is located in Fremont, California, in the San Francisco Bay Area - the heart of technology innovation.";
+            } else if (lowerQuery.includes('experience') || lowerQuery.includes('work')) {
+                return "Ravi has over 20 years of technology leadership experience. He's currently the Founder of Equiti Ventures, building AI products like Snifty, TurboPassports, Jourro, SniftyShare, and Scan2Secure. Previously, he held senior positions at Cisco (Senior Director), Dropbox (Global Head of Data & BI), Chegg (Director), and Yahoo (Senior Manager).";
+            } else if (lowerQuery.includes('current') || lowerQuery.includes('now') || lowerQuery.includes('doing')) {
+                return "Ravi is currently the Founder of Equiti Ventures, actively developing multiple AI-powered applications including Snifty (AI marketplace), TurboPassports (document automation), Jourro (content intelligence), SniftyShare (collaborative AI tools), and Scan2Secure (security automation). He also serves as a RippleWorks Expert Advisor.";
+            } else if (lowerQuery.includes('skill') || lowerQuery.includes('expertise') || lowerQuery.includes('technical')) {
+                return "Ravi's technical expertise includes: AI/ML (LLMs, Computer Vision, NLP), Cloud Platforms (AWS certified, GCP, Azure), Data Technologies (Spark, Kafka, Snowflake), Programming (Python, Java, Scala), and frameworks like TensorFlow, PyTorch, and Langchain. He specializes in building scalable AI solutions and data platforms.";
+            } else if (lowerQuery.includes('ai project') || lowerQuery.includes('snifty') || lowerQuery.includes('turbo') || lowerQuery.includes('jourro')) {
+                return "Ravi is building several AI products: Snifty (AI-driven marketplace), TurboPassports (automated document processing using computer vision), Jourro (content intelligence with LLMs), SniftyShare (collaborative AI tools), and Scan2Secure (AI-powered security automation). These demonstrate hands-on expertise in practical AI applications.";
+            } else if (lowerQuery.includes('cisco') || lowerQuery.includes('dropbox') || lowerQuery.includes('yahoo') || lowerQuery.includes('chegg')) {
+                return "At Cisco (2020-2024), Ravi was Senior Director leading cloud platform transformation for enterprise customers. At Dropbox (2017-2020), he was Global Head of Data & BI, architecting data strategy for their IPO. At Chegg (2015-2017), he directed data engineering. At Yahoo (2007-2015), he managed teams building platforms for 600M+ users.";
+            } else if (lowerQuery.includes('education') || lowerQuery.includes('degree') || lowerQuery.includes('study')) {
+                return "Ravi holds a Master's degree in Computer Science with a focus on AI/ML, and an MBA in Business Administration. He continuously updates his skills with recent certifications in AWS, Google Cloud AI, and advanced machine learning.";
             } else if (lowerQuery.includes('patent') || lowerQuery.includes('innovation')) {
-                return "Ravi has filed multiple patents in AI applications and has been at the forefront of implementing LLMs and computer vision in enterprise products.";
-            } else if (lowerQuery.includes('team') || lowerQuery.includes('leadership')) {
-                return "Ravi has led teams of over 100 engineers and has a proven track record of building high-performing global engineering teams with exceptional retention rates.";
+                return "Ravi has filed multiple patents in AI applications and data systems, demonstrating his innovative approach to solving complex technical problems. His current ventures in AI showcase practical implementation of cutting-edge technologies.";
+            } else if (lowerQuery.includes('team') || lowerQuery.includes('leadership') || lowerQuery.includes('manage')) {
+                return "Ravi has led engineering organizations of 100+ professionals, managed products generating $250M+ in annual revenue, and built high-performing global teams. His leadership style focuses on data-driven decisions, innovation, and developing technical talent.";
+            } else if (lowerQuery.includes('contact')) {
+                return "To contact Ravi, please use the contact form on this page or connect via LinkedIn. For detailed discussions about opportunities or collaborations, these are the best channels to reach him.";
+            } else if (lowerQuery.includes('aws') || lowerQuery.includes('cloud')) {
+                return "Ravi is AWS certified and has extensive experience with cloud platforms including AWS, Google Cloud, and Azure. He's architected cloud-native solutions, implemented serverless architectures, and achieved 40% cost reduction through cloud optimization at Cisco.";
+            } else if (lowerQuery.includes('data') || lowerQuery.includes('big data')) {
+                return "Ravi has deep expertise in data platforms, having built systems processing petabytes of data for 600M+ users. He's worked with technologies like Spark, Kafka, Airflow, Snowflake, and Databricks, and led data strategy for Dropbox's successful IPO.";
             } else {
-                return "I can provide information about Ravi's professional experience, skills, and background. What would you like to know?";
+                return "I can provide information about Ravi's professional experience, technical skills, AI projects, leadership roles, and background. What specific aspect would you like to know more about?";
             }
         }
 
