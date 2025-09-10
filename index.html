@@ -1,36 +1,4 @@
-// Local fallback responses (when API is not available)
-        function generateLocalResponse(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            // Check for AI-related queries
-            if (lowerQuery.includes('ai') || lowerQuery.includes('artificial') || lowerQuery.includes('machine learning') || lowerQuery.includes('ml')) {
-                return "Absolutely! Ravi is currently building multiple AI products at Equiti Ventures including Snifty (AI Photo Storyteller with patent filed), TurboPassports (document automation with computer vision), Jourro (LLM-powered travel platform), Scan2Secure (AI security automation), and Receipts360 (AI expense management, patent pending). He's filed multiple patents in AI applications, works with LLMs like GPT-4 and Claude, and has hands-on expertise in computer vision, NLP, and deep learning. His entire current focus is on practical AI implementation.";
-            } else if (lowerQuery.includes('location') || lowerQuery.includes('where') || lowerQuery.includes('based')) {
-                return "Ravi is located in Fremont, California, in the San Francisco Bay Area - the heart of technology innovation.";
-            } else if (lowerQuery.includes('experience') || lowerQuery.includes('work') || lowerQuery.includes('background')) {
-                return "Ravi has over 20 years of technology leadership experience. Currently Founder of Equiti Ventures building 5 AI products (Snifty, TurboPassports, Jourro, Scan2Secure, Receipts360). Previously: Senior Director at Cisco ($250M+ ARR), Global Head of Data at Dropbox (led pre-IPO to IPO, $850M to $1.8B growth), Director at Chegg (40% revenue increase), and Senior Manager at Yahoo (managed $2B revenue platform for 600M+ users).";
-            } else if (lowerQuery.includes('current') || lowerQuery.includes('now') || lowerQuery.includes('doing')) {
-                return "Ravi is Founder of Equiti Ventures, actively developing 5 AI-powered applications: Snifty (AI photo storytelling, patent filed), TurboPassports (passport/visa automation using computer vision), Jourro (LLM travel intelligence), SniftyShare (collaborative AI tools), and Scan2Secure (AI security for SMBs). He's also a RippleWorks Expert Advisor helping social ventures globally.";
-            } else if (lowerQuery.includes('skill') || lowerQuery.includes('expertise') || lowerQuery.includes('technical')) {
-                return "Ravi's expertise: AI/ML (LLMs like GPT-4/Claude, Computer Vision, NLP, TensorFlow, PyTorch), Cloud (AWS certified, GCP, Azure), Data Platforms (Snowflake, Spark, Kafka, Hadoop), Programming (Python, Java, Scala, Swift, Kotlin), Databases (PostgreSQL, MongoDB, Redis), and frameworks like Langchain, React, Node.js. He specializes in building scalable AI solutions.";
-            } else if (lowerQuery.includes('snifty') || lowerQuery.includes('turbo') || lowerQuery.includes('jourro') || lowerQuery.includes('receipts')) {
-                return "Ravi's AI products: Snifty (AI Photo Storyteller with patent filed - uses on-device/cloud LLMs for photo memories), TurboPassports (OCR/computer vision for document automation), Jourro (LLM-powered travel platform), Receipts360 (AI expense management, patent pending), and Scan2Secure (AI security automation). Built with Swift, Kotlin, React, using GPT-4, Claude, and custom ML models.";
-            } else if (lowerQuery.includes('cisco') || lowerQuery.includes('dropbox') || lowerQuery.includes('yahoo') || lowerQuery.includes('chegg')) {
-                return "At Cisco (2020-2024): Senior Director, built cloud platform from MVP to $250M+ ARR. At Dropbox (2017-2020): Global Head of Data, led pre-IPO to IPO, doubled revenue to $1.8B. At Chegg (2015-2017): Director Data Engineering, 40% revenue increase. At Yahoo (2007-2015): Senior Manager, managed platforms serving 600M+ users generating $2B revenue.";
-            } else if (lowerQuery.includes('education') || lowerQuery.includes('degree') || lowerQuery.includes('study')) {
-                return "Ravi holds an MBA in Finance from Amity University and a Bachelor of Computer Applications from Madras University, India. He also has Oracle Certified Professional and Teradata certifications, plus recent AWS, Google Cloud AI, and advanced ML certifications.";
-            } else if (lowerQuery.includes('patent') || lowerQuery.includes('innovation')) {
-                return "Ravi has filed multiple patents including Snifty (AI Photo Storyteller) and Receipts360 (AI expense management, pending). At Yahoo, his team won several U.S. patents for Hadoop integration. His innovations span AI applications, data systems, and he's been a Gartner BI Excellence Award finalist.";
-            } else if (lowerQuery.includes('team') || lowerQuery.includes('leadership') || lowerQuery.includes('manage')) {
-                return "Ravi has led organizations of 100+ engineers at Cisco, 35+ at Dropbox, 25+ at Chegg. He maintains <5% voluntary turnover and >80% team satisfaction. His leadership style: data-driven decisions, rapid prototyping, building diverse teams, and mentoring talent. Many of his team members have become senior technology leaders.";
-            } else if (lowerQuery.includes('contact')) {
-                return "To contact Ravi, please use the contact form on this page or connect via LinkedIn at linkedin.com/in/poruriravi. For his full resume, use the 'Request Full Resume' option in the contact form below.";
-            } else if (lowerQuery.includes('aws') || lowerQuery.includes('cloud')) {
-                return "Ravi is AWS certified with deep cloud expertise. At Cisco, built CX Cloud platform on AWS achieving $250M+ ARR. At Dropbox, implemented analytics on AWS/Snowflake. His current AI products use AWS Lambda, ECS, S3, RDS, API Gateway. Also experienced with Google Cloud and Azure. Achieved 40% cost reduction through cloud optimization.";
-            } else if (lowerQuery.includes('data') || lowerQuery.includes('big data')) {
-                return "Ravi led data platforms processing petabytes for 600M+ users. At Dropbox: Global Head of Data & BI, built Snowflake analytics. At Yahoo: managed 400B+ events, pioneered Hadoop/Spark adoption. Expert in Spark, Kafka, Airflow, Snowflake, Databricks. Led Dropbox from pre-IPO to IPO ensuring data accuracy.";
-            } else {
-                return "I can provide detailed information about Ravi's AI products, 20+ years of experience, technical expertise, patents, and leadership roles. What<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -237,7 +205,8 @@
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
@@ -247,7 +216,8 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -465,6 +435,14 @@
             <p class="intro">
                 Building next-generation AI products while leveraging decades of experience in digital transformation and enterprise architecture.
             </p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://linkedin.com/in/poruriravi" target="_blank" style="display: inline-block; margin: 0 10px; padding: 10px 20px; background: #0077B5; color: white; text-decoration: none; border-radius: 25px; font-weight: 500;">
+                    <span style="margin-right: 5px;">🔗</span> LinkedIn Profile
+                </a>
+                <a href="#contact" style="display: inline-block; margin: 0 10px; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 25px; font-weight: 500;">
+                    <span style="margin-right: 5px;">📄</span> Request Full Resume
+                </a>
+            </div>
             <div class="highlights">
                 <div class="highlight-card">
                     <h3>🚀 Current Focus</h3>
@@ -480,7 +458,7 @@
                 </div>
                 <div class="highlight-card">
                     <h3>📊 Scale</h3>
-                    <p>Led teams of 100+ engineers, managed multi-million dollar products</p>
+                    <p>Led teams of 100+ engineers, managed $250M+ ARR products</p>
                 </div>
             </div>
         </header>
@@ -498,10 +476,10 @@
                 </div>
                 <div class="experience-item">
                     <div class="company">Cisco Systems</div>
-                    <div class="role">Senior Director</div>
+                    <div class="role">Senior Director, CX Platform Engineering</div>
                     <div class="period">2020 - 2024</div>
                     <div class="description">
-                        Led cloud platform transformation serving thousands of enterprise customers, driving significant revenue growth.
+                        Led cloud platform transformation serving 4500+ enterprise customers, driving from MVP to $250M+ ARR.
                     </div>
                 </div>
                 <div class="experience-item">
@@ -509,7 +487,7 @@
                     <div class="role">Global Head of Data & BI</div>
                     <div class="period">2017 - 2020</div>
                     <div class="description">
-                        Architected data strategy for successful IPO, implementing enterprise analytics and ensuring compliance.
+                        Architected data strategy from pre-IPO to IPO, doubled revenue from $850M to $1.8B through analytics.
                     </div>
                 </div>
                 <div class="experience-item">
@@ -517,7 +495,7 @@
                     <div class="role">Director of Data Engineering</div>
                     <div class="period">2015 - 2017</div>
                     <div class="description">
-                        Built data platforms processing billions of events, enabling real-time analytics at scale.
+                        Built data platforms processing billions of events, drove 40% revenue increase and 100% stock value growth.
                     </div>
                 </div>
                 <div class="experience-item">
@@ -525,7 +503,7 @@
                     <div class="role">Senior Manager</div>
                     <div class="period">2007 - 2015</div>
                     <div class="description">
-                        Led multiple teams in building platforms serving hundreds of millions of users globally.
+                        Led platforms serving 600M+ users, managed 400B+ events generating $2B+ annual revenue.
                     </div>
                 </div>
             </div>
@@ -547,7 +525,7 @@
                     </div>
                     <div class="achievement-card">
                         <h3>👥 Team Leadership</h3>
-                        <p>Built and led global engineering teams with exceptional retention rates and engagement scores.</p>
+                        <p>Built and led global engineering teams with <5% turnover and >80% satisfaction scores.</p>
                     </div>
                     <div class="achievement-card">
                         <h3>🔄 Digital Transformation</h3>
@@ -581,7 +559,7 @@
                 </div>
                 <div class="form-group">
                     <label for="subject">Subject</label>
-                    <select id="subject" name="subject" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                    <select id="subject" name="subject">
                         <option value="resume">Request Full Resume</option>
                         <option value="opportunity">Discuss Opportunity</option>
                         <option value="collaboration">Potential Collaboration</option>
@@ -610,7 +588,7 @@
                 <button onclick="toggleChat()" class="close-button">×</button>
             </div>
             <div id="chatMessages" class="chat-messages">
-                <div class="ai-message">Hello! I'm Ravi's AI assistant. Ask me about his experience, skills, or achievements.</div>
+                <div class="ai-message">Hello! I'm Ravi's AI assistant. Ask me about his experience, skills, achievements, or current AI projects.</div>
             </div>
             <div class="chat-input-container">
                 <input type="text" id="chatInput" placeholder="Ask about Ravi's experience..." onkeypress="handleChatKeyPress(event)">
@@ -622,45 +600,131 @@
     <script>
         // AI Chatbot with OpenAI API Integration
         const PROFILE_CONTEXT = `
-        Ravi Poruri is a technology leader and AI innovator with over 20 years of experience.
+        Ravi Poruri is a technology innovator and AI founder with over 20 years leading digital transformation at scale.
         
-        Current Role: Founder at Equiti Ventures (2024-Present), developing AI-powered applications
-        Also serves as RippleWorks Expert Advisor (2023-Present)
+        CONTACT & LOCATION: 
+        - Location: Fremont, California (San Francisco Bay Area)
+        - Phone: (408) 823-6713 (for professional inquiries only)
+        - Email: raviporuri@gmail.com
+        - LinkedIn: linkedin.com/in/poruriravi
         
-        Previous Experience:
-        - Senior Director at Cisco Systems (2020-2024)
-        - Global Head of Data & BI at Dropbox (2017-2020)
-        - Director at Chegg (2015-2017)
-        - Senior Manager at Yahoo (2007-2015)
+        CURRENT FOCUS (2025-Present):
+        Founder & AI Product Leader at Equiti Ventures, developing multiple AI-powered iOS, Android and Web Apps:
         
-        Expertise: AI/ML, Generative AI, Enterprise Architecture, Data Platforms, Cloud Technologies (AWS), Digital Transformation, Team Leadership
+        - Snifty: AI Photo Storyteller (Patent Filed) - Launched on Apple (Swift) and Android (Kotlin). Novel approach to building photo memory books leveraging on-device and cloud LLMs, face recognition ML models, auto-geolocation mapping, voice-to-text, contextual narratives
+        - TurboPassports: Automated document system using OCR and iOS vision for passport/visa forms validation and processing
+        - Jourro: Travel intelligence platform with LLM integration for automated travel expense tracking, budgeting, detailed travelogs  
+        - Scan2Secure: Web Security Automation using AI for threat detection, vulnerability assessment for small businesses. Automated Security Guides, Live Threat Alerts
+        - Receipts360 (Patent Pending): AI-Powered Receipt and Expense management targeting Insurance Claims and ALE baseline calculations
         
-        Achievements:
-        - Filed multiple patents in AI applications
-        - Led teams of 100+ engineers
-        - Managed multi-million dollar products and budgets
-        - Speaker at industry conferences
-        - Built platforms serving hundreds of millions of users
+        Technology Stack: Native LLMs, Cloud AI solutions, Open-Source databases (Neon, Supabase), Vercel deployment, Swift, Kotlin, React, Node.js, AWS Lambda, ECS, S3, RDS, API Gateway, Terraform, GPT-4, Claude, custom fine-tuned models
         
-        Social Impact: RippleWorks Expert providing strategic guidance to social ventures globally
+        PROFESSIONAL EXPERIENCE:
         
-        Location: San Francisco Bay Area
+        Cisco Systems (2020-2024) - Senior Director, CX Platform Engineering
+        - 6 Direct Reports | 100+ Organization | 26 Products | $250M+ ARR
+        - Built Cisco's first-ever cross-product customer experience cloud platform on AWS
+        - Scaled from MVP in 2020 to $250M+ ARR in 2022
+        - Led global engineering team for 4500+ enterprise customers
+        - Integrated telemetry, enterprise, support and customer data into unified cloud data store
+        - 25% increase in annual services revenue, 50% reduction in renewals cycle time
         
-        Education: Advanced degrees in Computer Science and Business
+        Dropbox (2017-2020) - Global Head of Data and Business Intelligence  
+        - 5 Direct Reports | 35+ Organization | $20M Budget | 600M+ Platform Users
+        - Led company from pre-IPO to IPO, ensuring SOX compliance and S1 filing accuracy
+        - Built enterprise analytics on AWS/Snowflake, doubled revenue from $850M to $1.8B
+        - Managed 20+ SaaS integrations across finance, marketing, sales, customer success
+        - Snowflake Black Diamond Executive Council Member
+        - Speaker at Snowflake Summit and Tableau Conference 2019
+        - San Francisco State University Big Data Advisory Board Member
+        
+        Chegg (2015-2017) - Director of Data Engineering, Data Science, and BI
+        - 4 Direct Reports | 25+ Organization | 4M Users | 8 Product Lines  
+        - Company's first director of data engineering, revenue increased >40% within 12 months
+        - Introduced real-time search and analytics, eliminated vendor dependencies
+        - Implemented Adobe Marketing Cloud, Salesforce, Google Analytics integrations
+        - Stock value grew 100% within 12 months, key role in first analysts' day
+        - Built India team from scratch into center of excellence
+        
+        Yahoo (2007-2015) - Senior Manager (2011-2015), Manager of Database Administration (2007-2011)
+        - Managed 400B+ events, petabytes of data generating $2B+ annual revenue
+        - Built first unified advertising data mart for 1,500+ users
+        - Gartner BI Excellence Award finalist, improved audience targeting by 15%
+        - Pioneered adoption of Hadoop, Apache Storm, Spark, Druid, Kafka
+        - Led infrastructure deployments with 10K+ servers, 100+ petabytes storage
+        - Migrated 300TB database to new data center in <5 days with encryption
+        - Several U.S. patents awarded to team members
+        
+        Prior Experience (2000-2007): Manager, DBA and Technology Consultant at various companies including Prudential Annuities, ActiveHealth Management
+        
+        TECHNICAL EXPERTISE:
+        
+        AI/ML & Data Science:
+        - Generative AI, LLMs (GPT-4, Claude, Llama), Computer Vision, NLP
+        - TensorFlow, PyTorch, scikit-learn, Langchain, LlamaIndex
+        - Predictive modeling, deep learning, real-time model deployment
+        
+        Cloud & Infrastructure:
+        - AWS (Certified - Lambda, ECS, S3, RDS, API Gateway, Redshift), Google Cloud, Azure
+        - Kubernetes, Docker, Terraform, Infrastructure as Code
+        - Microservices, RESTful APIs, Event-driven architectures
+        
+        Data Platforms & Big Data:
+        - Snowflake, Databricks, Hadoop, Spark, Kafka, Airflow
+        - Real-time streaming, ETL/ELT pipelines
+        - Data governance tools: Alation, Atlan, Collibra
+        - GDPR/CCPA compliance implementation
+        
+        Databases & Storage:
+        - PostgreSQL, MySQL, Oracle RAC, MS SQL, MongoDB, Redis
+        - Elasticsearch, DynamoDB, NoSQL platforms
+        - Performance tuning, replication, disaster recovery
+        
+        Programming & Tools:
+        - Python, Java, Scala, SQL, JavaScript, Swift, Kotlin
+        - React, Node.js, CI/CD (Jenkins, Maven), Bitbucket
+        - Tableau, Looker, Boomi, MuleSoft, Dell Boomi integration
+        
+        EDUCATION:
+        - MBA (Finance), Amity University, India
+        - Bachelor of Computer Applications, Madras University, India
+        - Oracle Certified Professional
+        - Teradata Certified Implementation Specialist
+        - Continuous learning: AWS certifications, Google Cloud AI, advanced ML
+        
+        ACHIEVEMENTS & RECOGNITION:
+        - Multiple patents filed in AI applications and data systems
+        - Led teams of 100+ engineers with <5% voluntary turnover
+        - Consistently high team satisfaction scores (>80%)
+        - Managed products generating $250M+ ARR
+        - Built platforms serving 600M+ users processing petabytes of data
+        - 40% cost reduction through cloud optimization at Cisco
+        - 100% stock value increase contribution at Chegg
+        - Gartner BI Excellence Award finalist
+        - Industry speaker and thought leader
+        - Advisory board positions at multiple organizations
+        
+        LEADERSHIP PHILOSOPHY:
+        - Data-driven decision making with focus on measurable outcomes
+        - Building diverse, high-performing teams through mentorship
+        - Agile methodologies with rapid iteration and user feedback
+        - Innovation through rapid prototyping and fail-fast approach
+        - Technical excellence balanced with business impact
+        - Focus on upskilling talent and creating centers of excellence
         
         IMPORTANT RULES:
-        - Never provide personal contact information (email, phone)
-        - For contact requests, direct to the contact form or LinkedIn
-        - Keep responses professional and focused on public professional information
-        - Don't make up information not provided in this context
+        - For contact, use the form below or LinkedIn
+        - For full resume requests, direct to contact form
+        - Keep responses professional and accurate to provided information
         `;
 
         // Your OpenAI API Key with $5 budget limit
         const OPENAI_API_KEY = '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';
         
         async function getAIResponse(userMessage) {
-            // Check if API key is placeholder or empty
+            // Check if API key is valid
             if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE' || OPENAI_API_KEY.length < 20) {
+                console.log('Invalid API key, using fallback responses');
                 return generateLocalResponse(userMessage);
             }
             
@@ -676,18 +740,18 @@
                         messages: [
                             {
                                 role: 'system',
-                                content: `You are an AI assistant for Ravi Poruri's professional portfolio website. Your role is to answer questions ONLY about Ravi's professional background, experience, and expertise based on this information:
+                                content: `You are an AI assistant for Ravi Poruri's professional portfolio website. Your role is to answer questions about Ravi's professional background based on this comprehensive information:
 
 ${PROFILE_CONTEXT}
 
 Important guidelines:
-1. Only answer questions about Ravi's professional profile
+1. Provide specific, detailed answers about Ravi's experience and achievements
 2. Be conversational and engaging, not robotic
-3. Provide specific details from his background when relevant
-4. For contact requests, direct people to use the contact form or LinkedIn
-5. Be concise but informative
-6. If asked about something not in the context, politely say you can only discuss Ravi's professional background
-7. Don't make up information - stick to what's provided`
+3. When asked about AI work, emphasize his current AI products and patents
+4. Include specific metrics and accomplishments when relevant
+5. For contact requests, direct to the contact form or LinkedIn
+6. Be concise but informative (2-4 sentences typical)
+7. If asked about something not in the context, politely redirect to what you can discuss`
                             },
                             {
                                 role: 'user',
@@ -713,41 +777,24 @@ Important guidelines:
                 }
             } catch (error) {
                 console.error('OpenAI API error:', error);
-                // Fallback to local response if API fails
                 return generateLocalResponse(userMessage);
             }
         }
 
-        // Local fallback responses (when API is not available)
+        // Fallback responses if API fails
         function generateLocalResponse(query) {
             const lowerQuery = query.toLowerCase();
             
-            if (lowerQuery.includes('location') || lowerQuery.includes('where') || lowerQuery.includes('based')) {
-                return "Ravi is located in Fremont, California, in the San Francisco Bay Area - the heart of technology innovation.";
-            } else if (lowerQuery.includes('experience') || lowerQuery.includes('work')) {
-                return "Ravi has over 20 years of technology leadership experience. He's currently the Founder of Equiti Ventures, building AI products like Snifty, TurboPassports, Jourro, SniftyShare, and Scan2Secure. Previously, he held senior positions at Cisco (Senior Director), Dropbox (Global Head of Data & BI), Chegg (Director), and Yahoo (Senior Manager).";
-            } else if (lowerQuery.includes('current') || lowerQuery.includes('now') || lowerQuery.includes('doing')) {
-                return "Ravi is currently the Founder of Equiti Ventures, actively developing multiple AI-powered applications including Snifty (AI marketplace), TurboPassports (document automation), Jourro (content intelligence), SniftyShare (collaborative AI tools), and Scan2Secure (security automation). He also serves as a RippleWorks Expert Advisor.";
-            } else if (lowerQuery.includes('skill') || lowerQuery.includes('expertise') || lowerQuery.includes('technical')) {
-                return "Ravi's technical expertise includes: AI/ML (LLMs, Computer Vision, NLP), Cloud Platforms (AWS certified, GCP, Azure), Data Technologies (Spark, Kafka, Snowflake), Programming (Python, Java, Scala), and frameworks like TensorFlow, PyTorch, and Langchain. He specializes in building scalable AI solutions and data platforms.";
-            } else if (lowerQuery.includes('ai project') || lowerQuery.includes('snifty') || lowerQuery.includes('turbo') || lowerQuery.includes('jourro')) {
-                return "Ravi is building several AI products: Snifty (AI-driven marketplace), TurboPassports (automated document processing using computer vision), Jourro (content intelligence with LLMs), SniftyShare (collaborative AI tools), and Scan2Secure (AI-powered security automation). These demonstrate hands-on expertise in practical AI applications.";
-            } else if (lowerQuery.includes('cisco') || lowerQuery.includes('dropbox') || lowerQuery.includes('yahoo') || lowerQuery.includes('chegg')) {
-                return "At Cisco (2020-2024), Ravi was Senior Director leading cloud platform transformation for enterprise customers. At Dropbox (2017-2020), he was Global Head of Data & BI, architecting data strategy for their IPO. At Chegg (2015-2017), he directed data engineering. At Yahoo (2007-2015), he managed teams building platforms for 600M+ users.";
-            } else if (lowerQuery.includes('education') || lowerQuery.includes('degree') || lowerQuery.includes('study')) {
-                return "Ravi holds a Master's degree in Computer Science with a focus on AI/ML, and an MBA in Business Administration. He continuously updates his skills with recent certifications in AWS, Google Cloud AI, and advanced machine learning.";
-            } else if (lowerQuery.includes('patent') || lowerQuery.includes('innovation')) {
-                return "Ravi has filed multiple patents in AI applications and data systems, demonstrating his innovative approach to solving complex technical problems. His current ventures in AI showcase practical implementation of cutting-edge technologies.";
-            } else if (lowerQuery.includes('team') || lowerQuery.includes('leadership') || lowerQuery.includes('manage')) {
-                return "Ravi has led engineering organizations of 100+ professionals, managed products generating $250M+ in annual revenue, and built high-performing global teams. His leadership style focuses on data-driven decisions, innovation, and developing technical talent.";
+            if (lowerQuery.includes('ai') || lowerQuery.includes('artificial') || lowerQuery.includes('machine learning')) {
+                return "Yes, Ravi is deeply involved in AI! He's currently building 5 AI products at Equiti Ventures including Snifty (AI Photo Storyteller with patent filed), TurboPassports (computer vision for documents), Jourro (LLM-powered travel platform), Scan2Secure (AI security), and Receipts360 (AI expense management, patent pending). He works with GPT-4, Claude, TensorFlow, PyTorch, and has filed multiple AI patents.";
+            } else if (lowerQuery.includes('experience') || lowerQuery.includes('background')) {
+                return "Ravi has 20+ years in technology leadership. Currently Founder of Equiti Ventures building AI products. Previously: Senior Director at Cisco ($250M+ ARR), Global Head of Data at Dropbox (pre-IPO to IPO, $850M to $1.8B growth), Director at Chegg (40% revenue increase), Senior Manager at Yahoo ($2B revenue platform for 600M+ users).";
+            } else if (lowerQuery.includes('location') || lowerQuery.includes('where')) {
+                return "Ravi is located in Fremont, California, in the San Francisco Bay Area.";
             } else if (lowerQuery.includes('contact')) {
-                return "To contact Ravi, please use the contact form on this page or connect via LinkedIn. For detailed discussions about opportunities or collaborations, these are the best channels to reach him.";
-            } else if (lowerQuery.includes('aws') || lowerQuery.includes('cloud')) {
-                return "Ravi is AWS certified and has extensive experience with cloud platforms including AWS, Google Cloud, and Azure. He's architected cloud-native solutions, implemented serverless architectures, and achieved 40% cost reduction through cloud optimization at Cisco.";
-            } else if (lowerQuery.includes('data') || lowerQuery.includes('big data')) {
-                return "Ravi has deep expertise in data platforms, having built systems processing petabytes of data for 600M+ users. He's worked with technologies like Spark, Kafka, Airflow, Snowflake, and Databricks, and led data strategy for Dropbox's successful IPO.";
+                return "To contact Ravi, please use the contact form below or connect via LinkedIn at linkedin.com/in/poruriravi. You can also request his full resume through the form.";
             } else {
-                return "I can provide information about Ravi's professional experience, technical skills, AI projects, leadership roles, and background. What specific aspect would you like to know more about?";
+                return "I can provide information about Ravi's AI products, 20+ years of experience, technical expertise, patents, and leadership roles. What would you like to know specifically?";
             }
         }
 
