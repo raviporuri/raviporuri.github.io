@@ -27,7 +27,11 @@
       "WebFetch(domain:github.com)",
       "Bash(gh auth:*)",
       "Bash(git remote set-url:*)",
-      "WebFetch(domain:raviporuri-website-fqtj27b4z-equitiventures.vercel.app)"
+      "WebFetch(domain:raviporuri-website-fqtj27b4z-equitiventures.vercel.app)",
+      "Bash(git pull:*)",
+      "Bash(chmod:*)",
+      "Bash(./setup-vercel-env.sh:*)",
+      "WebFetch(domain:raviporuri-website-n2rbgiryh-equitiventures.vercel.app)"
     ],
     "deny": [],
     "ask": []
