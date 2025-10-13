@@ -21,7 +21,12 @@
       "Bash(gh repo create:*)",
       "Bash(npx drizzle-kit push:pg:*)",
       "Bash(npx drizzle-kit:*)",
-      "Bash(POSTGRES_URL=\"postgres://postgres.jsikfckosgyhgmsscbcl:UfLTSQXBO6siQbLU@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x\" npx drizzle-kit push)"
+      "Bash(POSTGRES_URL=\"postgres://postgres.jsikfckosgyhgmsscbcl:UfLTSQXBO6siQbLU@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x\" npx drizzle-kit push)",
+      "Bash(git reset:*)",
+      "WebFetch(domain:raviporuri-website.vercel.app)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh auth:*)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": [],
     "ask": []
