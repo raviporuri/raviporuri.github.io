@@ -1,0 +1,106 @@
+{
+  "name": "ravi-ai-career-platform",
+  "version": "1.0.0",
+  "description": "AI-powered career platform built entirely on Vercel",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:push": "drizzle-kit push:pg",
+    "db:studio": "drizzle-kit studio",
+    "deploy": "vercel --prod",
+    "vercel-build": "npm run build"
+  },
+  "dependencies": {
+    "next": "^14.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.2",
+
+    "// Database & Storage": "Vercel integrated solutions",
+    "@vercel/postgres": "^0.5.1",
+    "@vercel/kv": "^1.0.1",
+    "@vercel/blob": "^0.15.1",
+    "drizzle-orm": "^0.29.1",
+    "drizzle-kit": "^0.20.6",
+
+    "// Authentication": "Vercel Auth or NextAuth",
+    "next-auth": "^4.24.5",
+    "@auth/drizzle-adapter": "^0.6.0",
+
+    "// AI & APIs": "External services",
+    "openai": "^4.20.1",
+    "ai": "^2.2.25",
+    "@vercel/ai-sdk": "^2.2.25",
+    "langchain": "^0.0.208",
+
+    "// PDF Generation": "Server-side rendering",
+    "puppeteer": "^21.5.2",
+    "pdf-lib": "^1.17.1",
+    "@react-pdf/renderer": "^3.1.14",
+    "jspdf": "^2.5.1",
+
+    "// UI Components": "Modern React",
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "framer-motion": "^10.16.5",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.4.1",
+    "react-dropzone": "^14.2.3",
+
+    "// Utilities": "",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0",
+    "zod": "^3.22.4",
+    "date-fns": "^2.30.0",
+    "lodash": "^4.17.21",
+
+    "// Charts & Visualization": "",
+    "recharts": "^2.8.0",
+    "d3": "^7.8.5",
+
+    "// File Processing": "",
+    "mammoth": "^1.6.0",
+    "xlsx": "^0.18.5",
+    "sharp": "^0.32.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.5",
+    "@types/react": "^18.2.38",
+    "@types/react-dom": "^18.2.17",
+    "@types/lodash": "^4.14.202",
+    "@types/d3": "^7.4.3",
+
+    "// Testing": "",
+    "jest": "^29.7.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/jest-dom": "^6.1.5",
+    "jest-environment-jsdom": "^29.7.0",
+
+    "// Linting & Formatting": "",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^14.0.3",
+    "prettier": "^3.1.0",
+    "prettier-plugin-tailwindcss": "^0.5.7",
+
+    "// Build Tools": "",
+    "tailwindcss": "^3.3.6",
+    "postcss": "^8.4.32",
+    "autoprefixer": "^10.4.16",
+    "webpack": "^5.89.0"
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raviporuri/ai-career-platform.git"
+  }
+}

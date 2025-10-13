@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(curl:*)",
+      "Bash(nslookup:*)",
+      "Bash(open:*)",
+      "Bash(nano:*)",
+      "WebFetch(domain:raviporuri.netlify.app)",
+      "Read(//Users/raviporuri/projects/**)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(vercel:*)",
+      "Bash(cat:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(gh repo create:*)",
+      "Bash(npx drizzle-kit push:pg:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(POSTGRES_URL=\"postgres://postgres.jsikfckosgyhgmsscbcl:UfLTSQXBO6siQbLU@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x\" npx drizzle-kit push)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
