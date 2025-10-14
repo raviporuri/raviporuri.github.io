@@ -20,7 +20,9 @@ import {
   Divider,
   CopyButton,
   ActionIcon,
-  Tooltip
+  Tooltip,
+  Select,
+  Menu
 } from '@mantine/core'
 import {
   IconFileText,
@@ -61,6 +63,7 @@ export default function ResumeCustomizerPage() {
   const [customizedResume, setCustomizedResume] = useState<CustomizedResume | null>(null)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<string | null>('resume')
+  const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'txt' | 'doc'>('pdf')
 
   // Check for stored authentication on component mount
   useEffect(() => {
@@ -153,121 +156,163 @@ ${(customizedResume.certifications || [
     ]).map(cert => `• ${cert}`).join('\n')}`
   }
 
+  const downloadTXT = () => {
+    const resumeContent = formatResumeText()
+    const element = document.createElement('a')
+    const file = new Blob([resumeContent], { type: 'text/plain' })
+    element.href = URL.createObjectURL(file)
+    element.download = 'Ravi_Poruri_Resume_ATS_Optimized.txt'
+    document.body.appendChild(element)
+    element.click()
+    document.body.removeChild(element)
+  }
+
+  const downloadDOC = () => {
+    const resumeContent = formatResumeText()
+    const rtfContent = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}
+\\f0\\fs24 ${resumeContent.replace(/\n/g, '\\par ')}}`
+
+    const element = document.createElement('a')
+    const file = new Blob([rtfContent], { type: 'application/rtf' })
+    element.href = URL.createObjectURL(file)
+    element.download = 'Ravi_Poruri_Resume_ATS_Optimized.rtf'
+    document.body.appendChild(element)
+    element.click()
+    document.body.removeChild(element)
+  }
+
   const downloadPDF = async () => {
     try {
-      const { jsPDF } = await import('jspdf')
+      // Dynamic import to avoid SSR issues
+      const jsPDF = (await import('jspdf')).jsPDF
       const doc = new jsPDF()
 
-      // Add content to PDF following 2025 trends
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.text('RAVI PORURI', 105, 20, { align: 'center' })
+      // Set margins and content area
+      const margin = 20
+      const pageWidth = doc.internal.pageSize.width
+      const pageHeight = doc.internal.pageSize.height
+      const contentWidth = pageWidth - (margin * 2)
+      let yPosition = margin
 
-      doc.setFontSize(12)
+      // Helper function to add new page if needed
+      const checkPageBreak = (requiredSpace: number) => {
+        if (yPosition + requiredSpace > pageHeight - margin) {
+          doc.addPage()
+          yPosition = margin
+        }
+      }
+
+      // Header - Name and Title
+      doc.setFontSize(18)
+      doc.setFont("helvetica", "bold")
+      doc.text('RAVI PORURI', pageWidth / 2, yPosition, { align: 'center' })
+      yPosition += 10
+
+      doc.setFontSize(14)
       doc.setFont("helvetica", "normal")
-      doc.text('Technology Leader & AI Innovator', 105, 28, { align: 'center' })
+      doc.text('Technology Leader & AI Innovator', pageWidth / 2, yPosition, { align: 'center' })
+      yPosition += 15
 
       // Contact Information
       doc.setFontSize(10)
-      doc.text('Email: raviporuri@gmail.com | Phone: (408) 823-6713', 105, 35, { align: 'center' })
-      doc.text('LinkedIn: linkedin.com/in/poruriravi | Location: San Francisco Bay Area', 105, 41, { align: 'center' })
-
-      let yPosition = 55
+      doc.text('raviporuri@gmail.com • (408) 823-6713 • linkedin.com/in/poruriravi • San Francisco Bay Area', pageWidth / 2, yPosition, { align: 'center' })
+      yPosition += 15
 
       // Professional Summary
+      checkPageBreak(30)
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
-      doc.text('PROFESSIONAL SUMMARY', 20, yPosition)
+      doc.text('PROFESSIONAL SUMMARY', margin, yPosition)
       yPosition += 8
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
-      const summaryLines = doc.splitTextToSize(customizedResume?.summary || '', 170)
-      doc.text(summaryLines, 20, yPosition)
-      yPosition += summaryLines.length * 5 + 10
+      const summaryLines = doc.splitTextToSize(customizedResume?.summary || '', contentWidth)
+      doc.text(summaryLines, margin, yPosition)
+      yPosition += summaryLines.length * 4 + 10
 
       // Key Achievements
+      checkPageBreak(30)
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
-      doc.text('KEY ACHIEVEMENTS', 20, yPosition)
+      doc.text('KEY ACHIEVEMENTS', margin, yPosition)
       yPosition += 8
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
       (customizedResume?.keyAchievements || []).forEach(achievement => {
-        const achievementLines = doc.splitTextToSize(`• ${achievement}`, 170)
-        doc.text(achievementLines, 20, yPosition)
-        yPosition += achievementLines.length * 5 + 3
+        checkPageBreak(15)
+        const achievementLines = doc.splitTextToSize(`• ${achievement}`, contentWidth - 10)
+        doc.text(achievementLines, margin + 5, yPosition)
+        yPosition += achievementLines.length * 4 + 3
       })
-
       yPosition += 5
 
       // Work Experience
-      if (yPosition > 250) {
-        doc.addPage()
-        yPosition = 20
-      }
-
+      checkPageBreak(30)
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
-      doc.text('WORK EXPERIENCE', 20, yPosition)
+      doc.text('WORK EXPERIENCE', margin, yPosition)
       yPosition += 8
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
       (customizedResume?.relevantExperience || []).forEach(exp => {
-        if (yPosition > 270) {
-          doc.addPage()
-          yPosition = 20
-        }
-        const expLines = doc.splitTextToSize(exp, 170)
-        doc.text(expLines, 20, yPosition)
-        yPosition += expLines.length * 5 + 8
+        checkPageBreak(25)
+        const expLines = doc.splitTextToSize(exp, contentWidth)
+        doc.text(expLines, margin, yPosition)
+        yPosition += expLines.length * 4 + 8
       })
 
       // Technical Skills
-      if (yPosition > 250) {
-        doc.addPage()
-        yPosition = 20
-      }
-
+      checkPageBreak(30)
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
-      doc.text('TECHNICAL SKILLS', 20, yPosition)
+      doc.text('TECHNICAL SKILLS', margin, yPosition)
       yPosition += 8
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
       const skillsText = (customizedResume?.technicalSkills || []).join(' • ')
-      const skillsLines = doc.splitTextToSize(skillsText, 170)
-      doc.text(skillsLines, 20, yPosition)
-      yPosition += skillsLines.length * 5 + 10
+      const skillsLines = doc.splitTextToSize(skillsText, contentWidth)
+      doc.text(skillsLines, margin, yPosition)
+      yPosition += skillsLines.length * 4 + 10
 
       // Education
+      checkPageBreak(25)
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
-      doc.text('EDUCATION', 20, yPosition)
+      doc.text('EDUCATION', margin, yPosition)
       yPosition += 8
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
-      doc.text('• MBA (Finance) - Amity University, India', 20, yPosition)
+      doc.text('• MBA (Finance) - Amity University, India', margin, yPosition)
       yPosition += 5
-      doc.text('• Bachelor of Computer Applications - Madras University, India (2000)', 20, yPosition)
+      doc.text('• Bachelor of Computer Applications - Madras University, India (2000)', margin, yPosition)
 
       // Save the PDF
       doc.save('Ravi_Poruri_Resume_ATS_Optimized.pdf')
     } catch (error) {
       console.error('PDF generation failed:', error)
       // Fallback to text download
-      const resumeContent = formatResumeText()
-      const element = document.createElement('a')
-      const file = new Blob([resumeContent], { type: 'text/plain' })
-      element.href = URL.createObjectURL(file)
-      element.download = 'Ravi_Poruri_Resume_Customized.txt'
-      document.body.appendChild(element)
-      element.click()
-      document.body.removeChild(element)
+      downloadTXT()
+    }
+  }
+
+  const handleDownload = () => {
+    switch (downloadFormat) {
+      case 'pdf':
+        downloadPDF()
+        break
+      case 'txt':
+        downloadTXT()
+        break
+      case 'doc':
+        downloadDOC()
+        break
+      default:
+        downloadTXT()
     }
   }
 
@@ -427,8 +472,21 @@ ${(customizedResume.certifications || [
                           </Tooltip>
                         )}
                       </CopyButton>
-                      <Button leftSection={<IconDownload size={16} />} onClick={downloadPDF}>
-                        Download Resume
+
+                      <Select
+                        value={downloadFormat}
+                        onChange={(value) => setDownloadFormat(value as 'pdf' | 'txt' | 'doc')}
+                        data={[
+                          { value: 'pdf', label: '📄 PDF' },
+                          { value: 'txt', label: '📝 Text' },
+                          { value: 'doc', label: '📄 Word (RTF)' }
+                        ]}
+                        size="sm"
+                        w={120}
+                      />
+
+                      <Button leftSection={<IconDownload size={16} />} onClick={handleDownload}>
+                        Download {downloadFormat.toUpperCase()}
                       </Button>
                     </Group>
                   </Group>
