@@ -38,7 +38,11 @@
       "WebFetch(domain:raviporuri-website-n2u2pj1qu-equitiventures.vercel.app)",
       "WebFetch(domain:www.raviporuri.com)",
       "WebFetch(domain:raviporuri.com)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(node:*)",
+      "Bash(pkill:*)",
+      "WebSearch",
+      "Bash(npm update:*)"
     ],
     "deny": [],
     "ask": []

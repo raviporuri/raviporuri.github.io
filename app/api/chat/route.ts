@@ -4,9 +4,6 @@ import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
 import path from 'path'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -144,7 +141,12 @@ export async function POST(request: NextRequest) {
       }
     ]
 
-    const response = await anthropic.messages.create({
+    // Create Anthropic client for this request
+    const anthropicClient = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+    })
+
+    const response = await anthropicClient.messages.create({
       model: 'claude-3-haiku-20240307',
       max_tokens: 1000,
       temperature: 0.4,
@@ -182,6 +184,18 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Chat API error:', error)
+
+    // Get visitor from outer scope for error handling
+    let visitor = null
+    try {
+      const requestBody = await request.clone().json()
+      if (requestBody.session_id) {
+        const sessionContext = await getSessionContext(requestBody.session_id)
+        visitor = sessionContext.visitor
+      }
+    } catch (e) {
+      // Ignore context errors in fallback
+    }
 
     // Enhanced fallback with gate awareness
     if (promptBundle && !visitor) {
