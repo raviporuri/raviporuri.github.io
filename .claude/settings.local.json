@@ -46,7 +46,8 @@
       "WebFetch(domain:raviporuri-website-53wnjoscy-equitiventures.vercel.app)",
       "Bash(printf \"raviporuri@gmail.com\")",
       "Read(//Users/raviporuri/snifty/**)",
-      "Read(//Users/raviporuri/**)"
+      "Read(//Users/raviporuri/**)",
+      "WebFetch(domain:raviporuri-website-r0g5vbp2m-equitiventures.vercel.app)"
     ],
     "deny": [],
     "ask": []

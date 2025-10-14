@@ -132,13 +132,13 @@ PROFESSIONAL SUMMARY
 ${customizedResume.summary}
 
 KEY ACHIEVEMENTS
-${customizedResume.keyAchievements.map(achievement => `• ${achievement}`).join('\n')}
+${(customizedResume.keyAchievements || []).map(achievement => `• ${achievement}`).join('\n')}
 
 WORK EXPERIENCE
-${customizedResume.relevantExperience.join('\n\n')}
+${(customizedResume.relevantExperience || []).join('\n\n')}
 
 TECHNICAL SKILLS
-${customizedResume.technicalSkills.join(' • ')}
+${(customizedResume.technicalSkills || []).join(' • ')}
 
 EDUCATION
 ${customizedResume.education || '• MBA (Finance) - Amity University, India\n• Bachelor of Computer Applications - Madras University, India (2000)'}
@@ -194,7 +194,7 @@ ${(customizedResume.certifications || [
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
-      customizedResume?.keyAchievements.forEach(achievement => {
+      (customizedResume?.keyAchievements || []).forEach(achievement => {
         const achievementLines = doc.splitTextToSize(`• ${achievement}`, 170)
         doc.text(achievementLines, 20, yPosition)
         yPosition += achievementLines.length * 5 + 3
@@ -215,7 +215,7 @@ ${(customizedResume.certifications || [
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
-      customizedResume?.relevantExperience.forEach(exp => {
+      (customizedResume?.relevantExperience || []).forEach(exp => {
         if (yPosition > 270) {
           doc.addPage()
           yPosition = 20
@@ -238,7 +238,7 @@ ${(customizedResume.certifications || [
 
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
-      const skillsText = customizedResume?.technicalSkills.join(' • ') || ''
+      const skillsText = (customizedResume?.technicalSkills || []).join(' • ')
       const skillsLines = doc.splitTextToSize(skillsText, 170)
       doc.text(skillsLines, 20, yPosition)
       yPosition += skillsLines.length * 5 + 10
@@ -478,7 +478,7 @@ ${(customizedResume.certifications || [
                         <Card shadow="xs" padding="lg" radius="md">
                           <Title order={4} mb="md">Key Achievements</Title>
                           <Stack gap="sm">
-                            {customizedResume.keyAchievements.map((achievement, index) => (
+                            {(customizedResume.keyAchievements || []).map((achievement, index) => (
                               <Group key={index} gap="xs" align="start">
                                 <ThemeIcon size="sm" color="green" variant="light" mt={4}>
                                   <IconStar size={12} />
@@ -493,7 +493,7 @@ ${(customizedResume.certifications || [
                         <Card shadow="xs" padding="lg" radius="md">
                           <Title order={4} mb="md">Work Experience</Title>
                           <Stack gap="md">
-                            {customizedResume.relevantExperience.map((experience, index) => (
+                            {(customizedResume.relevantExperience || []).map((experience, index) => (
                               <Box key={index}>
                                 <Text size="sm" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
                                   {experience}
@@ -508,7 +508,7 @@ ${(customizedResume.certifications || [
                         <Card shadow="xs" padding="lg" radius="md">
                           <Title order={4} mb="md">Technical Skills</Title>
                           <Group gap="xs">
-                            {customizedResume.technicalSkills.map((skill, index) => (
+                            {(customizedResume.technicalSkills || []).map((skill, index) => (
                               <Badge key={index} variant="light" color="blue">
                                 {skill}
                               </Badge>
@@ -529,7 +529,7 @@ ${(customizedResume.certifications || [
                           <Card shadow="xs" padding="lg" radius="md">
                             <Title order={4} mb="md">Certifications & Patents</Title>
                             <Stack gap="xs">
-                              {customizedResume.certifications.map((cert, index) => (
+                              {(customizedResume.certifications || []).map((cert, index) => (
                                 <Text key={index} size="sm">• {cert}</Text>
                               ))}
                             </Stack>
@@ -548,7 +548,7 @@ ${(customizedResume.certifications || [
                               Keywords matched from the job description:
                             </Text>
                             <Group gap="xs">
-                              {customizedResume.keywordMatches.map((keyword, index) => (
+                              {(customizedResume.keywordMatches || []).map((keyword, index) => (
                                 <Badge key={index} color="green" variant="filled">
                                   {keyword}
                                 </Badge>
@@ -562,7 +562,7 @@ ${(customizedResume.certifications || [
                           <Card shadow="xs" padding="lg" radius="md">
                             <Title order={4} mb="md">ATS Formatting Tips</Title>
                             <Stack gap="md">
-                              {customizedResume.atsOptimizations.map((tip, index) => (
+                              {(customizedResume.atsOptimizations || []).map((tip, index) => (
                                 <Paper key={index} p="md" radius="sm" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
                                   <Group gap="xs" align="start">
                                     <ThemeIcon size="sm" color="blue" variant="light">
@@ -583,7 +583,7 @@ ${(customizedResume.certifications || [
                         <Card shadow="xs" padding="lg" radius="md">
                           <Title order={4} mb="md">Interview Preparation</Title>
                           <Stack gap="md">
-                            {customizedResume.interviewPrep.map((prep, index) => (
+                            {(customizedResume.interviewPrep || []).map((prep, index) => (
                               <Paper key={index} p="md" radius="sm" style={{ backgroundColor: 'var(--mantine-color-orange-0)' }}>
                                 <Group gap="xs" align="start">
                                   <ThemeIcon size="sm" color="orange" variant="light">
