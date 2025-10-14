@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
 import path from 'path'
+import { PROMPT_BUNDLE } from '../../../app/lib/prompt-bundle'
 
 
 const supabase = createClient(
@@ -10,58 +11,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Load the prompt bundle - using public directory for serverless reliability
-let promptBundle: any = null
-const loadPromptBundle = async () => {
-  if (promptBundle) return promptBundle
-
-  try {
-    // In serverless environments, use HTTP fetch to get the bundle from public directory
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.NEXT_PUBLIC_VERCEL_URL
-      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : 'http://localhost:3000'
-
-    console.log('Fetching prompt bundle from:', `${baseUrl}/prompts/ravi_profile_ai_site.json`)
-
-    const response = await fetch(`${baseUrl}/prompts/ravi_profile_ai_site.json`)
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-
-    promptBundle = await response.json()
-    console.log('Prompt bundle loaded successfully via HTTP')
-    return promptBundle
-  } catch (httpError) {
-    console.log('HTTP fetch failed, trying file system:', httpError.message)
-
-    // Fallback to file system approach
-    try {
-      const possiblePaths = [
-        path.join(process.cwd(), 'public', 'prompts', 'ravi_profile_ai_site.json'),
-        path.join(process.cwd(), 'src', 'prompts', 'ravi_profile_ai_site.json'),
-        path.join(__dirname, '..', '..', '..', 'public', 'prompts', 'ravi_profile_ai_site.json')
-      ]
-
-      for (const promptPath of possiblePaths) {
-        try {
-          if (fs.existsSync(promptPath)) {
-            console.log('Loading prompt bundle from file system:', promptPath)
-            promptBundle = JSON.parse(fs.readFileSync(promptPath, 'utf8'))
-            return promptBundle
-          }
-        } catch (pathError) {
-          continue
-        }
-      }
-
-      throw new Error('Prompt bundle file not found')
-    } catch (error) {
-      console.error('Error loading prompt bundle:', error)
-      return null
-    }
-  }
+// Use embedded prompt bundle for reliable access across all environments
+const getPromptBundle = () => {
+  return PROMPT_BUNDLE
 }
 
 // Get session context from database
@@ -93,8 +45,8 @@ function isGatedConversation(requestBody: any): boolean {
 }
 
 // Create system prompt from bundle
-async function createSystemPromptFromBundle(visitor?: any): Promise<string> {
-  const bundle = await loadPromptBundle()
+function createSystemPromptFromBundle(visitor?: any): string {
+  const bundle = getPromptBundle()
   if (!bundle) {
     return "You are an AI assistant helping visitors learn about Ravi Poruri's professional background."
   }
@@ -170,14 +122,14 @@ export async function POST(request: NextRequest) {
     }
 
     // For non-gated conversations, always return gate prompt on first interaction
-    const bundle = await loadPromptBundle()
+    const bundle = getPromptBundle()
     if (!visitor && bundle) {
       const gatePrompt = bundle.response_templates.gate_prompt
       return NextResponse.json({ response: gatePrompt })
     }
 
     // Create appropriate system prompt
-    const systemPrompt = await createSystemPromptFromBundle(visitor)
+    const systemPrompt = createSystemPromptFromBundle(visitor)
 
     // Call Anthropic API with session context
     const messages: any[] = [
@@ -244,7 +196,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Enhanced fallback with gate awareness
-    const bundle = await loadPromptBundle()
+    const bundle = getPromptBundle()
     if (bundle && !visitor) {
       const gatePrompt = bundle.response_templates.gate_prompt
       return NextResponse.json({ response: gatePrompt })
