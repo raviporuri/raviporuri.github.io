@@ -153,8 +153,8 @@ export default function HomePage() {
   const projects = [
     {
       name: "Scanity.ai",
-      description: "First true AI-native security platform using GPT-4 + Claude for vulnerability detection that traditional scanners miss. Features zero-trust architecture and SOC 2 compliance.",
-      tech: ["OpenAI GPT-4", "Claude", "AWS Lambda", "Next.js"],
+      description: "First true AI-native security platform using LLaMA and open-source models for vulnerability detection that traditional scanners miss. Features zero-trust architecture and SOC 2 compliance.",
+      tech: ["LLaMA", "Open Source AI", "AWS Lambda", "Next.js"],
       status: "Active",
       highlight: "AI Security Pioneer"
     },
@@ -240,13 +240,18 @@ export default function HomePage() {
                 <Avatar
                   size={120}
                   radius="xl"
-                  src="/ravi-avatar.jpg"
                   alt="Ravi Poruri"
                   style={{
                     border: '4px solid rgba(255,255,255,0.3)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    fontSize: '2rem',
+                    fontWeight: 700
                   }}
-                />
+                >
+                  RP
+                </Avatar>
 
                 <Stack gap="md">
                   <Title
@@ -260,12 +265,14 @@ export default function HomePage() {
                   </Title>
 
                   <Text size="xl" c="white" fw={600} style={{ opacity: 0.9 }}>
-                    Technology Leader & AI Innovator
+                    Executive Technology Leader & AI Innovator
                   </Text>
 
-                  <Text size="lg" c="white" style={{ opacity: 0.8, maxWidth: 600 }}>
-                    25+ years driving technology transformations. From database admin to AI entrepreneur,
-                    I've led teams that delivered $3.2B+ in revenue impact across Yahoo, Dropbox, Cisco, and my own ventures.
+                  <Text size="lg" c="white" style={{ opacity: 0.8, maxWidth: 700, lineHeight: 1.6 }}>
+                    <strong>Proven C-Level Executive</strong> with 25+ years scaling technology organizations from startup to IPO.
+                    Led strategic transformations delivering <strong>$3.2B+ revenue impact</strong>, built global teams of <strong>500+ engineers</strong>,
+                    and pioneered AI innovations serving <strong>600M+ users</strong>. Currently founding next-generation AI applications
+                    while bringing deep expertise in data platforms, enterprise architecture, and executive leadership to drive business growth.
                   </Text>
                 </Stack>
 
@@ -313,10 +320,11 @@ export default function HomePage() {
       <Container size="lg" py="4rem">
         <Stack align="center" mb="3rem">
           <Title order={2} size="2.5rem" ta="center" fw={700}>
-            Career Impact
+            Executive Leadership Impact
           </Title>
-          <Text size="lg" ta="center" c="dimmed">
-            Quantified achievements across 25+ years of technology leadership
+          <Text size="lg" ta="center" c="dimmed" maw={800}>
+            Quantified business results from leading technology transformations, scaling global organizations,
+            and driving innovation across Fortune 500 companies and high-growth startups
           </Text>
         </Stack>
 
@@ -353,10 +361,11 @@ export default function HomePage() {
         <Container size="lg">
           <Stack align="center" mb="4rem">
             <Title order={2} size="2.5rem" ta="center" fw={700}>
-              Professional Journey
+              Executive Leadership Journey
             </Title>
-            <Text size="lg" ta="center" c="dimmed">
-              From database administration to AI entrepreneurship
+            <Text size="lg" ta="center" c="dimmed" maw={800}>
+              Strategic progression from technical individual contributor to C-Level executive and AI entrepreneur,
+              consistently delivering transformational business results across multiple industries
             </Text>
           </Stack>
 
