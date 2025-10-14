@@ -10,36 +10,57 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Load the prompt bundle with better error handling for serverless environments
+// Load the prompt bundle - using public directory for serverless reliability
 let promptBundle: any = null
-const loadPromptBundle = () => {
+const loadPromptBundle = async () => {
   if (promptBundle) return promptBundle
 
   try {
-    // Try multiple possible paths for different deployment environments
-    const possiblePaths = [
-      path.join(process.cwd(), 'src', 'prompts', 'ravi_profile_ai_site.json'),
-      path.join(process.cwd(), 'app', 'api', 'chat', '..', '..', '..', 'src', 'prompts', 'ravi_profile_ai_site.json'),
-      path.join(__dirname, '..', '..', '..', 'src', 'prompts', 'ravi_profile_ai_site.json')
-    ]
+    // In serverless environments, use HTTP fetch to get the bundle from public directory
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : 'http://localhost:3000'
 
-    for (const promptPath of possiblePaths) {
-      try {
-        if (fs.existsSync(promptPath)) {
-          console.log('Loading prompt bundle from:', promptPath)
-          promptBundle = JSON.parse(fs.readFileSync(promptPath, 'utf8'))
-          return promptBundle
-        }
-      } catch (pathError) {
-        console.log('Failed to load from path:', promptPath, pathError.message)
-        continue
-      }
+    console.log('Fetching prompt bundle from:', `${baseUrl}/prompts/ravi_profile_ai_site.json`)
+
+    const response = await fetch(`${baseUrl}/prompts/ravi_profile_ai_site.json`)
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
-    throw new Error('Prompt bundle file not found in any expected location')
-  } catch (error) {
-    console.error('Error loading prompt bundle:', error)
-    return null
+    promptBundle = await response.json()
+    console.log('Prompt bundle loaded successfully via HTTP')
+    return promptBundle
+  } catch (httpError) {
+    console.log('HTTP fetch failed, trying file system:', httpError.message)
+
+    // Fallback to file system approach
+    try {
+      const possiblePaths = [
+        path.join(process.cwd(), 'public', 'prompts', 'ravi_profile_ai_site.json'),
+        path.join(process.cwd(), 'src', 'prompts', 'ravi_profile_ai_site.json'),
+        path.join(__dirname, '..', '..', '..', 'public', 'prompts', 'ravi_profile_ai_site.json')
+      ]
+
+      for (const promptPath of possiblePaths) {
+        try {
+          if (fs.existsSync(promptPath)) {
+            console.log('Loading prompt bundle from file system:', promptPath)
+            promptBundle = JSON.parse(fs.readFileSync(promptPath, 'utf8'))
+            return promptBundle
+          }
+        } catch (pathError) {
+          continue
+        }
+      }
+
+      throw new Error('Prompt bundle file not found')
+    } catch (error) {
+      console.error('Error loading prompt bundle:', error)
+      return null
+    }
   }
 }
 
@@ -72,8 +93,8 @@ function isGatedConversation(requestBody: any): boolean {
 }
 
 // Create system prompt from bundle
-function createSystemPromptFromBundle(visitor?: any): string {
-  const bundle = loadPromptBundle()
+async function createSystemPromptFromBundle(visitor?: any): Promise<string> {
+  const bundle = await loadPromptBundle()
   if (!bundle) {
     return "You are an AI assistant helping visitors learn about Ravi Poruri's professional background."
   }
@@ -148,15 +169,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create appropriate system prompt
-    const systemPrompt = createSystemPromptFromBundle(visitor)
-
     // For non-gated conversations, always return gate prompt on first interaction
-    const bundle = loadPromptBundle()
+    const bundle = await loadPromptBundle()
     if (!visitor && bundle) {
       const gatePrompt = bundle.response_templates.gate_prompt
       return NextResponse.json({ response: gatePrompt })
     }
+
+    // Create appropriate system prompt
+    const systemPrompt = await createSystemPromptFromBundle(visitor)
 
     // Call Anthropic API with session context
     const messages: any[] = [
@@ -223,7 +244,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Enhanced fallback with gate awareness
-    const bundle = loadPromptBundle()
+    const bundle = await loadPromptBundle()
     if (bundle && !visitor) {
       const gatePrompt = bundle.response_templates.gate_prompt
       return NextResponse.json({ response: gatePrompt })
