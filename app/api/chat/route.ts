@@ -10,14 +10,37 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Load the prompt bundle
-let promptBundle: any
-try {
-  const promptPath = path.join(process.cwd(), 'src', 'prompts', 'ravi_profile_ai_site.json')
-  promptBundle = JSON.parse(fs.readFileSync(promptPath, 'utf8'))
-} catch (error) {
-  console.error('Error loading prompt bundle:', error)
-  promptBundle = null
+// Load the prompt bundle with better error handling for serverless environments
+let promptBundle: any = null
+const loadPromptBundle = () => {
+  if (promptBundle) return promptBundle
+
+  try {
+    // Try multiple possible paths for different deployment environments
+    const possiblePaths = [
+      path.join(process.cwd(), 'src', 'prompts', 'ravi_profile_ai_site.json'),
+      path.join(process.cwd(), 'app', 'api', 'chat', '..', '..', '..', 'src', 'prompts', 'ravi_profile_ai_site.json'),
+      path.join(__dirname, '..', '..', '..', 'src', 'prompts', 'ravi_profile_ai_site.json')
+    ]
+
+    for (const promptPath of possiblePaths) {
+      try {
+        if (fs.existsSync(promptPath)) {
+          console.log('Loading prompt bundle from:', promptPath)
+          promptBundle = JSON.parse(fs.readFileSync(promptPath, 'utf8'))
+          return promptBundle
+        }
+      } catch (pathError) {
+        console.log('Failed to load from path:', promptPath, pathError.message)
+        continue
+      }
+    }
+
+    throw new Error('Prompt bundle file not found in any expected location')
+  } catch (error) {
+    console.error('Error loading prompt bundle:', error)
+    return null
+  }
 }
 
 // Get session context from database
@@ -50,19 +73,20 @@ function isGatedConversation(requestBody: any): boolean {
 
 // Create system prompt from bundle
 function createSystemPromptFromBundle(visitor?: any): string {
-  if (!promptBundle) {
+  const bundle = loadPromptBundle()
+  if (!bundle) {
     return "You are an AI assistant helping visitors learn about Ravi Poruri's professional background."
   }
 
-  const systemMessages = promptBundle.system.content.join('\n\n')
-  const developerMessages = promptBundle.developer.content.join('\n\n')
+  const systemMessages = bundle.system.content.join('\n\n')
+  const developerMessages = bundle.developer.content.join('\n\n')
 
   if (visitor) {
     // Post-gate: include visitor context
-    const rolePolicy = promptBundle.visitor_role_policies[visitor.role] ||
-                      promptBundle.visitor_role_policies.default
+    const rolePolicy = bundle.visitor_role_policies[visitor.role] ||
+                      bundle.visitor_role_policies.default
 
-    const ackGate = promptBundle.response_templates.ack_gate
+    const ackGate = bundle.response_templates.ack_gate
       .replace('{{visitor_name}}', visitor.name)
       .replace('{{visitor_role}}', visitor.role)
       .replace('{{visitor_purpose}}', visitor.purpose)
@@ -128,8 +152,9 @@ export async function POST(request: NextRequest) {
     const systemPrompt = createSystemPromptFromBundle(visitor)
 
     // For non-gated conversations, always return gate prompt on first interaction
-    if (!visitor && promptBundle) {
-      const gatePrompt = promptBundle.response_templates.gate_prompt
+    const bundle = loadPromptBundle()
+    if (!visitor && bundle) {
+      const gatePrompt = bundle.response_templates.gate_prompt
       return NextResponse.json({ response: gatePrompt })
     }
 
@@ -198,8 +223,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Enhanced fallback with gate awareness
-    if (promptBundle && !visitor) {
-      const gatePrompt = promptBundle.response_templates.gate_prompt
+    const bundle = loadPromptBundle()
+    if (bundle && !visitor) {
+      const gatePrompt = bundle.response_templates.gate_prompt
       return NextResponse.json({ response: gatePrompt })
     }
 
