@@ -42,7 +42,11 @@
       "Bash(node:*)",
       "Bash(pkill:*)",
       "WebSearch",
-      "Bash(npm update:*)"
+      "Bash(npm update:*)",
+      "WebFetch(domain:raviporuri-website-53wnjoscy-equitiventures.vercel.app)",
+      "Bash(printf \"raviporuri@gmail.com\")",
+      "Read(//Users/raviporuri/snifty/**)",
+      "Read(//Users/raviporuri/**)"
     ],
     "deny": [],
     "ask": []

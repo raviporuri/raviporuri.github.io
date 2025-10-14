@@ -273,7 +273,7 @@ export default function GatedChatWidget() {
           <div>
             <Text size="sm" fw={600}>Ravi's AI Assistant</Text>
             <Text size="xs" c="dimmed">
-              Tailored for {visitor?.role} • {visitor?.name}
+              Ready to help • {visitor?.name}
             </Text>
           </div>
         </Group>

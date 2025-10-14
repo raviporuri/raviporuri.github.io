@@ -53,9 +53,11 @@ import {
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import GatedChatWidget from '../components/GatedChatWidget'
+import ContactForm from '../components/ContactForm'
 
 export default function HomePage() {
   const [chatOpen, setChatOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
 
   const experiences = [
     {
@@ -138,11 +140,11 @@ export default function HomePage() {
       highlight: "Context-Aware Processing"
     },
     {
-      name: "SniftyShare",
-      description: "AI-powered content sharing platform with intelligent categorization and real-time processing. Cloud-native infrastructure using Firebase and Cloud Functions.",
-      tech: ["Firebase", "Cloud Functions", "React", "AI Classification"],
+      name: "Snifty",
+      description: "AI-native photo discovery and memory generation app for iOS and Android. Advanced on-device face recognition with ArcFace models, intelligent photo clustering, and automated narrative generation for personal memories.",
+      tech: ["Swift", "Kotlin", "ArcFace AI", "CoreML", "On-device Processing"],
       status: "Active",
-      highlight: "Intelligent Content AI"
+      highlight: "Mobile AI & Face Recognition"
     },
     {
       name: "ZipWik",
@@ -232,13 +234,34 @@ export default function HomePage() {
                     Ask AI About My Experience
                   </Button>
                   <Group gap="sm">
-                    <ActionIcon size="lg" variant="subtle" color="white">
+                    <ActionIcon
+                      size="lg"
+                      variant="subtle"
+                      color="white"
+                      component="a"
+                      href="https://www.linkedin.com/in/poruriravi"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <IconBrandLinkedin size={20} />
                     </ActionIcon>
-                    <ActionIcon size="lg" variant="subtle" color="white">
+                    <ActionIcon
+                      size="lg"
+                      variant="subtle"
+                      color="white"
+                      component="a"
+                      href="https://github.com/raviporuri/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <IconBrandGithub size={20} />
                     </ActionIcon>
-                    <ActionIcon size="lg" variant="subtle" color="white">
+                    <ActionIcon
+                      size="lg"
+                      variant="subtle"
+                      color="white"
+                      onClick={() => setContactOpen(true)}
+                    >
                       <IconMail size={20} />
                     </ActionIcon>
                   </Group>
@@ -329,7 +352,7 @@ export default function HomePage() {
       <Container size="lg" py="4rem">
         <Stack align="center" mb="3rem">
           <Title order={2} size="2.5rem" ta="center" fw={700}>
-            Recent AI Innovations (2024)
+            Recent AI Innovations (2025)
           </Title>
           <Text size="lg" ta="center" c="dimmed">
             Building next-generation AI applications with unique implementations and production-ready architectures
@@ -431,10 +454,9 @@ export default function HomePage() {
                   variant="outline"
                   color="white"
                   leftSection={<IconMail size={20} />}
-                  component="a"
-                  href="mailto:raviporuri@gmail.com"
+                  onClick={() => setContactOpen(true)}
                 >
-                  raviporuri@gmail.com
+                  Contact Me
                 </Button>
               </Group>
             </Stack>
@@ -446,13 +468,19 @@ export default function HomePage() {
       <Modal
         opened={chatOpen}
         onClose={() => setChatOpen(false)}
-        title="AI Assistant - Tailored for Your Role"
+        title="AI Assistant"
         size="xl"
         centered
         padding="lg"
       >
         <GatedChatWidget />
       </Modal>
+
+      {/* Contact Form Modal */}
+      <ContactForm
+        opened={contactOpen}
+        onClose={() => setContactOpen(false)}
+      />
 
       {/* Footer */}
       <Box py="2rem" style={{ backgroundColor: '#212529' }}>
@@ -466,9 +494,25 @@ export default function HomePage() {
               Executive Technology Leader • AI Innovator • Strategic Advisor
             </Text>
             <Group gap="md">
-              <Anchor href="#" c="dimmed" size="sm">LinkedIn</Anchor>
-              <Anchor href="#" c="dimmed" size="sm">GitHub</Anchor>
-              <Anchor href="mailto:raviporuri@gmail.com" c="dimmed" size="sm">Email</Anchor>
+              <Anchor
+                href="https://www.linkedin.com/in/poruriravi"
+                c="dimmed"
+                size="sm"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn
+              </Anchor>
+              <Anchor
+                href="https://github.com/raviporuri/"
+                c="dimmed"
+                size="sm"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </Anchor>
+              <Anchor href="#" c="dimmed" size="sm" onClick={() => setContactOpen(true)}>Contact</Anchor>
             </Group>
           </Stack>
         </Container>
