@@ -56,7 +56,7 @@ CAREER PROGRESSION:
    - 400+ billion events, hundreds of petabytes
    - $2+ billion annual revenue
    - 10K+ servers, 450+ production clusters
-   - Multiple U.S. patents
+   - Multiple US provisional patents filed
 
 CORE STRENGTHS:
 - AI/ML: Generative AI, LLMs, Computer Vision, Predictive Analytics (Expert level)
@@ -69,7 +69,7 @@ KEY ACHIEVEMENTS:
 - Total Revenue Impact: $3.2B+ across career
 - Team Leadership: 500+ people managed
 - Platform Scale: 600M+ users served
-- Multiple U.S. patents in data platforms
+- Multiple US provisional patents filed in data platforms
 
 EDUCATION:
 - MBA (Finance) - Amity University

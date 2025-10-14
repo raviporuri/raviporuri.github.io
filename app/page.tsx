@@ -98,7 +98,7 @@ export default function HomePage() {
       period: "2007 - 2015",
       icon: IconDatabase,
       color: "purple",
-      achievements: ["400+ billion events daily", "$2+ billion annual revenue", "Multiple U.S. patents"]
+      achievements: ["400+ billion events daily", "$2+ billion annual revenue", "Multiple US provisional patents filed"]
     }
   ]
 
@@ -106,7 +106,7 @@ export default function HomePage() {
     { label: "Revenue Impact", value: "$3.2B+", icon: IconCurrencyDollar },
     { label: "Team Leadership", value: "500+", icon: IconUsers },
     { label: "Users Served", value: "600M+", icon: IconUser },
-    { label: "Patents Awarded", value: "Multiple", icon: IconAward }
+    { label: "Conference Keynotes", value: "15+", icon: IconAward }
   ]
 
   const skills = [

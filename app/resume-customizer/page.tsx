@@ -146,11 +146,12 @@ ${(customizedResume.technicalSkills || []).join(' • ')}
 EDUCATION
 ${customizedResume.education || '• MBA (Finance) - Amity University, India\n• Bachelor of Computer Applications - Madras University, India (2000)'}
 
-CERTIFICATIONS & PATENTS
+CERTIFICATIONS & RECOGNITION
 ${(customizedResume.certifications || [
       'Oracle Certified Professional',
       'Teradata Certified Implementation Specialist',
-      'Multiple U.S. Patents in Data Platform Technologies',
+      'Multiple US Provisional Patents filed for data platform innovations',
+      'Keynote Speaker: Snowflake Summit, Tableau Conference',
       'Snowflake Black Diamond Executive Council Member',
       'Gartner BI Excellence Award Finalist'
     ]).map(cert => `• ${cert}`).join('\n')}`
@@ -290,6 +291,30 @@ ${(customizedResume.certifications || [
       doc.text('• MBA (Finance) - Amity University, India', margin, yPosition)
       yPosition += 5
       doc.text('• Bachelor of Computer Applications - Madras University, India (2000)', margin, yPosition)
+      yPosition += 10
+
+      // Certifications & Recognition
+      checkPageBreak(30)
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "bold")
+      doc.text('CERTIFICATIONS & RECOGNITION', margin, yPosition)
+      yPosition += 8
+
+      doc.setFontSize(10)
+      doc.setFont("helvetica", "normal")
+      const certifications = [
+        'Oracle Certified Professional',
+        'Teradata Certified Implementation Specialist',
+        'Multiple US Provisional Patents filed for data platform innovations',
+        'Keynote Speaker: Snowflake Summit, Tableau Conference',
+        'Gartner BI Excellence Award Finalist'
+      ]
+
+      certifications.forEach(cert => {
+        checkPageBreak(8)
+        doc.text(`• ${cert}`, margin, yPosition)
+        yPosition += 5
+      })
 
       // Save the PDF
       doc.save('Ravi_Poruri_Resume_ATS_Optimized.pdf')
@@ -582,10 +607,10 @@ ${(customizedResume.certifications || [
                           </Text>
                         </Card>
 
-                        {/* Certifications & Patents */}
+                        {/* Certifications & Recognition */}
                         {customizedResume.certifications && (
                           <Card shadow="xs" padding="lg" radius="md">
-                            <Title order={4} mb="md">Certifications & Patents</Title>
+                            <Title order={4} mb="md">Certifications & Recognition</Title>
                             <Stack gap="xs">
                               {(customizedResume.certifications || []).map((cert, index) => (
                                 <Text key={index} size="sm">• {cert}</Text>

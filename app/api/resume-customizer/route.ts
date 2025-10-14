@@ -80,7 +80,7 @@ Yahoo - Senior Manager (2011-2015) & Manager of Database Administration (2007-20
 - Pioneered adoption of Hadoop, Apache Storm, Apache Spark, Druid, Kafka
 - Led infrastructure deployments of thousands of servers
 - Managed 10K+ servers, 450+ production clusters
-- Multiple U.S. patents awarded for Hadoop integration technologies
+- Multiple US Provisional Patents filed for data platform innovations
 
 EDUCATION:
 - MBA (Finance) - Amity University, India
@@ -89,11 +89,17 @@ EDUCATION:
 CERTIFICATIONS & RECOGNITION:
 - Oracle Certified Professional
 - Teradata Certified Implementation Specialist
-- Multiple U.S. Patents in Data Platform Technologies
+- Multiple US Provisional Patents filed for data platform innovations
 - Gartner BI Excellence Award Finalist (2015)
 - Snowflake Black Diamond Executive Council Member (2019-2020)
 - SF State University Big Data Advisory Board Member
-- Speaker: Snowflake Summit 2019, Tableau Conference 2019
+
+PUBLIC SPEAKING & CONFERENCES:
+- Keynote Speaker: Snowflake Summit 2019, 2020
+- Featured Speaker: Tableau Conference 2019, 2020
+- Panel Speaker: Data Engineering Roundtables
+- Industry Expert: AI/ML Technology Forums
+- Thought Leader: Enterprise Data Strategy Conferences
 
 TECHNICAL EXPERTISE:
 AI/ML: Generative AI, LLMs, Computer Vision, Machine Learning, Predictive Analytics
@@ -108,8 +114,9 @@ QUANTIFIED ACHIEVEMENTS:
 - Platform Scale: 600M+ users served (Dropbox)
 - Data Volume: 400B+ events processed daily (Yahoo)
 - Infrastructure: 10K+ servers, 450+ clusters managed
-- Patents: Multiple U.S. patents in data platform technologies
+- Innovation: Multiple US Provisional Patents filed for data platform innovations
 - Growth: Led companies from pre-IPO to IPO, startup to acquisition
+- Speaking: 15+ keynote presentations at major industry conferences
 
 ATS OPTIMIZATION REQUIREMENTS:
 - Use standard section headers exactly: "Professional Summary", "Work Experience", "Technical Skills", "Education"
@@ -149,7 +156,7 @@ Return ONLY a valid JSON response with this enhanced structure:
   ],
   "technicalSkills": ["exact matches from job description", "relevant technical skills", "industry buzzwords"],
   "education": "MBA Finance, Amity University | BCA, Madras University (2000)",
-  "certifications": ["Oracle Certified Professional", "Teradata Certified Implementation Specialist", "Multiple U.S. Patents"],
+  "certifications": ["Oracle Certified Professional", "Teradata Certified Implementation Specialist", "Multiple US Provisional Patents Filed"],
   "atsOptimizations": [
     "Specific formatting tip for ATS parsing",
     "Keyword placement recommendation",
@@ -226,7 +233,9 @@ export async function POST(request: NextRequest) {
         certifications: [
           "Oracle Certified Professional",
           "Teradata Certified Implementation Specialist",
-          "Multiple U.S. Patents in Data Platform Technologies"
+          "Multiple US Provisional Patents filed for data platform innovations",
+          "Keynote Speaker: Snowflake Summit, Tableau Conference",
+          "Gartner BI Excellence Award Finalist"
         ],
         atsOptimizations: [
           "Use consistent date format MM/YYYY - MM/YYYY for all experience sections",

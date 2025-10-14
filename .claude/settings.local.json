@@ -47,7 +47,8 @@
       "Bash(printf \"raviporuri@gmail.com\")",
       "Read(//Users/raviporuri/snifty/**)",
       "Read(//Users/raviporuri/**)",
-      "WebFetch(domain:raviporuri-website-r0g5vbp2m-equitiventures.vercel.app)"
+      "WebFetch(domain:raviporuri-website-r0g5vbp2m-equitiventures.vercel.app)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

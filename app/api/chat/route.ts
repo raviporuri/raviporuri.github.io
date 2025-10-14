@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
 **STRATEGIC ACCOMPLISHMENTS:**
 • Grew Cisco CX Cloud from MVP to $500M+ ARR in 4 years as Senior Director
 • Led digital transformation initiatives across Fortune 500 companies
-• Multiple U.S. patents in data platform technologies
+• Multiple US provisional patents filed in data platform technologies
 • Proven track record scaling startups to enterprise (0 to IPO)
 
 To continue our conversation with personalized insights based on your role and interests, please let me know your name, role (recruiter, executive, hiring manager, etc.), and what you're hoping to learn about Ravi.
