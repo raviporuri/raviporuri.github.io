@@ -153,21 +153,38 @@ export default function HomePage() {
   const projects = [
     {
       name: "Scanity.ai",
-      description: "AI-native security platform detecting vulnerabilities traditional scanners miss",
-      tech: ["AI/ML", "Security", "Next.js"],
-      status: "Active"
+      description: "First true AI-native security platform using GPT-4 + Claude for vulnerability detection that traditional scanners miss. Features zero-trust architecture and SOC 2 compliance.",
+      tech: ["OpenAI GPT-4", "Claude", "AWS Lambda", "Next.js"],
+      status: "Active",
+      highlight: "AI Security Pioneer"
     },
     {
-      name: "DefScan Pro",
-      description: "Advanced AI-powered vulnerability scanning and threat detection",
-      tech: ["Computer Vision", "ML", "Security"],
-      status: "Active"
+      name: "YAARS (Receipt OCR)",
+      description: "Advanced receipt processing using PaddleOCR (PP-OCRv3) with 95%+ accuracy. Implements CoreML on-device processing with custom-trained models for multi-language support.",
+      tech: ["PaddleOCR", "CoreML", "Computer Vision", "Swift"],
+      status: "Active",
+      highlight: "Custom OCR Models"
     },
     {
-      name: "Scan2Secure",
-      description: "Comprehensive security scanning platform with AI-enhanced analysis",
-      tech: ["AI/ML", "AWS", "Terraform"],
-      status: "Active"
+      name: "Jourro (Travel AI)",
+      description: "Intelligent travel journal using advanced OCR for ticket processing. Features airport code detection, flight number recognition, and context-aware date extraction.",
+      tech: ["Advanced OCR", "Context AI", "iOS", "Swift"],
+      status: "Active",
+      highlight: "Context-Aware Processing"
+    },
+    {
+      name: "SniftyShare",
+      description: "AI-powered content sharing platform with intelligent categorization and real-time processing. Built with modern React architecture and cloud-native infrastructure.",
+      tech: ["React", "AI Classification", "Firebase", "Cloud Functions"],
+      status: "Active",
+      highlight: "Intelligent Content AI"
+    },
+    {
+      name: "ZipWik",
+      description: "Digital catalog platform with strict AI development rules and real-time data processing. Features comprehensive API integration and production-ready architecture.",
+      tech: ["TypeScript", "API Integration", "React", "Production AI"],
+      status: "Active",
+      highlight: "Production AI Standards"
     }
   ]
 
@@ -422,10 +439,11 @@ export default function HomePage() {
               Latest Work
             </Badge>
             <Title order={2} size="2.5rem" ta="center" fw={700}>
-              Recent AI Applications
+              AI Innovation Portfolio
             </Title>
             <Text size="lg" ta="center" c="dimmed">
-              Building the next generation of AI-powered security and productivity tools
+              Custom AI models, advanced OCR systems, and production-ready intelligent applications showcasing
+              unique implementations across security, computer vision, and context-aware processing
             </Text>
           </Stack>
 
@@ -438,20 +456,23 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
               >
-                <Card shadow="sm" padding="xl" radius="md" h="100%">
+                <Card shadow="sm" padding="xl" radius="md" h="100%" style={{ position: 'relative' }}>
                   <Stack>
                     <Group justify="space-between">
                       <Title order={4}>{project.name}</Title>
-                      <Badge color="green">{project.status}</Badge>
+                      <Group gap="xs">
+                        <Badge color="blue" variant="light" size="sm">{project.highlight}</Badge>
+                        <Badge color="green">{project.status}</Badge>
+                      </Group>
                     </Group>
 
-                    <Text c="dimmed" style={{ flexGrow: 1 }}>
+                    <Text c="dimmed" style={{ flexGrow: 1, lineHeight: 1.5 }}>
                       {project.description}
                     </Text>
 
                     <Group gap="xs">
                       {project.tech.map((tech) => (
-                        <Badge key={tech} size="sm" variant="light">
+                        <Badge key={tech} size="sm" variant="light" color="gray">
                           {tech}
                         </Badge>
                       ))}

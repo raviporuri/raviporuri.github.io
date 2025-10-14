@@ -88,10 +88,37 @@ EDUCATION & CERTIFICATIONS:
 - Oracle Certified Professional
 - Teradata Certified Implementation Specialist
 
-RECENT AI WORK (2024):
-- Scanity.ai: AI-native security platform detecting vulnerabilities traditional scanners miss
-- DefScan Pro: Advanced AI-powered vulnerability scanning and threat detection
-- Scan2Secure: Comprehensive security platform with AI-enhanced analysis
+RECENT AI WORK (2024) - UNIQUE IMPLEMENTATIONS:
+
+Scanity.ai - AI Security Pioneer:
+- First true AI-native security platform using GPT-4 + Claude for vulnerability detection
+- Features zero-trust architecture and SOC 2 compliance
+- Detects vulnerabilities that traditional scanners miss through multi-model AI analysis
+
+YAARS - Custom OCR Models:
+- Advanced receipt processing using PaddleOCR (PP-OCRv3) with 95%+ accuracy
+- Custom CoreML on-device processing with converted PaddleOCR models
+- Multi-language support and superior table/structured data extraction
+- Implements on-device AI for privacy and performance
+
+Jourro - Context-Aware Processing:
+- Intelligent travel journal using advanced OCR for ticket processing
+- Context-aware airport code detection with common word filtering
+- Flight number recognition with OCR error correction (O vs 0)
+- Smart date extraction that determines departure vs arrival from surrounding text context
+- Enhanced booking reference extraction with contextual line analysis
+
+SniftyShare - Intelligent Content AI:
+- AI-powered content sharing platform with intelligent categorization
+- Real-time processing with modern React architecture
+- Cloud-native infrastructure using Firebase and Cloud Functions
+- Intelligent content classification and automated organization
+
+ZipWik - Production AI Standards:
+- Digital catalog platform with strict AI development rules
+- Real-time data processing with comprehensive API integration
+- Production-ready architecture built with TypeScript
+- Implements strict code quality standards for AI applications
 
 SPEAKING & RECOGNITION:
 - Snowflake Summit 2019 Speaker

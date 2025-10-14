@@ -1,4 +1,4 @@
-"use strict";(()=>{var e={};e.id=744,e.ids=[744],e.modules={20399:e=>{e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},30517:e=>{e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},92048:e=>{e.exports=require("fs")},32615:e=>{e.exports=require("http")},35240:e=>{e.exports=require("https")},55315:e=>{e.exports=require("path")},68621:e=>{e.exports=require("punycode")},76162:e=>{e.exports=require("stream")},17360:e=>{e.exports=require("url")},21764:e=>{e.exports=require("util")},6162:e=>{e.exports=require("worker_threads")},71568:e=>{e.exports=require("zlib")},87561:e=>{e.exports=require("node:fs")},84492:e=>{e.exports=require("node:stream")},926:(e,r,t)=>{t.r(r),t.d(r,{originalPathname:()=>S,patchFetch:()=>P,requestAsyncStorage:()=>I,routeModule:()=>v,serverHooks:()=>y,staticGenerationAsyncStorage:()=>x});var a={};t.r(a),t.d(a,{POST:()=>h});var i=t(49303),n=t(88716),o=t(60670),s=t(87070),c=t(74351),u=t(92048),p=t.n(u),l=t(55315),d=t.n(l);let m=new c.ZP({apiKey:process.env.ANTHROPIC_API_KEY}),g=()=>{try{let e=d().join(process.cwd(),"data","comprehensive_profile.json"),r=JSON.parse(p().readFileSync(e,"utf8")),t=d().join(process.cwd(),"data","experience","all_experience.json"),a={};return p().existsSync(t)&&(a=JSON.parse(p().readFileSync(t,"utf8"))),{profile:r,experience:a}}catch(e){return console.error("Error loading profile data:",e),null}},f=e=>{if(!e)return"You are an AI assistant helping visitors learn about Ravi Poruri's professional background.";let{profile:r}=e;return`You are an AI assistant specifically designed to answer questions about Ravi Poruri's professional background and experience. You have comprehensive knowledge of his career spanning 25+ years in technology leadership.
+"use strict";(()=>{var e={};e.id=744,e.ids=[744],e.modules={20399:e=>{e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},30517:e=>{e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},92048:e=>{e.exports=require("fs")},32615:e=>{e.exports=require("http")},35240:e=>{e.exports=require("https")},55315:e=>{e.exports=require("path")},68621:e=>{e.exports=require("punycode")},76162:e=>{e.exports=require("stream")},17360:e=>{e.exports=require("url")},21764:e=>{e.exports=require("util")},6162:e=>{e.exports=require("worker_threads")},71568:e=>{e.exports=require("zlib")},87561:e=>{e.exports=require("node:fs")},84492:e=>{e.exports=require("node:stream")},926:(e,r,t)=>{t.r(r),t.d(r,{originalPathname:()=>A,patchFetch:()=>P,requestAsyncStorage:()=>I,routeModule:()=>v,serverHooks:()=>y,staticGenerationAsyncStorage:()=>x});var a={};t.r(a),t.d(a,{POST:()=>f});var i=t(49303),n=t(88716),o=t(60670),s=t(87070),c=t(74351),u=t(92048),l=t.n(u),p=t(55315),d=t.n(p);let g=new c.ZP({apiKey:process.env.ANTHROPIC_API_KEY}),m=()=>{try{let e=d().join(process.cwd(),"data","comprehensive_profile.json"),r=JSON.parse(l().readFileSync(e,"utf8")),t=d().join(process.cwd(),"data","experience","all_experience.json"),a={};return l().existsSync(t)&&(a=JSON.parse(l().readFileSync(t,"utf8"))),{profile:r,experience:a}}catch(e){return console.error("Error loading profile data:",e),null}},h=e=>{if(!e)return"You are an AI assistant helping visitors learn about Ravi Poruri's professional background.";let{profile:r}=e;return`You are an AI assistant specifically designed to answer questions about Ravi Poruri's professional background and experience. You have comprehensive knowledge of his career spanning 25+ years in technology leadership.
 
 KEY PROFILE INFORMATION:
 
@@ -51,10 +51,37 @@ EDUCATION & CERTIFICATIONS:
 - Oracle Certified Professional
 - Teradata Certified Implementation Specialist
 
-RECENT AI WORK (2024):
-- Scanity.ai: AI-native security platform detecting vulnerabilities traditional scanners miss
-- DefScan Pro: Advanced AI-powered vulnerability scanning and threat detection
-- Scan2Secure: Comprehensive security platform with AI-enhanced analysis
+RECENT AI WORK (2024) - UNIQUE IMPLEMENTATIONS:
+
+Scanity.ai - AI Security Pioneer:
+- First true AI-native security platform using GPT-4 + Claude for vulnerability detection
+- Features zero-trust architecture and SOC 2 compliance
+- Detects vulnerabilities that traditional scanners miss through multi-model AI analysis
+
+YAARS - Custom OCR Models:
+- Advanced receipt processing using PaddleOCR (PP-OCRv3) with 95%+ accuracy
+- Custom CoreML on-device processing with converted PaddleOCR models
+- Multi-language support and superior table/structured data extraction
+- Implements on-device AI for privacy and performance
+
+Jourro - Context-Aware Processing:
+- Intelligent travel journal using advanced OCR for ticket processing
+- Context-aware airport code detection with common word filtering
+- Flight number recognition with OCR error correction (O vs 0)
+- Smart date extraction that determines departure vs arrival from surrounding text context
+- Enhanced booking reference extraction with contextual line analysis
+
+SniftyShare - Intelligent Content AI:
+- AI-powered content sharing platform with intelligent categorization
+- Real-time processing with modern React architecture
+- Cloud-native infrastructure using Firebase and Cloud Functions
+- Intelligent content classification and automated organization
+
+ZipWik - Production AI Standards:
+- Digital catalog platform with strict AI development rules
+- Real-time data processing with comprehensive API integration
+- Production-ready architecture built with TypeScript
+- Implements strict code quality standards for AI applications
 
 SPEAKING & RECOGNITION:
 - Snowflake Summit 2019 Speaker
@@ -75,7 +102,7 @@ You should NOT:
 - Invent or fabricate any experience
 - Exaggerate achievements beyond what's documented
 - Provide information about other people
-- Discuss topics unrelated to Ravi's professional background`};async function h(e){try{let{message:r}=await e.json();if(!r)return s.NextResponse.json({error:"Message is required"},{status:400});if(!process.env.ANTHROPIC_API_KEY)return s.NextResponse.json({error:"API configuration missing",response:"I apologize, but the AI chat service is currently not configured. Please contact Ravi directly at raviporuri@gmail.com for information about his background and experience."},{status:500});let t=g(),a=f(t),i=await m.messages.create({model:"claude-3-haiku-20240307",max_tokens:1e3,temperature:.7,system:a,messages:[{role:"user",content:r}]}),n="text"===i.content[0].type?i.content[0].text:"I apologize, but I encountered an error processing your request.";return s.NextResponse.json({response:n})}catch(r){console.error("Chat API error:",r);let e=`I apologize, but I'm experiencing technical difficulties right now. Here's some key information about Ravi Poruri:
+- Discuss topics unrelated to Ravi's professional background`};async function f(e){try{let{message:r}=await e.json();if(!r)return s.NextResponse.json({error:"Message is required"},{status:400});if(!process.env.ANTHROPIC_API_KEY)return s.NextResponse.json({error:"API configuration missing",response:"I apologize, but the AI chat service is currently not configured. Please contact Ravi directly at raviporuri@gmail.com for information about his background and experience."},{status:500});let t=m(),a=h(t),i=await g.messages.create({model:"claude-3-haiku-20240307",max_tokens:1e3,temperature:.7,system:a,messages:[{role:"user",content:r}]}),n="text"===i.content[0].type?i.content[0].text:"I apologize, but I encountered an error processing your request.";return s.NextResponse.json({response:n})}catch(r){console.error("Chat API error:",r);let e=`I apologize, but I'm experiencing technical difficulties right now. Here's some key information about Ravi Poruri:
 
 Ravi is a technology leader with 25+ years of experience, currently the Founder & AI Product Leader at Equiti Ventures. He's building AI-powered applications including Scanity.ai, DefScan Pro, and Scan2Secure.
 
@@ -85,4 +112,4 @@ Previous roles include:
 • Director at Chegg (2015-2017) - 40% revenue increase in 12 months
 • Senior Manager at Yahoo (2007-2015) - Managed massive data platforms
 
-For more detailed information, please contact Ravi directly at raviporuri@gmail.com.`;return s.NextResponse.json({response:e})}}let v=new i.AppRouteRouteModule({definition:{kind:n.x.APP_ROUTE,page:"/api/chat/route",pathname:"/api/chat",filename:"route",bundlePath:"app/api/chat/route"},resolvedPagePath:"/Users/raviporuri/raviporuri-website/app/api/chat/route.ts",nextConfigOutput:"",userland:a}),{requestAsyncStorage:I,staticGenerationAsyncStorage:x,serverHooks:y}=v,S="/api/chat/route";function P(){return(0,o.patchFetch)({serverHooks:y,staticGenerationAsyncStorage:x})}}};var r=require("../../../webpack-runtime.js");r.C(e);var t=e=>r(r.s=e),a=r.X(0,[276,710],()=>t(926));module.exports=a})();
+For more detailed information, please contact Ravi directly at raviporuri@gmail.com.`;return s.NextResponse.json({response:e})}}let v=new i.AppRouteRouteModule({definition:{kind:n.x.APP_ROUTE,page:"/api/chat/route",pathname:"/api/chat",filename:"route",bundlePath:"app/api/chat/route"},resolvedPagePath:"/Users/raviporuri/raviporuri-website/app/api/chat/route.ts",nextConfigOutput:"",userland:a}),{requestAsyncStorage:I,staticGenerationAsyncStorage:x,serverHooks:y}=v,A="/api/chat/route";function P(){return(0,o.patchFetch)({serverHooks:y,staticGenerationAsyncStorage:x})}}};var r=require("../../../webpack-runtime.js");r.C(e);var t=e=>r(r.s=e),a=r.X(0,[276,710],()=>t(926));module.exports=a})();
