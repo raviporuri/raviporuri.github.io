@@ -1,507 +1,617 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
 import {
-  Brain,
-  FileText,
-  Search,
-  Zap,
-  ArrowRight,
-  Check,
-  Sparkles,
-  Bot,
-  MessageSquare,
-  Download,
-  Target,
-  BarChart3,
-  Users,
-  Star,
-  ChevronRight,
-  Play
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+  Container,
+  Title,
+  Text,
+  Button,
+  Group,
+  Card,
+  SimpleGrid,
+  Stack,
+  Badge,
+  Avatar,
+  Center,
+  Box,
+  Flex,
+  Paper,
+  ThemeIcon,
+  rem,
+  Anchor,
+  Divider,
+  Timeline,
+  Progress,
+  Modal,
+  TextInput,
+  ActionIcon,
+  ScrollArea,
+  Loader
+} from '@mantine/core'
+import {
+  IconBrain,
+  IconFileText,
+  IconSearch,
+  IconTarget,
+  IconRocket,
+  IconUser,
+  IconChartBar,
+  IconMessage,
+  IconDownload,
+  IconStar,
+  IconBuildingSkyscraper,
+  IconTrendingUp,
+  IconAward,
+  IconCode,
+  IconDatabase,
+  IconCloud,
+  IconSend,
+  IconBrandLinkedin,
+  IconBrandGithub,
+  IconMail,
+  IconX,
+  IconUsers,
+  IconCurrencyDollar
+} from '@tabler/icons-react'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 export default function HomePage() {
-  const [activeFeature, setActiveFeature] = useState(0)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
+  const [loading, setLoading] = useState(false)
 
-  const features = [
+  const experiences = [
     {
-      icon: Brain,
-      title: "AI Career Assistant",
-      description: "Chat with my AI assistant trained on 25+ years of technology leadership experience",
-      details: "Get personalized career advice, leadership insights, and technical guidance based on real-world experience scaling organizations from startup to IPO.",
-      color: "from-blue-500 to-cyan-500"
+      company: "Equiti Ventures",
+      role: "Founder & AI Product Leader",
+      period: "2024 - Present",
+      icon: IconBrain,
+      color: "blue",
+      description: "Leading development of AI-powered mobile applications using cutting-edge LLMs and computer vision",
+      achievements: [
+        "Building next-generation AI security platforms (Scanity, DefScan)",
+        "Developing AI-native applications with advanced ML capabilities",
+        "Creating innovative AI-powered solutions"
+      ]
     },
     {
-      icon: FileText,
-      title: "Smart Resume Generator",
-      description: "Create ATS-optimized resumes tailored to specific roles and companies",
-      details: "Generate professional resumes using AI that understands job requirements, optimizes keywords, and formats for maximum impact.",
-      color: "from-purple-500 to-pink-500"
+      company: "Cisco Systems",
+      role: "Senior Director, CX Platform Engineering",
+      period: "2020 - 2024",
+      icon: IconBuildingSkyscraper,
+      color: "red",
+      description: "Led global team responsible for Customer Experience Cloud data and analytics solutions",
+      achievements: [
+        "Grew CX Cloud from MVP to $500M+ ARR in 4 years",
+        "25% increase in annual services revenue",
+        "50% reduction in renewals cycle time",
+        "Managed 100+ person organization across 3 teams"
+      ]
     },
     {
-      icon: Search,
-      title: "Intelligent Job Matching",
-      description: "Find opportunities that align with your skills and career goals",
-      details: "Advanced AI analyzes your background against job postings to find the perfect matches and provide actionable application strategies.",
-      color: "from-green-500 to-emerald-500"
+      company: "Dropbox",
+      role: "Global Head of Data and Business Intelligence",
+      period: "2017 - 2020",
+      icon: IconCloud,
+      color: "blue",
+      description: "Developed enterprise data strategy for 600M+ users, led company from pre-IPO to IPO",
+      achievements: [
+        "Doubled revenue from $850M to $1.8B",
+        "Led IPO data strategy and execution",
+        "Built enterprise analytics on AWS and Snowflake",
+        "Managed global team of 35+ across 4 pillars"
+      ]
     },
     {
-      icon: Target,
-      title: "Resume Tailoring",
-      description: "Automatically customize your resume for each application",
-      details: "Upload your resume and job description to get a perfectly tailored version that highlights relevant experience and skills.",
-      color: "from-orange-500 to-red-500"
+      company: "Chegg",
+      role: "Director of Data Engineering & BI",
+      period: "2015 - 2017",
+      icon: IconChartBar,
+      color: "green",
+      description: "First director of data engineering, built comprehensive digital platform",
+      achievements: [
+        "40% revenue increase within 12 months",
+        "100% stock value growth in 12 months",
+        "Built engineering team to 25+ people",
+        "Developed India center of excellence"
+      ]
+    },
+    {
+      company: "Yahoo",
+      role: "Senior Manager, Data Platforms",
+      period: "2007 - 2015",
+      icon: IconDatabase,
+      color: "purple",
+      description: "Managed massive data pipelines and platform engineering at scale",
+      achievements: [
+        "400+ billion events, hundreds of petabytes",
+        "$2+ billion annual revenue generated",
+        "World's largest MS OLAP SSAS Cube (20+ TB)",
+        "10K+ servers, 450+ production clusters"
+      ]
     }
   ]
 
-  const stats = [
-    { label: "Years of Experience", value: "25+", icon: Star },
-    { label: "Companies Scaled", value: "10+", icon: BarChart3 },
-    { label: "Team Members Led", value: "500+", icon: Users },
-    { label: "Revenue Impact", value: "$3.2B+", icon: Target }
+  const skills = [
+    { category: "AI & Machine Learning", skills: ["Generative AI", "LLMs", "Computer Vision", "ML Platforms", "Predictive Analytics"], level: 95, color: "blue" },
+    { category: "Data Platforms", skills: ["Big Data", "Data Engineering", "Analytics", "Data Governance", "ETL/ELT"], level: 98, color: "green" },
+    { category: "Cloud Platforms", skills: ["AWS", "Snowflake", "Azure", "Multi-cloud", "Infrastructure"], level: 90, color: "cyan" },
+    { category: "Leadership", skills: ["Team Building", "Strategy", "P&L", "IPO Experience", "Global Teams"], level: 95, color: "orange" },
+    { category: "Programming", skills: ["SQL", "Python", "Java", "Scala", "JavaScript"], level: 85, color: "grape" }
   ]
 
-  const testimonials = [
+  const achievements = [
+    { metric: "Revenue Impact", value: "$3.2B+", description: "Total revenue growth delivered", icon: IconCurrencyDollar },
+    { metric: "Team Leadership", value: "500+", description: "People managed across career", icon: IconUsers },
+    { metric: "Platform Scale", value: "600M+", description: "Users served (Dropbox)", icon: IconUser },
+    { metric: "Data Volume", value: "400B+", description: "Events processed daily", icon: IconDatabase },
+    { metric: "Years Experience", value: "25+", description: "Technology leadership", icon: IconStar },
+    { metric: "Patents", value: "Multiple", description: "U.S. patents granted", icon: IconAward }
+  ]
+
+  const projects = [
     {
-      quote: "The AI career assistant provided insights that transformed my approach to leadership.",
-      author: "Sarah Chen",
-      role: "Engineering Manager at Google",
-      avatar: "SC"
+      name: "Scanity.ai",
+      description: "AI-native security platform detecting vulnerabilities traditional scanners miss",
+      tech: ["AI/ML", "Security", "Next.js"],
+      status: "Active"
     },
     {
-      quote: "Generated resume helped me land my dream job at Microsoft in just 3 weeks.",
-      author: "Michael Torres",
-      role: "Senior Software Engineer",
-      avatar: "MT"
+      name: "DefScan Pro",
+      description: "Advanced AI-powered vulnerability scanning and threat detection",
+      tech: ["Computer Vision", "ML", "Security"],
+      status: "Active"
     },
     {
-      quote: "The job matching algorithm found opportunities I never would have discovered.",
-      author: "Priya Patel",
-      role: "Product Manager at Stripe",
-      avatar: "PP"
+      name: "Scan2Secure",
+      description: "Comprehensive security scanning platform with AI-enhanced analysis",
+      tech: ["AI/ML", "AWS", "Terraform"],
+      status: "Active"
     }
   ]
+
+  const handleChatSubmit = async () => {
+    if (!chatInput.trim() || loading) return
+
+    const userMessage = chatInput.trim()
+    setChatInput('')
+    setChatMessages(prev => [...prev, { role: 'user', content: userMessage }])
+    setLoading(true)
+
+    try {
+      // Call your AI chat endpoint here
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setChatMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+      } else {
+        setChatMessages(prev => [...prev, { role: 'assistant', content: 'I apologize, but I\'m having trouble responding right now. Please try again later.' }])
+      }
+    } catch (error) {
+      setChatMessages(prev => [...prev, { role: 'assistant', content: 'I apologize, but I\'m having trouble responding right now. Please try again later.' }])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-white/5 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-2"
-            >
-              <Brain className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold text-white">Ravi Poruri</span>
-              <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400/30">
-                AI-Powered
-              </Badge>
-            </motion.div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#about" className="text-slate-300 hover:text-white transition-colors">About</a>
-              <a href="#features" className="text-slate-300 hover:text-white transition-colors">Features</a>
-              <a href="#testimonials" className="text-slate-300 hover:text-white transition-colors">Success Stories</a>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Chat with AI
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <Box>
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-        </div>
+      <Box
+        style={{
+          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)',
+          minHeight: '90vh',
+          display: 'flex',
+          alignItems: 'center',
+          position: 'relative'
+        }}
+      >
+        <Container size="lg">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Group align="center" gap="xl" style={{ minHeight: '80vh' }}>
+              <Stack style={{ flex: 1 }} gap="xl">
+                <Avatar
+                  size={120}
+                  radius="xl"
+                  src="/ravi-avatar.jpg"
+                  alt="Ravi Poruri"
+                  style={{
+                    border: '4px solid rgba(255,255,255,0.3)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                  }}
+                />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <div className="space-y-4">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.6 }}
-                  className="flex items-center space-x-2"
-                >
-                  <Sparkles className="h-5 w-5 text-yellow-400" />
-                  <span className="text-blue-300 font-medium">AI-Powered Career Platform</span>
-                </motion.div>
-
-                <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight">
-                  Transform Your
-                  <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    Career Journey
-                  </span>
-                </h1>
-
-                <p className="text-xl text-slate-300 leading-relaxed">
-                  Leverage 25+ years of technology leadership experience through AI. Get personalized career guidance,
-                  generate optimized resumes, and discover opportunities that accelerate your growth.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6 group">
-                  <Bot className="h-5 w-5 mr-2" />
-                  Start AI Chat
-                  <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-6 group">
-                  <Play className="h-5 w-5 mr-2" />
-                  Watch Demo
-                </Button>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1, duration: 0.6 }}
-                    className="text-center group cursor-pointer"
+                <Stack gap="md">
+                  <Title
+                    order={1}
+                    size="3rem"
+                    fw={900}
+                    c="white"
+                    style={{ lineHeight: 1.1 }}
                   >
-                    <div className="flex items-center justify-center mb-2">
-                      <stat.icon className="h-5 w-5 text-blue-400 mr-1" />
-                      <div className="text-2xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors">
-                        {stat.value}
-                      </div>
-                    </div>
-                    <div className="text-sm text-slate-400">{stat.label}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                    Ravi Poruri
+                  </Title>
 
-            {/* Interactive Demo */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="relative"
-            >
-              <div className="relative">
-                <Card className="bg-white/10 backdrop-blur-xl border-white/20 overflow-hidden">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <MessageSquare className="h-5 w-5 mr-2 text-blue-400" />
-                      AI Career Assistant
-                      <Badge className="ml-auto bg-green-500/20 text-green-300 border-green-400/30">
-                        Live
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription className="text-slate-300">
-                      Experience intelligent career guidance
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                      className="bg-blue-500/20 p-4 rounded-lg border border-blue-400/30"
-                    >
-                      <p className="text-white text-sm">
-                        "How can I transition from a senior engineer to an engineering manager role?"
-                      </p>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 }}
-                      className="bg-slate-800/50 p-4 rounded-lg border border-slate-600/30"
-                    >
-                      <div className="flex items-start space-x-2">
-                        <Bot className="h-4 w-4 text-blue-400 mt-1 flex-shrink-0" />
-                        <div className="space-y-2">
-                          <p className="text-slate-300 text-sm leading-relaxed">
-                            Based on my experience scaling teams at Dropbox and Cisco, here's a strategic approach...
-                          </p>
-                          <div className="flex space-x-2">
-                            <Badge variant="outline" className="text-xs border-blue-400/30 text-blue-300">
-                              Leadership
-                            </Badge>
-                            <Badge variant="outline" className="text-xs border-purple-400/30 text-purple-300">
-                              Career Growth
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                      Try Live Demo
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+                  <Text size="xl" c="white" fw={600} style={{ opacity: 0.9 }}>
+                    Technology Leader & AI Innovator
+                  </Text>
 
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+                  <Text size="lg" c="white" style={{ opacity: 0.8, maxWidth: 600 }}>
+                    25+ years driving technology transformations. From database admin to AI entrepreneur,
+                    I've led teams that delivered $3.2B+ in revenue impact across Yahoo, Dropbox, Cisco, and my own ventures.
+                  </Text>
+                </Stack>
+
+                <Group>
+                  <Button
+                    size="lg"
+                    variant="white"
+                    color="dark"
+                    leftSection={<IconMessage size={20} />}
+                    onClick={() => setChatOpen(true)}
+                    style={{ fontWeight: 600 }}
+                  >
+                    Ask AI About My Experience
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    c="white"
+                    style={{ borderColor: 'white', fontWeight: 600 }}
+                    leftSection={<IconDownload size={20} />}
+                    onClick={() => window.open('/resume-customizer', '_blank')}
+                  >
+                    Customize Resume
+                  </Button>
+                </Group>
+
+                <Group>
+                  <ActionIcon size="lg" variant="subtle" color="white">
+                    <IconBrandLinkedin size={24} />
+                  </ActionIcon>
+                  <ActionIcon size="lg" variant="subtle" color="white">
+                    <IconBrandGithub size={24} />
+                  </ActionIcon>
+                  <ActionIcon size="lg" variant="subtle" color="white">
+                    <IconMail size={24} />
+                  </ActionIcon>
+                </Group>
+              </Stack>
+            </Group>
+          </motion.div>
+        </Container>
+      </Box>
+
+      {/* Key Achievements */}
+      <Container size="lg" py="4rem">
+        <Stack align="center" mb="3rem">
+          <Title order={2} size="2.5rem" ta="center" fw={700}>
+            Career Impact
+          </Title>
+          <Text size="lg" ta="center" c="dimmed">
+            Quantified achievements across 25+ years of technology leadership
+          </Text>
+        </Stack>
+
+        <SimpleGrid cols={{ base: 2, md: 3, lg: 6 }} spacing="lg">
+          {achievements.map((achievement, index) => (
             <motion.div
+              key={achievement.metric}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ delay: index * 0.1, duration: 0.6 }}
             >
-              <h2 className="text-4xl font-bold text-white mb-4">
-                AI-Powered Career Tools
-              </h2>
-              <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-                Comprehensive suite of intelligent tools designed to accelerate your career growth
-              </p>
+              <Paper p="md" radius="md" style={{ textAlign: 'center', height: '100%' }}>
+                <ThemeIcon size="xl" color="blue" variant="light" mx="auto" mb="md">
+                  <achievement.icon style={{ width: rem(24), height: rem(24) }} />
+                </ThemeIcon>
+                <Text size="xl" fw={700} c="blue">
+                  {achievement.value}
+                </Text>
+                <Text size="sm" fw={500}>
+                  {achievement.metric}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {achievement.description}
+                </Text>
+              </Paper>
             </motion.div>
-          </div>
+          ))}
+        </SimpleGrid>
+      </Container>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-4">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                >
-                  <Card
-                    className={`cursor-pointer transition-all duration-300 hover:scale-105 ${
-                      activeFeature === index
-                        ? 'bg-gradient-to-r ' + feature.color + ' bg-opacity-20 border-white/30'
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
-                    }`}
-                    onClick={() => setActiveFeature(index)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <div className={`p-3 rounded-xl bg-gradient-to-r ${feature.color}`}>
-                          <feature.icon className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-white mb-2">
-                            {feature.title}
-                          </h3>
-                          <p className="text-slate-300 text-sm">
-                            {feature.description}
-                          </p>
-                        </div>
-                        <Check className={`h-5 w-5 transition-colors ${
-                          activeFeature === index ? 'text-blue-400' : 'text-slate-600'
-                        }`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+      {/* Experience Timeline */}
+      <Box py="4rem" style={{ backgroundColor: '#f8f9fa' }}>
+        <Container size="lg">
+          <Stack align="center" mb="4rem">
+            <Title order={2} size="2.5rem" ta="center" fw={700}>
+              Professional Journey
+            </Title>
+            <Text size="lg" ta="center" c="dimmed">
+              From database administration to AI entrepreneurship
+            </Text>
+          </Stack>
 
+          <Timeline active={0} bulletSize={24} lineWidth={2}>
+            {experiences.map((exp, index) => (
+              <Timeline.Item
+                key={exp.company}
+                bullet={<exp.icon size={16} />}
+                title={
+                  <Group gap="xs">
+                    <Text fw={600} size="lg">{exp.role}</Text>
+                    <Badge color={exp.color}>{exp.period}</Badge>
+                  </Group>
+                }
+              >
+                <Text c="dimmed" size="sm" mb="xs">{exp.company}</Text>
+                <Text size="sm" mb="md">{exp.description}</Text>
+                <Stack gap="xs">
+                  {exp.achievements.map((achievement, idx) => (
+                    <Text key={idx} size="sm" c="dimmed">
+                      • {achievement}
+                    </Text>
+                  ))}
+                </Stack>
+              </Timeline.Item>
+            ))}
+          </Timeline>
+        </Container>
+      </Box>
+
+      {/* Skills & Expertise */}
+      <Container size="lg" py="4rem">
+        <Stack align="center" mb="4rem">
+          <Title order={2} size="2.5rem" ta="center" fw={700}>
+            Core Competencies
+          </Title>
+          <Text size="lg" ta="center" c="dimmed">
+            Technical expertise and leadership capabilities
+          </Text>
+        </Stack>
+
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+          {skills.map((skillGroup, index) => (
             <motion.div
-              key={activeFeature}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:pl-8"
+              key={skillGroup.category}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.6 }}
             >
-              <Card className={`bg-gradient-to-br ${features[activeFeature].color} bg-opacity-10 backdrop-blur-xl border-white/20 overflow-hidden`}>
-                <CardContent className="p-8">
-                  <div className="flex items-center space-x-3 mb-6">
-                    <div className={`p-4 bg-gradient-to-r ${features[activeFeature].color} rounded-xl`}>
-                      {(() => {
-                        const Icon = features[activeFeature].icon
-                        return <Icon className="h-8 w-8 text-white" />
-                      })()}
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">
-                      {features[activeFeature].title}
-                    </h3>
-                  </div>
-                  <p className="text-slate-300 leading-relaxed mb-6">
-                    {features[activeFeature].details}
-                  </p>
-                  <Button className={`bg-gradient-to-r ${features[activeFeature].color} hover:opacity-90`}>
-                    <Zap className="h-4 w-4 mr-2" />
-                    Try Now
-                  </Button>
-                </CardContent>
+              <Card shadow="sm" padding="xl" radius="md" h="100%">
+                <Stack>
+                  <Group justify="space-between">
+                    <Text fw={600} size="lg">{skillGroup.category}</Text>
+                    <Badge color={skillGroup.color}>{skillGroup.level}%</Badge>
+                  </Group>
+
+                  <Progress
+                    value={skillGroup.level}
+                    color={skillGroup.color}
+                    size="lg"
+                    radius="xl"
+                  />
+
+                  <Text size="sm" c="dimmed">
+                    {skillGroup.skills.join(" • ")}
+                  </Text>
+                </Stack>
               </Card>
             </motion.div>
-          </div>
-        </div>
-      </section>
+          ))}
+        </SimpleGrid>
+      </Container>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Success Stories
-              </h2>
-              <p className="text-xl text-slate-300">
-                See how professionals are accelerating their careers with AI
-              </p>
-            </motion.div>
-          </div>
+      {/* Recent AI Projects */}
+      <Box py="4rem" style={{ backgroundColor: '#f8f9fa' }}>
+        <Container size="lg">
+          <Stack align="center" mb="4rem">
+            <Badge size="lg" variant="light" color="blue">
+              Latest Work
+            </Badge>
+            <Title order={2} size="2.5rem" ta="center" fw={700}>
+              Recent AI Applications
+            </Title>
+            <Text size="lg" ta="center" c="dimmed">
+              Building the next generation of AI-powered security and productivity tools
+            </Text>
+          </Stack>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+            {projects.map((project, index) => (
               <motion.div
-                key={index}
+                key={project.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
               >
-                <Card className="bg-white/5 backdrop-blur-xl border-white/10 hover:bg-white/10 transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                <Card shadow="sm" padding="xl" radius="md" h="100%">
+                  <Stack>
+                    <Group justify="space-between">
+                      <Title order={4}>{project.name}</Title>
+                      <Badge color="green">{project.status}</Badge>
+                    </Group>
+
+                    <Text c="dimmed" style={{ flexGrow: 1 }}>
+                      {project.description}
+                    </Text>
+
+                    <Group gap="xs">
+                      {project.tech.map((tech) => (
+                        <Badge key={tech} size="sm" variant="light">
+                          {tech}
+                        </Badge>
                       ))}
-                    </div>
-                    <blockquote className="text-slate-300 mb-4">
-                      "{testimonial.quote}"
-                    </blockquote>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">
-                          {testimonial.avatar}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="text-white font-semibold">{testimonial.author}</div>
-                        <div className="text-slate-400 text-sm">{testimonial.role}</div>
-                      </div>
-                    </div>
-                  </CardContent>
+                    </Group>
+                  </Stack>
                 </Card>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
+          </SimpleGrid>
+        </Container>
+      </Box>
 
-      {/* Call to Action */}
-      <section className="py-24 bg-gradient-to-r from-blue-600/20 to-purple-600/20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Contact CTA */}
+      <Box
+        py="4rem"
+        style={{
+          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
+        }}
+      >
+        <Container size="lg">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="space-y-8"
           >
-            <h2 className="text-4xl font-bold text-white">
-              Ready to Accelerate Your Career?
-            </h2>
-            <p className="text-xl text-slate-300">
-              Join thousands of professionals who've transformed their careers with AI-powered guidance
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6">
-                <MessageSquare className="h-5 w-5 mr-2" />
-                Start Free Consultation
-              </Button>
-              <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-6">
-                <Download className="h-5 w-5 mr-2" />
-                Download Resume Sample
-              </Button>
-            </div>
+            <Stack align="center" gap="xl">
+              <Title order={2} size="2.5rem" ta="center" c="white" fw={700}>
+                Let's Connect
+              </Title>
+
+              <Text size="lg" ta="center" c="white" maw={600} style={{ opacity: 0.9 }}>
+                Interested in AI innovation, technology leadership, or building scalable platforms?
+                Let's discuss opportunities to collaborate.
+              </Text>
+
+              <Group justify="center">
+                <Button
+                  size="lg"
+                  variant="white"
+                  color="dark"
+                  leftSection={<IconMessage size={20} />}
+                  onClick={() => setChatOpen(true)}
+                >
+                  Ask AI About My Background
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  c="white"
+                  style={{ borderColor: 'white' }}
+                  leftSection={<IconMail size={20} />}
+                >
+                  raviporuri@gmail.com
+                </Button>
+              </Group>
+            </Stack>
           </motion.div>
-        </div>
-      </section>
+        </Container>
+      </Box>
+
+      {/* AI Chat Modal */}
+      <Modal
+        opened={chatOpen}
+        onClose={() => setChatOpen(false)}
+        title={
+          <Group>
+            <IconBrain size={24} />
+            <Text fw={600}>Ask AI About Ravi's Experience</Text>
+          </Group>
+        }
+        size="lg"
+      >
+        <Stack gap="md">
+          <ScrollArea h={400} style={{ border: '1px solid #e9ecef', borderRadius: '8px' }}>
+            <Box p="md">
+              {chatMessages.length === 0 && (
+                <Text c="dimmed" ta="center">
+                  Ask me anything about Ravi's experience, skills, achievements, or career journey!
+                </Text>
+              )}
+              {chatMessages.map((message, index) => (
+                <Box key={index} mb="md">
+                  <Group gap="xs" mb="xs">
+                    {message.role === 'assistant' ? <IconBrain size={16} /> : <IconUser size={16} />}
+                    <Text size="sm" fw={600} c={message.role === 'assistant' ? 'blue' : 'dark'}>
+                      {message.role === 'assistant' ? 'AI Assistant' : 'You'}
+                    </Text>
+                  </Group>
+                  <Text size="sm" style={{ marginLeft: '24px' }}>
+                    {message.content}
+                  </Text>
+                </Box>
+              ))}
+              {loading && (
+                <Group gap="xs" mb="md">
+                  <IconBrain size={16} />
+                  <Text size="sm" fw={600} c="blue">AI Assistant</Text>
+                  <Loader size="sm" />
+                </Group>
+              )}
+            </Box>
+          </ScrollArea>
+
+          <Group gap="xs">
+            <TextInput
+              flex={1}
+              placeholder="Ask about Ravi's experience..."
+              value={chatInput}
+              onChange={(e) => setChatInput(e.currentTarget.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+              disabled={loading}
+            />
+            <ActionIcon
+              size="lg"
+              onClick={handleChatSubmit}
+              disabled={!chatInput.trim() || loading}
+              color="blue"
+            >
+              <IconSend size={18} />
+            </ActionIcon>
+          </Group>
+        </Stack>
+      </Modal>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <Brain className="h-6 w-6 text-blue-400" />
-                <span className="text-lg font-bold text-white">Ravi Poruri</span>
-              </div>
-              <p className="text-slate-400 mb-4">
-                AI-powered career platform built on 25+ years of technology leadership experience.
-              </p>
-              <div className="flex space-x-4">
-                <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
-                  LinkedIn
-                </Button>
-                <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
-                  GitHub
-                </Button>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Features</h3>
-              <ul className="space-y-2 text-slate-400">
-                <li>AI Career Assistant</li>
-                <li>Resume Generator</li>
-                <li>Job Matching</li>
-                <li>Career Analytics</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-slate-400">
-                <li>About</li>
-                <li>Blog</li>
-                <li>Careers</li>
-                <li>Contact</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-white/10 mt-8 pt-8 text-center text-slate-400">
-            <p>&copy; 2024 Ravi Poruri. All rights reserved. Powered by AI.</p>
-          </div>
-        </div>
-      </footer>
+      <Box py="2rem" style={{ backgroundColor: '#212529' }}>
+        <Container size="lg">
+          <Stack align="center" gap="md">
+            <Group>
+              <IconBrain size={24} style={{ color: '#3b82f6' }} />
+              <Title order={3} c="white">
+                Ravi Poruri
+              </Title>
+            </Group>
 
-      {/* Schema.org JSON-LD for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Person",
-            "name": "Ravi Poruri",
-            "jobTitle": "AI Entrepreneur & Technology Leader",
-            "description": "25+ year technology executive, AI entrepreneur, and founder of Equiti Ventures. Expert in scaling data platforms, leading global teams, and building AI-powered applications.",
-            "url": "https://raviporuri.com",
-            "sameAs": [
-              "https://linkedin.com/in/raviporuri",
-              "https://github.com/raviporuri"
-            ]
-          })
-        }}
-      />
-    </div>
+            <Text ta="center" c="dimmed">
+              Technology Leader & AI Innovator • 25+ Years Experience • $3.2B+ Revenue Impact
+            </Text>
+
+            <Group>
+              <Anchor href="https://linkedin.com/in/raviporuri" c="dimmed" size="sm">
+                LinkedIn
+              </Anchor>
+              <Anchor href="https://github.com/raviporuri" c="dimmed" size="sm">
+                GitHub
+              </Anchor>
+              <Anchor href="mailto:raviporuri@gmail.com" c="dimmed" size="sm">
+                Contact
+              </Anchor>
+            </Group>
+
+            <Divider w="100%" />
+
+            <Text size="sm" c="dimmed" ta="center">
+              © 2024 Ravi Poruri. All rights reserved.
+            </Text>
+          </Stack>
+        </Container>
+      </Box>
+    </Box>
   )
 }

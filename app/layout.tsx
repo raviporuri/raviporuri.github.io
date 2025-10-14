@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import { Providers } from './providers'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
+import '@mantine/core/styles.css'
+import '@mantine/notifications/styles.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -79,7 +81,7 @@ export default function RootLayout({
         <meta name="application-name" content="Ravi Poruri AI" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${inter.className} antialiased bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen`}>
+      <body className={`${inter.className} antialiased`}>
         <Providers>
           {children}
           <Toaster

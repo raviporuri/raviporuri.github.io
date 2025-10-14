@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/chat/route": "app/api/chat/route.js",
+  "/api/job-matcher/route": "app/api/job-matcher/route.js",
+  "/api/resume-customizer/route": "app/api/resume-customizer/route.js",
+  "/job-matcher/page": "app/job-matcher/page.js",
+  "/page": "app/page.js",
+  "/resume-customizer/page": "app/resume-customizer/page.js"
+}

@@ -31,7 +31,13 @@
       "Bash(git pull:*)",
       "Bash(chmod:*)",
       "Bash(./setup-vercel-env.sh:*)",
-      "WebFetch(domain:raviporuri-website-n2rbgiryh-equitiventures.vercel.app)"
+      "WebFetch(domain:raviporuri-website-n2rbgiryh-equitiventures.vercel.app)",
+      "Bash(echo:*)",
+      "Bash(convert:*)",
+      "Bash(magick:*)",
+      "WebFetch(domain:raviporuri-website-n2u2pj1qu-equitiventures.vercel.app)",
+      "WebFetch(domain:www.raviporuri.com)",
+      "WebFetch(domain:raviporuri.com)"
     ],
     "deny": [],
     "ask": []
