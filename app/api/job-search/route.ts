@@ -77,49 +77,43 @@ async function searchRemoteOK(params: JobSearchParams): Promise<JobListing[]> {
   }
 }
 
-// Apify Career Site Job Listing API - High-quality jobs from 125k+ companies
-async function searchApify(params: JobSearchParams): Promise<JobListing[]> {
-  if (!process.env.APIFY_API_TOKEN) {
-    console.log('Apify API token not configured')
-    return []
-  }
-
+// Career Site Scraper - Direct scraping of company career pages
+async function searchCareerSites(params: JobSearchParams): Promise<JobListing[]> {
   try {
-    const response = await fetch(`https://api.apify.com/v2/acts/fantastic-jobs~career-site-job-listing-api/run-sync-get-dataset-items?token=${process.env.APIFY_API_TOKEN}&limit=20`)
+    const response = await fetch('http://localhost:3000/api/career-scraper', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        keywords: params.keywords,
+        maxCompanies: 8 // Limit to avoid long response times
+      })
+    })
 
     if (!response.ok) {
-      console.error('Apify API error:', response.status)
+      console.error('Career scraper error:', response.status)
       return []
     }
 
     const data = await response.json()
 
-    if (!Array.isArray(data)) return []
+    if (!data.jobs || !Array.isArray(data.jobs)) return []
 
-    // Filter by keywords
-    const keywords = params.keywords.toLowerCase()
-    const filteredJobs = data.filter((job: any) => {
-      const searchText = `${job.title || ''} ${job.organization || ''} ${job.description_text || ''} ${job.ai_keywords?.join(' ') || ''}`.toLowerCase()
-      return searchText.includes(keywords) ||
-             keywords.split(' ').some(keyword => searchText.includes(keyword))
-    })
-
-    return filteredJobs.slice(0, 15).map((job: any) => ({
-      id: `apify-${job.id}`,
-      title: job.title || 'Job Title',
-      company: job.organization || 'Unknown Company',
-      location: job.locations_derived?.[0] || job.cities_derived?.[0] || 'Location not specified',
-      remote: job.remote_derived || job.ai_work_arrangement === 'Remote' || false,
-      salary: job.ai_salary_minvalue && job.ai_salary_maxvalue ?
-        `$${Math.round(job.ai_salary_minvalue/1000)}k - $${Math.round(job.ai_salary_maxvalue/1000)}k` :
-        job.salary_raw?.value ? `$${Math.round(job.salary_raw.value.minValue/1000)}k - $${Math.round(job.salary_raw.value.maxValue/1000)}k` : undefined,
-      description: job.description_text?.substring(0, 500) + '...' || job.ai_core_responsibilities || '',
-      url: job.url || '#',
-      source: 'Apify (Career Sites)',
-      postedDate: job.date_posted || job.date_created || new Date().toISOString()
+    return data.jobs.map((job: any) => ({
+      id: job.id,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      remote: job.remote,
+      salary: job.salary,
+      description: job.description,
+      url: job.url,
+      source: job.source,
+      postedDate: job.postedDate
     }))
   } catch (error) {
-    console.error('Apify Career Site API error:', error)
+    console.error('Career site scraping error:', error)
     return []
   }
 }
@@ -348,7 +342,7 @@ export async function POST(request: NextRequest) {
     const [
       linkedinJobs,
       remoteOKJobs,
-      apifyJobs,
+      careerSitesJobs,
       fantasticJobs,
       adzunaJobs,
       greehouseJobs,
@@ -356,14 +350,14 @@ export async function POST(request: NextRequest) {
     ] = await Promise.all([
       searchLinkedInJobs(params),
       searchRemoteOK(params),
-      searchApify(params),
+      searchCareerSites(params),
       searchFantasticJobs(params),
       searchAdzuna(params),
       searchGreenhouse(params),
       searchLever(params)
     ])
 
-    let allJobs = [...linkedinJobs, ...remoteOKJobs, ...apifyJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
+    let allJobs = [...linkedinJobs, ...remoteOKJobs, ...careerSitesJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
 
     // Filter by criteria
     if (params.remote !== undefined) {
@@ -400,7 +394,7 @@ export async function POST(request: NextRequest) {
       sources: {
         linkedin: linkedinJobs.length,
         remoteok: remoteOKJobs.length,
-        apify: apifyJobs.length,
+        careerSites: careerSitesJobs.length,
         fantastic: fantasticJobs.length,
         adzuna: adzunaJobs.length,
         greenhouse: greehouseJobs.length,
