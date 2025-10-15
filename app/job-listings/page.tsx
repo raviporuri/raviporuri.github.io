@@ -96,8 +96,8 @@ export default function JobListingsPage() {
   const [error, setError] = useState('')
 
   // Search parameters
-  const [keywords, setKeywords] = useState('CTO OR "Chief Technology Officer" OR "VP Engineering" OR "Head of Engineering"')
-  const [location, setLocation] = useState('San Francisco Bay Area')
+  const [keywords, setKeywords] = useState('')
+  const [location, setLocation] = useState('')
   const [remoteOnly, setRemoteOnly] = useState(false)
   const [companies, setCompanies] = useState<string[]>([])
   const [excludeCompanies, setExcludeCompanies] = useState<string[]>([])
@@ -108,6 +108,7 @@ export default function JobListingsPage() {
   const [jobStrategy, setJobStrategy] = useState<JobStrategy | null>(null)
   const [strategyLoading, setStrategyLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<string | null>('search')
+  const [sortBy, setSortBy] = useState<'relevance' | 'date' | 'company'>('relevance')
 
   // Check authentication
   useEffect(() => {
@@ -128,10 +129,12 @@ export default function JobListingsPage() {
   }
 
   const searchJobs = async () => {
+    console.log('Starting job search...')
     setLoading(true)
     setError('')
 
     try {
+      console.log('Making API request to /api/job-search')
       const response = await fetch('/api/job-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,18 +147,23 @@ export default function JobListingsPage() {
         })
       })
 
+      console.log('Response status:', response.status)
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to search jobs')
       }
 
-      setJobs(data.jobs || [])
+      const sortedJobs = sortJobs(data.jobs || [], sortBy)
+      setJobs(sortedJobs)
+      console.log('Jobs set:', data.jobs?.length || 0)
     } catch (error) {
       console.error('Job search error:', error)
       setError('Failed to search jobs. Please try again.')
     } finally {
       setLoading(false)
+      console.log('Search completed')
     }
   }
 
@@ -207,6 +215,25 @@ export default function JobListingsPage() {
     if (score >= 80) return 'green'
     if (score >= 60) return 'yellow'
     return 'red'
+  }
+
+  const sortJobs = (jobList: JobListing[], sortType: 'relevance' | 'date' | 'company') => {
+    const sorted = [...jobList]
+    switch (sortType) {
+      case 'relevance':
+        return sorted.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+      case 'date':
+        return sorted.sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime())
+      case 'company':
+        return sorted.sort((a, b) => a.company.localeCompare(b.company))
+      default:
+        return sorted
+    }
+  }
+
+  const handleSortChange = (newSort: 'relevance' | 'date' | 'company') => {
+    setSortBy(newSort)
+    setJobs(sortJobs(jobs, newSort))
   }
 
   const companyOptions = [
@@ -301,18 +328,24 @@ export default function JobListingsPage() {
 
               <Group grow>
                 <TextInput
-                  label="Keywords"
+                  label="Keywords *"
                   placeholder="CTO, VP Engineering, Chief Technology Officer"
                   value={keywords}
                   onChange={(e) => setKeywords(e.currentTarget.value)}
                   leftSection={<IconSearch size={16} />}
+                  required
+                  error={!keywords.trim() ? "Keywords are required" : ""}
+                  description="Required: Job titles, skills, or company names"
                 />
                 <TextInput
-                  label="Location"
+                  label="Location *"
                   placeholder="San Francisco Bay Area"
                   value={location}
                   onChange={(e) => setLocation(e.currentTarget.value)}
                   leftSection={<IconMapPin size={16} />}
+                  required
+                  error={!location.trim() ? "Location is required" : ""}
+                  description="Required: City, state, or region"
                 />
               </Group>
 
@@ -355,11 +388,16 @@ export default function JobListingsPage() {
                 <Button
                   size="lg"
                   onClick={searchJobs}
-                  disabled={loading || !keywords.trim()}
+                  disabled={loading || !keywords.trim() || !location.trim()}
                   leftSection={loading ? <Loader size="sm" /> : <IconSearch size={20} />}
                 >
                   {loading ? 'Searching Jobs...' : 'Search Jobs'}
                 </Button>
+                {(!keywords.trim() || !location.trim()) && (
+                  <Text size="sm" c="dimmed" ta="center">
+                    Please fill in both Keywords and Location to search
+                  </Text>
+                )}
               </Group>
             </Stack>
           </Card>
@@ -374,13 +412,28 @@ export default function JobListingsPage() {
               <Card shadow="sm" padding="xl" radius="md">
                 <Group justify="space-between" mb="lg">
                   <Title order={2}>Found {jobs.length} Opportunities</Title>
-                  <Button
-                    variant="light"
-                    leftSection={<IconRefresh size={16} />}
-                    onClick={searchJobs}
-                  >
-                    Refresh
-                  </Button>
+                  <Group>
+                    <Select
+                      label="Sort by"
+                      value={sortBy}
+                      onChange={(value) => handleSortChange(value as 'relevance' | 'date' | 'company')}
+                      data={[
+                        { value: 'relevance', label: 'Relevance Score' },
+                        { value: 'date', label: 'Date Posted' },
+                        { value: 'company', label: 'Company Name' }
+                      ]}
+                      size="sm"
+                      w={150}
+                    />
+                    <Button
+                      variant="light"
+                      leftSection={<IconRefresh size={16} />}
+                      onClick={searchJobs}
+                      size="sm"
+                    >
+                      Refresh
+                    </Button>
+                  </Group>
                 </Group>
 
                 <Stack gap="md">
