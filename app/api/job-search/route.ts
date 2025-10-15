@@ -34,9 +34,9 @@ interface JobSearchParams {
 let jsearchRequestCount = 0
 let glassdoorRequestCount = 0
 
-// JSearch API integration - DISABLED (subscription required for both keys)
-async function searchJSearch(params: JobSearchParams): Promise<JobListing[]> {
-  console.log('JSearch API disabled - both direct and RapidAPI keys require subscription')
+// LinkedIn Job Search API integration - DISABLED (subscription required)
+async function searchLinkedInJobs(params: JobSearchParams): Promise<JobListing[]> {
+  console.log('LinkedIn Jobs API disabled - requires paid subscription')
   return []
 }
 
@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
 
     // Aggregate jobs from multiple sources
     const [
-      jsearchJobs,
+      linkedinJobs,
       remoteOKJobs,
       apifyJobs,
       fantasticJobs,
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
       greehouseJobs,
       leverJobs
     ] = await Promise.all([
-      searchJSearch(params),
+      searchLinkedInJobs(params),
       searchRemoteOK(params),
       searchApify(params),
       searchFantasticJobs(params),
@@ -322,7 +322,7 @@ export async function POST(request: NextRequest) {
       searchLever(params)
     ])
 
-    let allJobs = [...jsearchJobs, ...remoteOKJobs, ...apifyJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
+    let allJobs = [...linkedinJobs, ...remoteOKJobs, ...apifyJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
 
     // Filter by criteria
     if (params.remote !== undefined) {
@@ -357,7 +357,7 @@ export async function POST(request: NextRequest) {
       jobs: scoredJobs,
       total: scoredJobs.length,
       sources: {
-        jsearch: jsearchJobs.length,
+        linkedin: linkedinJobs.length,
         remoteok: remoteOKJobs.length,
         apify: apifyJobs.length,
         fantastic: fantasticJobs.length,
@@ -366,7 +366,7 @@ export async function POST(request: NextRequest) {
         lever: leverJobs.length
       },
       apiUsage: {
-        jsearch: {
+        linkedin: {
           used: jsearchRequestCount,
           remaining: Math.max(0, 200 - jsearchRequestCount),
           limit: 200
