@@ -30,6 +30,145 @@ interface JobSearchParams {
   excludeCompanies?: string[]
 }
 
+// JSearch API integration (RapidAPI) - Aggregates Indeed, LinkedIn, Glassdoor
+async function searchJSearch(params: JobSearchParams): Promise<JobListing[]> {
+  if (!process.env.RAPIDAPI_KEY) {
+    console.log('RapidAPI key not configured for JSearch')
+    return []
+  }
+
+  try {
+    const searchParams = new URLSearchParams({
+      query: params.keywords,
+      page: '1',
+      num_pages: '1',
+      date_posted: 'month',
+      employment_types: 'FULLTIME,CONTRACTOR',
+      job_requirements: 'senior_level'
+    })
+
+    if (params.location) {
+      searchParams.append('location', params.location)
+    }
+    if (params.remote) {
+      searchParams.append('remote_jobs_only', 'true')
+    }
+
+    const response = await fetch(`https://jsearch.p.rapidapi.com/search?${searchParams}`, {
+      headers: {
+        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+        'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
+      }
+    })
+
+    const data = await response.json()
+
+    if (!data.data) return []
+
+    return data.data.slice(0, 15).map((job: any) => ({
+      id: `jsearch-${job.job_id}`,
+      title: job.job_title,
+      company: job.employer_name || 'Unknown Company',
+      location: job.job_city && job.job_state ? `${job.job_city}, ${job.job_state}` : job.job_country || 'Remote',
+      remote: job.job_is_remote || job.job_title?.toLowerCase().includes('remote') || false,
+      salary: job.job_min_salary && job.job_max_salary ?
+        `$${Math.round(job.job_min_salary/1000)}k - $${Math.round(job.job_max_salary/1000)}k` :
+        undefined,
+      description: job.job_description || job.job_highlights?.Responsibilities?.join('. ') || '',
+      url: job.job_apply_link || job.job_google_link,
+      source: 'JSearch (Indeed/LinkedIn/Glassdoor)',
+      postedDate: job.job_posted_at_datetime_utc || new Date().toISOString()
+    }))
+  } catch (error) {
+    console.error('JSearch API error:', error)
+    return []
+  }
+}
+
+// RemoteOK API integration
+async function searchRemoteOK(params: JobSearchParams): Promise<JobListing[]> {
+  try {
+    const response = await fetch('https://remoteok.io/api')
+    const data = await response.json()
+
+    if (!Array.isArray(data)) return []
+
+    // Filter by keywords and exclude the first item (usually metadata)
+    const jobs = data.slice(1).filter((job: any) => {
+      if (!job.position) return false
+      const keywords = params.keywords.toLowerCase()
+      const searchText = `${job.position} ${job.company} ${job.description || ''}`.toLowerCase()
+      return searchText.includes(keywords) ||
+             keywords.split(' ').some(keyword => searchText.includes(keyword))
+    })
+
+    return jobs.slice(0, 10).map((job: any) => ({
+      id: `remoteok-${job.id}`,
+      title: job.position,
+      company: job.company,
+      location: job.location || 'Remote',
+      remote: true,
+      salary: job.salary_min && job.salary_max ?
+        `$${Math.round(job.salary_min/1000)}k - $${Math.round(job.salary_max/1000)}k` :
+        undefined,
+      description: job.description || '',
+      url: `https://remoteok.io/remote-jobs/${job.id}`,
+      source: 'RemoteOK',
+      postedDate: new Date(job.date).toISOString()
+    }))
+  } catch (error) {
+    console.error('RemoteOK API error:', error)
+    return []
+  }
+}
+
+// Fantastic Jobs API integration
+async function searchFantasticJobs(params: JobSearchParams): Promise<JobListing[]> {
+  if (!process.env.FANTASTIC_JOBS_API_KEY) {
+    console.log('Fantastic Jobs API key not configured')
+    return []
+  }
+
+  try {
+    const searchParams = new URLSearchParams({
+      q: params.keywords,
+      location: params.location || 'United States',
+      limit: '15',
+      remote: params.remote ? 'true' : 'false'
+    })
+
+    const response = await fetch(`https://api.fantastic.jobs/v1/jobs?${searchParams}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.FANTASTIC_JOBS_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const data = await response.json()
+
+    if (!data.jobs) return []
+
+    return data.jobs.map((job: any) => ({
+      id: `fantastic-${job.id}`,
+      title: job.title,
+      company: job.company?.name || 'Unknown Company',
+      location: job.location?.city && job.location?.country ?
+        `${job.location.city}, ${job.location.country}` : 'Location not specified',
+      remote: job.remote || job.title?.toLowerCase().includes('remote') || false,
+      salary: job.salary?.min && job.salary?.max ?
+        `$${Math.round(job.salary.min/1000)}k - $${Math.round(job.salary.max/1000)}k` :
+        undefined,
+      description: job.description || '',
+      url: job.apply_url || job.source_url,
+      source: 'Fantastic Jobs',
+      postedDate: job.posted_at || new Date().toISOString()
+    }))
+  } catch (error) {
+    console.error('Fantastic Jobs API error:', error)
+    return []
+  }
+}
+
 // Adzuna API integration
 async function searchAdzuna(params: JobSearchParams): Promise<JobListing[]> {
   if (!process.env.ADZUNA_APP_ID || !process.env.ADZUNA_APP_KEY) {
@@ -70,17 +209,37 @@ async function searchAdzuna(params: JobSearchParams): Promise<JobListing[]> {
   }
 }
 
-// Greenhouse API integration
-async function searchGreenhouse(companies: string[]): Promise<JobListing[]> {
+// Greenhouse API integration - Discovery mode
+async function searchGreenhouse(params: JobSearchParams): Promise<JobListing[]> {
+  // Use common tech company greenhouse boards - but this is just a sample
+  // In practice, we'd want to discover these dynamically
+  const knownBoards = [
+    'databricks', 'snowflake', 'airbnb', 'stripe', 'openai', 'anthropic',
+    'cisco', 'nvidia', 'microsoft', 'google', 'meta', 'amazon', 'apple',
+    'uber', 'lyft', 'square', 'zoom', 'slack', 'figma', 'notion', 'coinbase',
+    'dropbox', 'twilio', 'github', 'atlassian', 'salesforce', 'mongodb',
+    'elastic', 'docker', 'hashicorp', 'datadog', 'pagerduty', 'segment'
+  ]
+
   const jobs: JobListing[] = []
 
-  for (const company of companies) {
+  // Sample from known boards, but filter by keywords after fetching
+  const sampleBoards = knownBoards.slice(0, 10) // Limit to avoid too many requests
+
+  for (const company of sampleBoards) {
     try {
       const response = await fetch(`https://boards-api.greenhouse.io/v1/boards/${company}/jobs`)
       const data = await response.json()
 
       if (data.jobs) {
-        const companyJobs = data.jobs.map((job: any) => ({
+        const filteredJobs = data.jobs.filter((job: any) => {
+          const keywords = params.keywords.toLowerCase()
+          const searchText = `${job.title} ${job.content || ''}`.toLowerCase()
+          return searchText.includes(keywords) ||
+                 keywords.split(' ').some(keyword => searchText.includes(keyword))
+        })
+
+        const companyJobs = filteredJobs.map((job: any) => ({
           id: `greenhouse-${job.id}`,
           title: job.title,
           company: company.charAt(0).toUpperCase() + company.slice(1),
@@ -93,27 +252,41 @@ async function searchGreenhouse(companies: string[]): Promise<JobListing[]> {
           source: 'Greenhouse',
           postedDate: job.updated_at
         }))
-        jobs.push(...companyJobs)
+        jobs.push(...companyJobs.slice(0, 3)) // Limit per company
       }
     } catch (error) {
       console.error(`Greenhouse API error for ${company}:`, error)
     }
   }
 
-  return jobs
+  return jobs.slice(0, 15) // Overall limit
 }
 
-// Lever API integration
-async function searchLever(companies: string[]): Promise<JobListing[]> {
-  const jobs: JobListing[] = []
+// Lever API integration - Discovery mode
+async function searchLever(params: JobSearchParams): Promise<JobListing[]> {
+  const knownLeverCompanies = [
+    'netflix', 'uber', 'lyft', 'square', 'zoom', 'slack', 'figma', 'notion',
+    'coinbase', 'robinhood', 'palantir', 'postmates', 'canva', 'reddit',
+    'box', 'cloudflare', 'mixpanel', 'affirm', 'plaid', 'compass'
+  ]
 
-  for (const company of companies) {
+  const jobs: JobListing[] = []
+  const sampleCompanies = knownLeverCompanies.slice(0, 8) // Limit requests
+
+  for (const company of sampleCompanies) {
     try {
       const response = await fetch(`https://api.lever.co/v0/postings/${company}?mode=json`)
       const data = await response.json()
 
       if (Array.isArray(data)) {
-        const companyJobs = data.map((job: any) => ({
+        const filteredJobs = data.filter((job: any) => {
+          const keywords = params.keywords.toLowerCase()
+          const searchText = `${job.text} ${job.description || ''}`.toLowerCase()
+          return searchText.includes(keywords) ||
+                 keywords.split(' ').some(keyword => searchText.includes(keyword))
+        })
+
+        const companyJobs = filteredJobs.map((job: any) => ({
           id: `lever-${job.id}`,
           title: job.text,
           company: company.charAt(0).toUpperCase() + company.slice(1),
@@ -126,14 +299,14 @@ async function searchLever(companies: string[]): Promise<JobListing[]> {
           source: 'Lever',
           postedDate: job.createdAt
         }))
-        jobs.push(...companyJobs)
+        jobs.push(...companyJobs.slice(0, 2)) // Limit per company
       }
     } catch (error) {
       console.error(`Lever API error for ${company}:`, error)
     }
   }
 
-  return jobs
+  return jobs.slice(0, 10) // Overall limit
 }
 
 // AI-powered job scoring
@@ -211,13 +384,23 @@ export async function POST(request: NextRequest) {
     const userProfile = `Senior technology executive with 25+ years experience in data engineering, analytics, AI/ML, and cloud platforms. Currently Founder & AI Product Leader at Equiti Ventures. Previously Senior Director at Cisco, Global Head of Data at Dropbox. Expertise in scaling engineering teams (100+ people), building data platforms, and leading companies through IPO. Looking for C-level or senior leadership roles in technology, data, or AI companies.`
 
     // Aggregate jobs from multiple sources
-    const [adzunaJobs, greehouseJobs, leverJobs] = await Promise.all([
+    const [
+      jsearchJobs,
+      remoteOKJobs,
+      fantasticJobs,
+      adzunaJobs,
+      greehouseJobs,
+      leverJobs
+    ] = await Promise.all([
+      searchJSearch(params),
+      searchRemoteOK(params),
+      searchFantasticJobs(params),
       searchAdzuna(params),
-      searchGreenhouse(['databricks', 'snowflake', 'airbnb', 'stripe', 'openai', 'anthropic']),
-      searchLever(['netflix', 'uber', 'lyft', 'square', 'zoom'])
+      searchGreenhouse(params),
+      searchLever(params)
     ])
 
-    let allJobs = [...adzunaJobs, ...greehouseJobs, ...leverJobs]
+    let allJobs = [...jsearchJobs, ...remoteOKJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
 
     // Filter by criteria
     if (params.remote !== undefined) {
@@ -252,6 +435,9 @@ export async function POST(request: NextRequest) {
       jobs: scoredJobs,
       total: scoredJobs.length,
       sources: {
+        jsearch: jsearchJobs.length,
+        remoteok: remoteOKJobs.length,
+        fantastic: fantasticJobs.length,
         adzuna: adzunaJobs.length,
         greenhouse: greehouseJobs.length,
         lever: leverJobs.length
