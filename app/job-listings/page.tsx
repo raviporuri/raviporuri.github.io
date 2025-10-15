@@ -65,26 +65,55 @@ interface JobStrategy {
   relevanceScore: number
   matchStrengths: string[]
   potentialConcerns: string[]
-  resumeStrategy: {
-    keyExperiences: string[]
-    quantifiedAchievements: string[]
+  positioningStrategy: string
+  resumeContent: {
+    professionalSummary: string
+    keyAchievements: string[]
     technicalSkills: string[]
-    leadershipStories: string[]
+    workExperience: string[]
   }
-  coverLetterStrategy: {
-    openingHook: string
-    keySellingPoints: string[]
-    closingCTA: string
+  coverLetter: {
+    fullText: string
+    keyPoints: string[]
   }
   interviewPrep: {
-    starStories: string[]
-    technicalDepth: string[]
+    starStories: Array<{
+      situation: string
+      task: string
+      action: string
+      result: string
+      relevance: string
+    }>
+    technicalDiscussion: string[]
     questionsToAsk: string[]
+    salaryNegotiation: {
+      marketData: string
+      valueProposition: string
+      negotiationApproach: string
+    }
   }
   applicationStrategy: {
     preferredChannel: string
-    networkingApproach: string
-    followUpTimeline: string
+    linkedinStrategy: string
+    followUpPlan: string
+    additionalResearch: string
+  }
+  companyResearch: {
+    overview: string
+    recentNews: string[]
+    cultureAndValues: string
+    glassdoorEstimate: {
+      rating: string
+      pros: string[]
+      cons: string[]
+      salaryRange: string
+    }
+    hiringManager: {
+      potentialTitles: string[]
+      researchTips: string
+      connectionStrategy: string
+    }
+    competitiveLandscape: string
   }
 }
 
@@ -559,6 +588,9 @@ export default function JobListingsPage() {
                   <Tabs.Tab value="application" leftSection={<IconTrendingUp size={14} />}>
                     Application Plan
                   </Tabs.Tab>
+                  <Tabs.Tab value="company" leftSection={<IconBuilding size={14} />}>
+                    Company Research
+                  </Tabs.Tab>
                 </Tabs.List>
 
                 <Tabs.Panel value="overview" pt="md">
@@ -592,85 +624,150 @@ export default function JobListingsPage() {
                         </Stack>
                       </Card>
                     )}
+
+                    <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                      <Title order={5} mb="sm">Positioning Strategy</Title>
+                      <Text size="sm">{jobStrategy.positioningStrategy}</Text>
+                    </Card>
                   </Stack>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="resume" pt="md">
                   <Stack gap="md">
                     <div>
-                      <Title order={5} mb="sm">Key Experiences to Emphasize</Title>
-                      <Stack gap="xs">
-                        {jobStrategy.resumeStrategy.keyExperiences.map((exp, index) => (
-                          <Text key={index} size="sm">• {exp}</Text>
-                        ))}
-                      </Stack>
+                      <Title order={5} mb="sm">Professional Summary (ATS-Optimized)</Title>
+                      <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                        <Text size="sm" style={{ whiteSpace: 'pre-line' }}>
+                          {jobStrategy.resumeContent.professionalSummary}
+                        </Text>
+                      </Card>
                     </div>
 
                     <div>
-                      <Title order={5} mb="sm">Quantified Achievements</Title>
+                      <Title order={5} mb="sm">Key Achievements for This Role</Title>
                       <Stack gap="xs">
-                        {jobStrategy.resumeStrategy.quantifiedAchievements.map((achievement, index) => (
+                        {jobStrategy.resumeContent.keyAchievements.map((achievement, index) => (
                           <Text key={index} size="sm">• {achievement}</Text>
                         ))}
                       </Stack>
                     </div>
 
                     <div>
-                      <Title order={5} mb="sm">Technical Skills to Prioritize</Title>
+                      <Title order={5} mb="sm">Prioritized Technical Skills</Title>
                       <Group gap="xs">
-                        {jobStrategy.resumeStrategy.technicalSkills.map((skill, index) => (
+                        {jobStrategy.resumeContent.technicalSkills.map((skill, index) => (
                           <Badge key={index} variant="light" color="blue">
                             {skill}
                           </Badge>
                         ))}
                       </Group>
                     </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Tailored Work Experience</Title>
+                      <Stack gap="sm">
+                        {jobStrategy.resumeContent.workExperience.map((exp, index) => (
+                          <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                            <Text size="sm" style={{ whiteSpace: 'pre-line', fontFamily: 'monospace' }}>
+                              {exp}
+                            </Text>
+                          </Card>
+                        ))}
+                      </Stack>
+                    </div>
+
+                    <Group justify="center" mt="md">
+                      <Button
+                        variant="light"
+                        leftSection={<IconFileText size={16} />}
+                        onClick={() => {
+                          // TODO: Integrate with resume customizer
+                          window.open('/resume-customizer', '_blank')
+                        }}
+                      >
+                        Generate Full Resume
+                      </Button>
+                    </Group>
                   </Stack>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="cover" pt="md">
                   <Stack gap="md">
                     <div>
-                      <Title order={5} mb="sm">Opening Hook</Title>
-                      <Text size="sm" style={{ fontStyle: 'italic' }}>
-                        "{jobStrategy.coverLetterStrategy.openingHook}"
-                      </Text>
+                      <Title order={5} mb="sm">Complete Cover Letter</Title>
+                      <Card shadow="md" padding="lg" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                        <Text size="sm" style={{ whiteSpace: 'pre-line', lineHeight: 1.6 }}>
+                          {jobStrategy.coverLetter.fullText}
+                        </Text>
+                      </Card>
                     </div>
 
                     <div>
-                      <Title order={5} mb="sm">Key Selling Points</Title>
+                      <Title order={5} mb="sm">Key Message Points</Title>
                       <Stack gap="xs">
-                        {jobStrategy.coverLetterStrategy.keySellingPoints.map((point, index) => (
-                          <Text key={index} size="sm">• {point}</Text>
+                        {jobStrategy.coverLetter.keyPoints.map((point, index) => (
+                          <Card key={index} shadow="xs" padding="sm" radius="sm" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                            <Text size="sm">💡 {point}</Text>
+                          </Card>
                         ))}
                       </Stack>
                     </div>
 
-                    <div>
-                      <Title order={5} mb="sm">Closing Call-to-Action</Title>
-                      <Text size="sm" style={{ fontStyle: 'italic' }}>
-                        "{jobStrategy.coverLetterStrategy.closingCTA}"
-                      </Text>
-                    </div>
+                    <Group justify="center" mt="md">
+                      <Button
+                        variant="light"
+                        leftSection={<IconFileText size={16} />}
+                        onClick={() => {
+                          navigator.clipboard.writeText(jobStrategy.coverLetter.fullText)
+                          // TODO: Add notification toast
+                        }}
+                      >
+                        Copy Cover Letter
+                      </Button>
+                    </Group>
                   </Stack>
                 </Tabs.Panel>
 
                 <Tabs.Panel value="interview" pt="md">
                   <Stack gap="md">
                     <div>
-                      <Title order={5} mb="sm">STAR Stories to Prepare</Title>
-                      <Stack gap="xs">
+                      <Title order={5} mb="sm">STAR Method Stories</Title>
+                      <Stack gap="sm">
                         {jobStrategy.interviewPrep.starStories.map((story, index) => (
-                          <Text key={index} size="sm">• {story}</Text>
+                          <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
+                            <Stack gap="xs">
+                              <Text fw={600} size="sm" color="blue">Story #{index + 1}</Text>
+                              <div>
+                                <Text size="xs" fw={600} color="orange">Situation:</Text>
+                                <Text size="sm">{story.situation}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} color="orange">Task:</Text>
+                                <Text size="sm">{story.task}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} color="orange">Action:</Text>
+                                <Text size="sm">{story.action}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} color="orange">Result:</Text>
+                                <Text size="sm">{story.result}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} color="green">Relevance:</Text>
+                                <Text size="sm" style={{ fontStyle: 'italic' }}>{story.relevance}</Text>
+                              </div>
+                            </Stack>
+                          </Card>
                         ))}
                       </Stack>
                     </div>
 
                     <div>
-                      <Title order={5} mb="sm">Technical Depth Areas</Title>
+                      <Title order={5} mb="sm">Technical Discussion Points</Title>
                       <Group gap="xs">
-                        {jobStrategy.interviewPrep.technicalDepth.map((area, index) => (
-                          <Badge key={index} variant="outline" color="orange">
+                        {jobStrategy.interviewPrep.technicalDiscussion.map((area, index) => (
+                          <Badge key={index} variant="outline" color="orange" size="md">
                             {area}
                           </Badge>
                         ))}
@@ -678,12 +775,32 @@ export default function JobListingsPage() {
                     </div>
 
                     <div>
-                      <Title order={5} mb="sm">Questions to Ask</Title>
+                      <Title order={5} mb="sm">Strategic Questions to Ask (Top 10)</Title>
                       <Stack gap="xs">
                         {jobStrategy.interviewPrep.questionsToAsk.map((question, index) => (
-                          <Text key={index} size="sm">• {question}</Text>
+                          <Text key={index} size="sm">❓ {question}</Text>
                         ))}
                       </Stack>
+                    </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Salary Negotiation Strategy</Title>
+                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+                        <Stack gap="sm">
+                          <div>
+                            <Text size="xs" fw={600} color="green">Market Data:</Text>
+                            <Text size="sm">{jobStrategy.interviewPrep.salaryNegotiation.marketData}</Text>
+                          </div>
+                          <div>
+                            <Text size="xs" fw={600} color="green">Value Proposition:</Text>
+                            <Text size="sm">{jobStrategy.interviewPrep.salaryNegotiation.valueProposition}</Text>
+                          </div>
+                          <div>
+                            <Text size="xs" fw={600} color="green">Negotiation Approach:</Text>
+                            <Text size="sm">{jobStrategy.interviewPrep.salaryNegotiation.negotiationApproach}</Text>
+                          </div>
+                        </Stack>
+                      </Card>
                     </div>
                   </Stack>
                 </Tabs.Panel>
@@ -691,23 +808,32 @@ export default function JobListingsPage() {
                 <Tabs.Panel value="application" pt="md">
                   <Stack gap="md">
                     <div>
-                      <Title order={5} mb="sm">Preferred Application Channel</Title>
-                      <Text size="sm">{jobStrategy.applicationStrategy.preferredChannel}</Text>
+                      <Title order={5} mb="sm">Application Strategy</Title>
+                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                        <Stack gap="sm">
+                          <div>
+                            <Text size="xs" fw={600} color="blue">Preferred Channel:</Text>
+                            <Text size="sm">{jobStrategy.applicationStrategy.preferredChannel}</Text>
+                          </div>
+                          <div>
+                            <Text size="xs" fw={600} color="blue">LinkedIn Strategy:</Text>
+                            <Text size="sm">{jobStrategy.applicationStrategy.linkedinStrategy}</Text>
+                          </div>
+                          <div>
+                            <Text size="xs" fw={600} color="blue">Follow-up Plan:</Text>
+                            <Text size="sm">{jobStrategy.applicationStrategy.followUpPlan}</Text>
+                          </div>
+                          <div>
+                            <Text size="xs" fw={600} color="blue">Additional Research:</Text>
+                            <Text size="sm">{jobStrategy.applicationStrategy.additionalResearch}</Text>
+                          </div>
+                        </Stack>
+                      </Card>
                     </div>
 
-                    <div>
-                      <Title order={5} mb="sm">Networking Approach</Title>
-                      <Text size="sm">{jobStrategy.applicationStrategy.networkingApproach}</Text>
-                    </div>
+                    <Divider my="md" />
 
-                    <div>
-                      <Title order={5} mb="sm">Follow-up Timeline</Title>
-                      <Text size="sm">{jobStrategy.applicationStrategy.followUpTimeline}</Text>
-                    </div>
-
-                    <Divider />
-
-                    <Group justify="center">
+                    <Group justify="center" gap="md">
                       <Button
                         component="a"
                         href={selectedJob?.url}
@@ -715,10 +841,117 @@ export default function JobListingsPage() {
                         rel="noopener noreferrer"
                         leftSection={<IconExternalLink size={16} />}
                         size="lg"
+                        variant="filled"
                       >
                         Apply Now
                       </Button>
+
+                      <Button
+                        variant="light"
+                        leftSection={<IconFileText size={16} />}
+                        onClick={() => {
+                          // TODO: Integrate with resume customizer API
+                          const jobData = encodeURIComponent(JSON.stringify({
+                            title: selectedJob?.title,
+                            company: selectedJob?.company,
+                            description: selectedJob?.description
+                          }))
+                          window.open(`/resume-customizer?job=${jobData}`, '_blank')
+                        }}
+                      >
+                        Generate Resume
+                      </Button>
                     </Group>
+                  </Stack>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="company" pt="md">
+                  <Stack gap="md">
+                    <div>
+                      <Title order={5} mb="sm">Company Overview</Title>
+                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                        <Text size="sm">{jobStrategy.companyResearch.overview}</Text>
+                      </Card>
+                    </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Recent Developments</Title>
+                      <Stack gap="xs">
+                        {jobStrategy.companyResearch.recentNews.map((news, index) => (
+                          <Text key={index} size="sm">📰 {news}</Text>
+                        ))}
+                      </Stack>
+                    </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Culture & Values</Title>
+                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
+                        <Text size="sm">{jobStrategy.companyResearch.cultureAndValues}</Text>
+                      </Card>
+                    </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Glassdoor Insights (Estimated)</Title>
+                      <Card shadow="sm" padding="md" radius="md" withBorder>
+                        <Stack gap="sm">
+                          <Group>
+                            <Text fw={600} color="orange">Rating:</Text>
+                            <Text size="sm">{jobStrategy.companyResearch.glassdoorEstimate.rating}</Text>
+                          </Group>
+                          <div>
+                            <Text fw={600} color="green" size="sm" mb="xs">Pros:</Text>
+                            <Stack gap="xs">
+                              {jobStrategy.companyResearch.glassdoorEstimate.pros.map((pro, index) => (
+                                <Text key={index} size="sm">✅ {pro}</Text>
+                              ))}
+                            </Stack>
+                          </div>
+                          <div>
+                            <Text fw={600} color="red" size="sm" mb="xs">Cons:</Text>
+                            <Stack gap="xs">
+                              {jobStrategy.companyResearch.glassdoorEstimate.cons.map((con, index) => (
+                                <Text key={index} size="sm">❌ {con}</Text>
+                              ))}
+                            </Stack>
+                          </div>
+                          <div>
+                            <Text fw={600} color="blue" size="sm">Salary Range:</Text>
+                            <Text size="sm">{jobStrategy.companyResearch.glassdoorEstimate.salaryRange}</Text>
+                          </div>
+                        </Stack>
+                      </Card>
+                    </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Hiring Manager Research</Title>
+                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-cyan-0)' }}>
+                        <Stack gap="sm">
+                          <div>
+                            <Text fw={600} size="sm" color="cyan">Potential Titles:</Text>
+                            <Group gap="xs" mt="xs">
+                              {jobStrategy.companyResearch.hiringManager.potentialTitles.map((title, index) => (
+                                <Badge key={index} variant="light" color="cyan" size="sm">{title}</Badge>
+                              ))}
+                            </Group>
+                          </div>
+                          <div>
+                            <Text fw={600} size="sm" color="cyan">Research Tips:</Text>
+                            <Text size="sm">{jobStrategy.companyResearch.hiringManager.researchTips}</Text>
+                          </div>
+                          <div>
+                            <Text fw={600} size="sm" color="cyan">Connection Strategy:</Text>
+                            <Text size="sm">{jobStrategy.companyResearch.hiringManager.connectionStrategy}</Text>
+                          </div>
+                        </Stack>
+                      </Card>
+                    </div>
+
+                    <div>
+                      <Title order={5} mb="sm">Competitive Landscape</Title>
+                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-yellow-0)' }}>
+                        <Text size="sm">{jobStrategy.companyResearch.competitiveLandscape}</Text>
+                      </Card>
+                    </div>
                   </Stack>
                 </Tabs.Panel>
               </Tabs>
