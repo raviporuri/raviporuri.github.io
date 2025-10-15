@@ -30,9 +30,13 @@ interface JobSearchParams {
   excludeCompanies?: string[]
 }
 
-// JSearch API integration - DISABLED (requires subscription)
+// Rate limiting tracking
+let jsearchRequestCount = 0
+let glassdoorRequestCount = 0
+
+// JSearch API integration - DISABLED (subscription required for both keys)
 async function searchJSearch(params: JobSearchParams): Promise<JobListing[]> {
-  console.log('JSearch API disabled - requires paid subscription')
+  console.log('JSearch API disabled - both direct and RapidAPI keys require subscription')
   return []
 }
 
@@ -97,7 +101,7 @@ async function searchAdzuna(params: JobSearchParams): Promise<JobListing[]> {
       app_id: process.env.ADZUNA_APP_ID,
       app_key: process.env.ADZUNA_APP_KEY,
       what: params.keywords,
-      where: params.location || 'San Francisco Bay Area',
+      where: params.location || 'United States',
       results_per_page: '20',
       distance: '50'
     })
@@ -360,6 +364,18 @@ export async function POST(request: NextRequest) {
         adzuna: adzunaJobs.length,
         greenhouse: greehouseJobs.length,
         lever: leverJobs.length
+      },
+      apiUsage: {
+        jsearch: {
+          used: jsearchRequestCount,
+          remaining: Math.max(0, 200 - jsearchRequestCount),
+          limit: 200
+        },
+        glassdoor: {
+          used: glassdoorRequestCount,
+          remaining: Math.max(0, 100 - glassdoorRequestCount),
+          limit: 100
+        }
       }
     })
 
