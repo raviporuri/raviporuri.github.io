@@ -37,6 +37,7 @@ import {
   IconTrendingUp
 } from '@tabler/icons-react'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 
 interface CustomizedResume {
@@ -55,7 +56,23 @@ interface CustomizedResume {
   coverLetter?: string
 }
 
+interface JobStrategy {
+  jobTitle?: string
+  company?: string
+  jobDescription?: string
+  resumeStrategy?: {
+    professionalSummary: string
+    keyAchievements: string[]
+    technicalSkills: string[]
+    workExperience: string[]
+  }
+  coverLetterContent?: string
+  matchStrengths?: string[]
+  positioningStrategy?: string
+}
+
 export default function ResumeCustomizerPage() {
+  const searchParams = useSearchParams()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [accessKey, setAccessKey] = useState('')
   const [jobDescription, setJobDescription] = useState('')
@@ -64,8 +81,10 @@ export default function ResumeCustomizerPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<string | null>('resume')
   const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'txt' | 'doc'>('pdf')
+  const [jobStrategy, setJobStrategy] = useState<JobStrategy | null>(null)
+  const [showCoverLetter, setShowCoverLetter] = useState(false)
 
-  // Check for stored authentication on component mount
+  // Check for stored authentication and URL parameters on component mount
   useEffect(() => {
     // Clear any existing authentication to ensure gate works
     localStorage.removeItem('resume-auth')
@@ -74,7 +93,24 @@ export default function ResumeCustomizerPage() {
     if (stored === 'authenticated') {
       setIsAuthenticated(true)
     }
-  }, [])
+
+    // Check for strategy parameter from job-listings page
+    const strategyParam = searchParams.get('strategy')
+    if (strategyParam) {
+      try {
+        const strategyData = JSON.parse(decodeURIComponent(strategyParam)) as JobStrategy
+        setJobStrategy(strategyData)
+        if (strategyData.jobDescription) {
+          setJobDescription(strategyData.jobDescription)
+        }
+        // Auto-authenticate if coming from job-listings with strategy
+        setIsAuthenticated(true)
+        sessionStorage.setItem('resume-auth-session', 'authenticated')
+      } catch (error) {
+        console.error('Failed to parse strategy data:', error)
+      }
+    }
+  }, [searchParams])
 
   const handleAuthentication = () => {
     // Simple authentication - in production, this would be more secure
@@ -107,6 +143,13 @@ export default function ResumeCustomizerPage() {
       if (response.ok) {
         const data = await response.json()
         setCustomizedResume(data)
+        // If we have jobStrategy data, include cover letter
+        if (jobStrategy?.coverLetterContent) {
+          setCustomizedResume(prev => ({
+            ...data,
+            coverLetter: jobStrategy.coverLetterContent
+          }))
+        }
       } else {
         const errorData = await response.json()
         setError(errorData.error || 'Failed to customize resume')
@@ -118,10 +161,17 @@ export default function ResumeCustomizerPage() {
     }
   }
 
+  // Auto-generate resume if we have strategy data
+  useEffect(() => {
+    if (jobStrategy && isAuthenticated && jobDescription && !customizedResume) {
+      handleCustomize()
+    }
+  }, [jobStrategy, isAuthenticated, jobDescription])
+
   const formatResumeText = () => {
     if (!customizedResume) return ''
 
-    return `RAVI PORURI
+    const resumeContent = `RAVI PORURI
 Technology Leader & AI Innovator
 
 CONTACT INFORMATION
@@ -155,6 +205,19 @@ ${(customizedResume.certifications || [
       'Snowflake Black Diamond Executive Council Member',
       'Gartner BI Excellence Award Finalist'
     ]).map(cert => `• ${cert}`).join('\n')}`
+
+    // If we have a cover letter, include it in the combined document
+    if (customizedResume.coverLetter) {
+      return `${resumeContent}
+
+========================================
+COVER LETTER
+========================================
+
+${customizedResume.coverLetter}`
+    }
+
+    return resumeContent
   }
 
   const downloadTXT = () => {
@@ -162,7 +225,9 @@ ${(customizedResume.certifications || [
     const element = document.createElement('a')
     const file = new Blob([resumeContent], { type: 'text/plain' })
     element.href = URL.createObjectURL(file)
-    element.download = 'Ravi_Poruri_Resume_ATS_Optimized.txt'
+    const companyName = jobStrategy?.company ? `_${jobStrategy.company.replace(/[^a-zA-Z0-9]/g, '_')}` : ''
+    const includeCoverLetter = customizedResume?.coverLetter ? '_with_Cover_Letter' : ''
+    element.download = `Ravi_Poruri_Resume${companyName}${includeCoverLetter}_ATS_Optimized.txt`
     document.body.appendChild(element)
     element.click()
     document.body.removeChild(element)
@@ -176,7 +241,9 @@ ${(customizedResume.certifications || [
     const element = document.createElement('a')
     const file = new Blob([rtfContent], { type: 'application/rtf' })
     element.href = URL.createObjectURL(file)
-    element.download = 'Ravi_Poruri_Resume_ATS_Optimized.rtf'
+    const companyName = jobStrategy?.company ? `_${jobStrategy.company.replace(/[^a-zA-Z0-9]/g, '_')}` : ''
+    const includeCoverLetter = customizedResume?.coverLetter ? '_with_Cover_Letter' : ''
+    element.download = `Ravi_Poruri_Resume${companyName}${includeCoverLetter}_ATS_Optimized.rtf`
     document.body.appendChild(element)
     element.click()
     document.body.removeChild(element)
@@ -316,8 +383,32 @@ ${(customizedResume.certifications || [
         yPosition += 5
       })
 
-      // Save the PDF
-      doc.save('Ravi_Poruri_Resume_ATS_Optimized.pdf')
+      // Add cover letter if available
+      if (customizedResume?.coverLetter) {
+        doc.addPage()
+        yPosition = margin
+
+        // Cover Letter Header
+        doc.setFontSize(18)
+        doc.setFont("helvetica", "bold")
+        doc.text('COVER LETTER', pageWidth / 2, yPosition, { align: 'center' })
+        yPosition += 20
+
+        // Cover Letter Content
+        doc.setFontSize(11)
+        doc.setFont("helvetica", "normal")
+        const coverLetterLines = doc.splitTextToSize(customizedResume.coverLetter, contentWidth)
+        coverLetterLines.forEach((line: string) => {
+          checkPageBreak(6)
+          doc.text(line, margin, yPosition)
+          yPosition += 6
+        })
+      }
+
+      // Save the PDF with dynamic filename
+      const companyName = jobStrategy?.company ? `_${jobStrategy.company.replace(/[^a-zA-Z0-9]/g, '_')}` : ''
+      const includeCoverLetter = customizedResume?.coverLetter ? '_with_Cover_Letter' : ''
+      doc.save(`Ravi_Poruri_Resume${companyName}${includeCoverLetter}_ATS_Optimized.pdf`)
     } catch (error) {
       console.error('PDF generation failed:', error)
       // Fallback to text download
@@ -411,12 +502,21 @@ ${(customizedResume.certifications || [
           {/* Header */}
           <Box ta="center">
             <Title order={1} size="2.5rem" fw={700} mb="md">
-              ATS-Optimized AI Resume Generator
+              {jobStrategy ? `Resume for ${jobStrategy.jobTitle} at ${jobStrategy.company}` : 'ATS-Optimized AI Resume Generator'}
             </Title>
             <Text size="lg" c="dimmed" maw={600} mx="auto">
-              Generate ATS-friendly resumes that pass automated screening systems and rank highly with recruiters.
-              Advanced keyword matching, formatting optimization, and interview preparation tailored to each role.
+              {jobStrategy
+                ? 'AI-generated resume and cover letter tailored specifically for this role using advanced job matching analysis.'
+                : 'Generate ATS-friendly resumes that pass automated screening systems and rank highly with recruiters. Advanced keyword matching, formatting optimization, and interview preparation tailored to each role.'
+              }
             </Text>
+            {jobStrategy && (
+              <Group justify="center" mt="md">
+                <Badge size="lg" color="blue" variant="light">
+                  Strategy Applied: {jobStrategy.matchStrengths?.length || 0} Key Strengths Matched
+                </Badge>
+              </Group>
+            )}
           </Box>
 
           {/* Input Section */}
@@ -502,12 +602,21 @@ ${(customizedResume.certifications || [
                         value={downloadFormat}
                         onChange={(value) => setDownloadFormat(value as 'pdf' | 'txt' | 'doc')}
                         data={[
-                          { value: 'pdf', label: '📄 PDF' },
-                          { value: 'txt', label: '📝 Text' },
-                          { value: 'doc', label: '📄 Word (RTF)' }
+                          {
+                            value: 'pdf',
+                            label: customizedResume?.coverLetter ? '📄 PDF + Cover Letter' : '📄 PDF'
+                          },
+                          {
+                            value: 'txt',
+                            label: customizedResume?.coverLetter ? '📝 Text + Cover Letter' : '📝 Text'
+                          },
+                          {
+                            value: 'doc',
+                            label: customizedResume?.coverLetter ? '📄 Word + Cover Letter' : '📄 Word (RTF)'
+                          }
                         ]}
                         size="sm"
-                        w={120}
+                        w={160}
                       />
 
                       <Button leftSection={<IconDownload size={16} />} onClick={handleDownload}>
@@ -530,6 +639,11 @@ ${(customizedResume.certifications || [
                       <Tabs.Tab value="tips" leftSection={<IconTrendingUp size={14} />}>
                         Strategy Tips
                       </Tabs.Tab>
+                      {customizedResume?.coverLetter && (
+                        <Tabs.Tab value="cover-letter" leftSection={<IconFileText size={14} />}>
+                          Cover Letter
+                        </Tabs.Tab>
+                      )}
                     </Tabs.List>
 
                     <Tabs.Panel value="resume" pt="md">
@@ -702,6 +816,47 @@ ${(customizedResume.certifications || [
                         </Stack>
                       </Card>
                     </Tabs.Panel>
+
+                    {customizedResume?.coverLetter && (
+                      <Tabs.Panel value="cover-letter" pt="md">
+                        <Card shadow="xs" padding="lg" radius="md">
+                          <Group justify="space-between" align="center" mb="md">
+                            <Title order={4}>Cover Letter</Title>
+                            <Group>
+                              <CopyButton value={customizedResume.coverLetter}>
+                                {({ copied, copy }) => (
+                                  <Tooltip label={copied ? 'Copied' : 'Copy cover letter'} withArrow>
+                                    <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
+                                      {copied ? <IconCheck size="1rem" /> : <IconCopy size="1rem" />}
+                                    </ActionIcon>
+                                  </Tooltip>
+                                )}
+                              </CopyButton>
+                              <Button
+                                size="sm"
+                                leftSection={<IconDownload size={14} />}
+                                onClick={() => {
+                                  const element = document.createElement('a')
+                                  const file = new Blob([customizedResume.coverLetter || ''], { type: 'text/plain' })
+                                  element.href = URL.createObjectURL(file)
+                                  element.download = `${jobStrategy?.company || 'Company'}_Cover_Letter.txt`
+                                  document.body.appendChild(element)
+                                  element.click()
+                                  document.body.removeChild(element)
+                                }}
+                              >
+                                Download
+                              </Button>
+                            </Group>
+                          </Group>
+                          <Paper p="lg" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                            <Text size="sm" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                              {customizedResume.coverLetter}
+                            </Text>
+                          </Paper>
+                        </Card>
+                      </Tabs.Panel>
+                    )}
                   </Tabs>
 
                   {/* Action Buttons */}

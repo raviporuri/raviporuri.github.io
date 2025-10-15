@@ -136,7 +136,7 @@ export default function JobListingsPage() {
   const [strategyModalOpen, setStrategyModalOpen] = useState(false)
   const [jobStrategy, setJobStrategy] = useState<JobStrategy | null>(null)
   const [strategyLoading, setStrategyLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<string | null>('search')
+  const [activeTab, setActiveTab] = useState<string | null>('overview')
   const [sortBy, setSortBy] = useState<'relevance' | 'date' | 'company'>('relevance')
 
   // Check authentication
@@ -198,6 +198,7 @@ export default function JobListingsPage() {
 
   const getJobStrategy = async (job: JobListing) => {
     setSelectedJob(job)
+    setActiveTab('overview') // Reset to overview tab
     setStrategyModalOpen(true)
     setStrategyLoading(true)
 
@@ -562,8 +563,20 @@ export default function JobListingsPage() {
           <Modal
             opened={strategyModalOpen}
             onClose={() => setStrategyModalOpen(false)}
-            title={selectedJob ? `Application Strategy: ${selectedJob.title}` : 'Application Strategy'}
+            title={
+              <Group>
+                <IconTarget size={24} color="blue" />
+                <div>
+                  <Text fw={600} size="lg">Application Strategy</Text>
+                  {selectedJob && (
+                    <Text size="sm" c="dimmed">{selectedJob.title} at {selectedJob.company}</Text>
+                  )}
+                </div>
+              </Group>
+            }
             size="xl"
+            padding="lg"
+            radius="md"
           >
             {strategyLoading ? (
               <Stack align="center" py="xl">
@@ -571,25 +584,25 @@ export default function JobListingsPage() {
                 <Text>Creating personalized application strategy...</Text>
               </Stack>
             ) : jobStrategy ? (
-              <Tabs value={activeTab} onChange={setActiveTab}>
-                <Tabs.List>
-                  <Tabs.Tab value="overview" leftSection={<IconTarget size={14} />}>
-                    Overview
+              <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius="md">
+                <Tabs.List justify="center" mb="lg">
+                  <Tabs.Tab value="overview" leftSection={<IconTarget size={16} />} fw={600}>
+                    📊 Overview
                   </Tabs.Tab>
-                  <Tabs.Tab value="resume" leftSection={<IconFileText size={14} />}>
-                    Resume Strategy
+                  <Tabs.Tab value="resume" leftSection={<IconFileText size={16} />} fw={600}>
+                    📄 Resume
                   </Tabs.Tab>
-                  <Tabs.Tab value="cover" leftSection={<IconStar size={14} />}>
-                    Cover Letter
+                  <Tabs.Tab value="cover" leftSection={<IconStar size={16} />} fw={600}>
+                    💌 Cover Letter
                   </Tabs.Tab>
-                  <Tabs.Tab value="interview" leftSection={<IconBrain size={14} />}>
-                    Interview Prep
+                  <Tabs.Tab value="interview" leftSection={<IconBrain size={16} />} fw={600}>
+                    🎯 Interview Prep
                   </Tabs.Tab>
-                  <Tabs.Tab value="application" leftSection={<IconTrendingUp size={14} />}>
-                    Application Plan
+                  <Tabs.Tab value="application" leftSection={<IconTrendingUp size={16} />} fw={600}>
+                    📋 Application
                   </Tabs.Tab>
-                  <Tabs.Tab value="company" leftSection={<IconBuilding size={14} />}>
-                    Company Research
+                  <Tabs.Tab value="company" leftSection={<IconBuilding size={16} />} fw={600}>
+                    🏢 Company
                   </Tabs.Tab>
                 </Tabs.List>
 
@@ -678,14 +691,26 @@ export default function JobListingsPage() {
 
                     <Group justify="center" mt="md">
                       <Button
-                        variant="light"
-                        leftSection={<IconFileText size={16} />}
+                        size="md"
+                        leftSection={<IconFileText size={18} />}
                         onClick={() => {
-                          // TODO: Integrate with resume customizer
-                          window.open('/resume-customizer', '_blank')
+                          // Create comprehensive job data for resume customizer
+                          const jobData = {
+                            jobTitle: selectedJob?.title,
+                            company: selectedJob?.company,
+                            jobDescription: selectedJob?.description,
+                            resumeStrategy: jobStrategy.resumeContent,
+                            coverLetterContent: jobStrategy.coverLetter.fullText,
+                            matchStrengths: jobStrategy.matchStrengths,
+                            positioningStrategy: jobStrategy.positioningStrategy
+                          }
+
+                          // Encode and pass to resume customizer
+                          const encodedData = encodeURIComponent(JSON.stringify(jobData))
+                          window.open(`/resume-customizer?strategy=${encodedData}`, '_blank')
                         }}
                       >
-                        Generate Full Resume
+                        🚀 Generate AI Resume & Cover Letter
                       </Button>
                     </Group>
                   </Stack>
