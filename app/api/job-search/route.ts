@@ -77,10 +77,51 @@ async function searchRemoteOK(params: JobSearchParams): Promise<JobListing[]> {
   }
 }
 
-// Apify API integration - DISABLED (no successful actor runs found)
+// Apify Career Site Job Listing API - High-quality jobs from 125k+ companies
 async function searchApify(params: JobSearchParams): Promise<JobListing[]> {
-  console.log('Apify API disabled - no successful recent runs available')
-  return []
+  if (!process.env.APIFY_API_TOKEN) {
+    console.log('Apify API token not configured')
+    return []
+  }
+
+  try {
+    const response = await fetch(`https://api.apify.com/v2/acts/fantastic-jobs~career-site-job-listing-api/run-sync-get-dataset-items?token=${process.env.APIFY_API_TOKEN}&limit=20`)
+
+    if (!response.ok) {
+      console.error('Apify API error:', response.status)
+      return []
+    }
+
+    const data = await response.json()
+
+    if (!Array.isArray(data)) return []
+
+    // Filter by keywords
+    const keywords = params.keywords.toLowerCase()
+    const filteredJobs = data.filter((job: any) => {
+      const searchText = `${job.title || ''} ${job.organization || ''} ${job.description_text || ''} ${job.ai_keywords?.join(' ') || ''}`.toLowerCase()
+      return searchText.includes(keywords) ||
+             keywords.split(' ').some(keyword => searchText.includes(keyword))
+    })
+
+    return filteredJobs.slice(0, 15).map((job: any) => ({
+      id: `apify-${job.id}`,
+      title: job.title || 'Job Title',
+      company: job.organization || 'Unknown Company',
+      location: job.locations_derived?.[0] || job.cities_derived?.[0] || 'Location not specified',
+      remote: job.remote_derived || job.ai_work_arrangement === 'Remote' || false,
+      salary: job.ai_salary_minvalue && job.ai_salary_maxvalue ?
+        `$${Math.round(job.ai_salary_minvalue/1000)}k - $${Math.round(job.ai_salary_maxvalue/1000)}k` :
+        job.salary_raw?.value ? `$${Math.round(job.salary_raw.value.minValue/1000)}k - $${Math.round(job.salary_raw.value.maxValue/1000)}k` : undefined,
+      description: job.description_text?.substring(0, 500) + '...' || job.ai_core_responsibilities || '',
+      url: job.url || '#',
+      source: 'Apify (Career Sites)',
+      postedDate: job.date_posted || job.date_created || new Date().toISOString()
+    }))
+  } catch (error) {
+    console.error('Apify Career Site API error:', error)
+    return []
+  }
 }
 
 // Fantastic Jobs API integration - DISABLED (API endpoint returns 404)
