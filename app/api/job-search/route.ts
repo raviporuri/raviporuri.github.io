@@ -122,6 +122,88 @@ async function searchRemoteOK(params: JobSearchParams): Promise<JobListing[]> {
   }
 }
 
+// Apify API integration - Fast dataset access for pre-scraped jobs
+async function searchApify(params: JobSearchParams): Promise<JobListing[]> {
+  if (!process.env.APIFY_API_TOKEN) {
+    console.log('Apify API token not configured')
+    return []
+  }
+
+  try {
+    // Use pre-existing datasets for faster results
+    // These are faster than running new actors
+    const datasets = [
+      // These would be dataset IDs from recent actor runs
+      // In practice, you'd maintain a list of recent dataset IDs
+    ]
+
+    const jobs: JobListing[] = []
+
+    // Fallback: Start a quick run with existing actors
+    const actorId = 'valig/linkedin-jobs-scraper' // Free LinkedIn scraper
+
+    try {
+      // Get recent runs instead of starting new ones for speed
+      const runsResponse = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?status=SUCCEEDED&limit=3`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.APIFY_API_TOKEN}`
+        }
+      })
+
+      if (runsResponse.ok) {
+        const runsData = await runsResponse.json()
+
+        for (const run of runsData.data.items.slice(0, 1)) { // Use most recent successful run
+          try {
+            const resultsResponse = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs/${run.id}/dataset/items`, {
+              headers: {
+                'Authorization': `Bearer ${process.env.APIFY_API_TOKEN}`
+              }
+            })
+
+            if (resultsResponse.ok) {
+              const resultsData = await resultsResponse.json()
+
+              // Filter results by keywords
+              const filteredJobs = resultsData.filter((job: any) => {
+                const keywords = params.keywords.toLowerCase()
+                const searchText = `${job.title || ''} ${job.company || ''} ${job.description || ''}`.toLowerCase()
+                return keywords.split(' ').some(keyword => searchText.includes(keyword))
+              })
+
+              const apifyJobs = filteredJobs.slice(0, 10).map((job: any) => ({
+                id: `apify-${job.id || Math.random().toString(36)}`,
+                title: job.title || job.position || 'Job Title',
+                company: job.company || job.companyName || 'Company',
+                location: job.location || 'Location not specified',
+                remote: job.workType?.toLowerCase().includes('remote') ||
+                       job.title?.toLowerCase().includes('remote') || false,
+                salary: job.salary || undefined,
+                description: job.description || job.jobDescription || '',
+                url: job.jobUrl || job.link || '#',
+                source: 'Apify (LinkedIn)',
+                postedDate: job.postedDate || job.datePosted || new Date().toISOString()
+              }))
+
+              jobs.push(...apifyJobs)
+              break // Use first successful dataset
+            }
+          } catch (datasetError) {
+            console.error('Dataset access error:', datasetError)
+          }
+        }
+      }
+    } catch (actorError) {
+      console.error('Apify actor access error:', actorError)
+    }
+
+    return jobs.slice(0, 12) // Limit results
+  } catch (error) {
+    console.error('Apify API error:', error)
+    return []
+  }
+}
+
 // Fantastic Jobs API integration
 async function searchFantasticJobs(params: JobSearchParams): Promise<JobListing[]> {
   if (!process.env.FANTASTIC_JOBS_API_KEY) {
@@ -387,6 +469,7 @@ export async function POST(request: NextRequest) {
     const [
       jsearchJobs,
       remoteOKJobs,
+      apifyJobs,
       fantasticJobs,
       adzunaJobs,
       greehouseJobs,
@@ -394,13 +477,14 @@ export async function POST(request: NextRequest) {
     ] = await Promise.all([
       searchJSearch(params),
       searchRemoteOK(params),
+      searchApify(params),
       searchFantasticJobs(params),
       searchAdzuna(params),
       searchGreenhouse(params),
       searchLever(params)
     ])
 
-    let allJobs = [...jsearchJobs, ...remoteOKJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
+    let allJobs = [...jsearchJobs, ...remoteOKJobs, ...apifyJobs, ...fantasticJobs, ...adzunaJobs, ...greehouseJobs, ...leverJobs]
 
     // Filter by criteria
     if (params.remote !== undefined) {
@@ -437,6 +521,7 @@ export async function POST(request: NextRequest) {
       sources: {
         jsearch: jsearchJobs.length,
         remoteok: remoteOKJobs.length,
+        apify: apifyJobs.length,
         fantastic: fantasticJobs.length,
         adzuna: adzunaJobs.length,
         greenhouse: greehouseJobs.length,
