@@ -30,59 +30,10 @@ interface JobSearchParams {
   excludeCompanies?: string[]
 }
 
-// JSearch API integration (RapidAPI) - Aggregates Indeed, LinkedIn, Glassdoor
+// JSearch API integration - DISABLED (requires subscription)
 async function searchJSearch(params: JobSearchParams): Promise<JobListing[]> {
-  if (!process.env.RAPIDAPI_KEY) {
-    console.log('RapidAPI key not configured for JSearch')
-    return []
-  }
-
-  try {
-    const searchParams = new URLSearchParams({
-      query: params.keywords,
-      page: '1',
-      num_pages: '1',
-      date_posted: 'month',
-      employment_types: 'FULLTIME,CONTRACTOR',
-      job_requirements: 'senior_level'
-    })
-
-    if (params.location) {
-      searchParams.append('location', params.location)
-    }
-    if (params.remote) {
-      searchParams.append('remote_jobs_only', 'true')
-    }
-
-    const response = await fetch(`https://jsearch.p.rapidapi.com/search?${searchParams}`, {
-      headers: {
-        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-        'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
-      }
-    })
-
-    const data = await response.json()
-
-    if (!data.data) return []
-
-    return data.data.slice(0, 15).map((job: any) => ({
-      id: `jsearch-${job.job_id}`,
-      title: job.job_title,
-      company: job.employer_name || 'Unknown Company',
-      location: job.job_city && job.job_state ? `${job.job_city}, ${job.job_state}` : job.job_country || 'Remote',
-      remote: job.job_is_remote || job.job_title?.toLowerCase().includes('remote') || false,
-      salary: job.job_min_salary && job.job_max_salary ?
-        `$${Math.round(job.job_min_salary/1000)}k - $${Math.round(job.job_max_salary/1000)}k` :
-        undefined,
-      description: job.job_description || job.job_highlights?.Responsibilities?.join('. ') || '',
-      url: job.job_apply_link || job.job_google_link,
-      source: 'JSearch (Indeed/LinkedIn/Glassdoor)',
-      postedDate: job.job_posted_at_datetime_utc || new Date().toISOString()
-    }))
-  } catch (error) {
-    console.error('JSearch API error:', error)
-    return []
-  }
+  console.log('JSearch API disabled - requires paid subscription')
+  return []
 }
 
 // RemoteOK API integration
@@ -122,133 +73,16 @@ async function searchRemoteOK(params: JobSearchParams): Promise<JobListing[]> {
   }
 }
 
-// Apify API integration - Fast dataset access for pre-scraped jobs
+// Apify API integration - DISABLED (no successful actor runs found)
 async function searchApify(params: JobSearchParams): Promise<JobListing[]> {
-  if (!process.env.APIFY_API_TOKEN) {
-    console.log('Apify API token not configured')
-    return []
-  }
-
-  try {
-    // Use pre-existing datasets for faster results
-    // These are faster than running new actors
-    const datasets = [
-      // These would be dataset IDs from recent actor runs
-      // In practice, you'd maintain a list of recent dataset IDs
-    ]
-
-    const jobs: JobListing[] = []
-
-    // Fallback: Start a quick run with existing actors
-    const actorId = 'valig/linkedin-jobs-scraper' // Free LinkedIn scraper
-
-    try {
-      // Get recent runs instead of starting new ones for speed
-      const runsResponse = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?status=SUCCEEDED&limit=3`, {
-        headers: {
-          'Authorization': `Bearer ${process.env.APIFY_API_TOKEN}`
-        }
-      })
-
-      if (runsResponse.ok) {
-        const runsData = await runsResponse.json()
-
-        for (const run of runsData.data.items.slice(0, 1)) { // Use most recent successful run
-          try {
-            const resultsResponse = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs/${run.id}/dataset/items`, {
-              headers: {
-                'Authorization': `Bearer ${process.env.APIFY_API_TOKEN}`
-              }
-            })
-
-            if (resultsResponse.ok) {
-              const resultsData = await resultsResponse.json()
-
-              // Filter results by keywords
-              const filteredJobs = resultsData.filter((job: any) => {
-                const keywords = params.keywords.toLowerCase()
-                const searchText = `${job.title || ''} ${job.company || ''} ${job.description || ''}`.toLowerCase()
-                return keywords.split(' ').some(keyword => searchText.includes(keyword))
-              })
-
-              const apifyJobs = filteredJobs.slice(0, 10).map((job: any) => ({
-                id: `apify-${job.id || Math.random().toString(36)}`,
-                title: job.title || job.position || 'Job Title',
-                company: job.company || job.companyName || 'Company',
-                location: job.location || 'Location not specified',
-                remote: job.workType?.toLowerCase().includes('remote') ||
-                       job.title?.toLowerCase().includes('remote') || false,
-                salary: job.salary || undefined,
-                description: job.description || job.jobDescription || '',
-                url: job.jobUrl || job.link || '#',
-                source: 'Apify (LinkedIn)',
-                postedDate: job.postedDate || job.datePosted || new Date().toISOString()
-              }))
-
-              jobs.push(...apifyJobs)
-              break // Use first successful dataset
-            }
-          } catch (datasetError) {
-            console.error('Dataset access error:', datasetError)
-          }
-        }
-      }
-    } catch (actorError) {
-      console.error('Apify actor access error:', actorError)
-    }
-
-    return jobs.slice(0, 12) // Limit results
-  } catch (error) {
-    console.error('Apify API error:', error)
-    return []
-  }
+  console.log('Apify API disabled - no successful recent runs available')
+  return []
 }
 
-// Fantastic Jobs API integration
+// Fantastic Jobs API integration - DISABLED (API endpoint returns 404)
 async function searchFantasticJobs(params: JobSearchParams): Promise<JobListing[]> {
-  if (!process.env.FANTASTIC_JOBS_API_KEY) {
-    console.log('Fantastic Jobs API key not configured')
-    return []
-  }
-
-  try {
-    const searchParams = new URLSearchParams({
-      q: params.keywords,
-      location: params.location || 'United States',
-      limit: '15',
-      remote: params.remote ? 'true' : 'false'
-    })
-
-    const response = await fetch(`https://api.fantastic.jobs/v1/jobs?${searchParams}`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.FANTASTIC_JOBS_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    const data = await response.json()
-
-    if (!data.jobs) return []
-
-    return data.jobs.map((job: any) => ({
-      id: `fantastic-${job.id}`,
-      title: job.title,
-      company: job.company?.name || 'Unknown Company',
-      location: job.location?.city && job.location?.country ?
-        `${job.location.city}, ${job.location.country}` : 'Location not specified',
-      remote: job.remote || job.title?.toLowerCase().includes('remote') || false,
-      salary: job.salary?.min && job.salary?.max ?
-        `$${Math.round(job.salary.min/1000)}k - $${Math.round(job.salary.max/1000)}k` :
-        undefined,
-      description: job.description || '',
-      url: job.apply_url || job.source_url,
-      source: 'Fantastic Jobs',
-      postedDate: job.posted_at || new Date().toISOString()
-    }))
-  } catch (error) {
-    console.error('Fantastic Jobs API error:', error)
-    return []
-  }
+  console.log('Fantastic Jobs API disabled - endpoint returns 404')
+  return []
 }
 
 // Adzuna API integration

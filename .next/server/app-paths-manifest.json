@@ -1,1 +1,3 @@
-{}
+{
+  "/api/job-search/route": "app/api/job-search/route.js"
+}
