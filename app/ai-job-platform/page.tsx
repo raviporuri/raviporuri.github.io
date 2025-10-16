@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { jsPDF } from 'jspdf'
-// Dynamic import for docx to avoid build issues
+// Resume generation imports
 import {
   Container,
   Title,
@@ -721,191 +721,163 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
     if (!applicationPackage) return
 
     try {
-      // Dynamic import to avoid build issues
-      const { Document, Packer, Paragraph, TextRun, AlignmentType, UnderlineType } = await import('docx')
+      // Generate HTML content for the resume
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+            .contact { font-size: 14px; color: #666; margin-bottom: 20px; }
+            .section-title { font-size: 16px; font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0; }
+            .content { margin-bottom: 15px; }
+            .achievement { margin-bottom: 8px; }
+            .job-title { font-weight: bold; }
+            .company { margin-bottom: 10px; }
+            p { margin: 8px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="name">Ravi Poruri</div>
+            <div class="contact">raviporuri@gmail.com | LinkedIn: /in/raviporuri | San Francisco Bay Area</div>
+          </div>
 
-      const doc = new Document({
-        sections: [
-          {
-            properties: {},
-            children: [
-              // Header with name
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({
-                    text: "Ravi Poruri",
-                    bold: true,
-                    size: 32
-                  })
-                ]
-              }),
+          <div class="section-title">PROFESSIONAL SUMMARY</div>
+          <div class="content">
+            <p>${applicationPackage.resume.professionalSummary}</p>
+          </div>
 
-              // Contact info
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 400 },
-                children: [
-                  new TextRun({
-                    text: "raviporuri@gmail.com | LinkedIn: /in/raviporuri | San Francisco Bay Area",
-                    size: 22
-                  })
-                ]
-              }),
+          ${applicationPackage.resume.keyAchievements && applicationPackage.resume.keyAchievements.length > 0 ? `
+          <div class="section-title">KEY ACHIEVEMENTS</div>
+          <div class="content">
+            ${applicationPackage.resume.keyAchievements.map(achievement =>
+              `<div class="achievement">• ${achievement}</div>`
+            ).join('')}
+          </div>
+          ` : ''}
 
-              // Professional Summary
-              new Paragraph({
-                spacing: { before: 200, after: 200 },
-                children: [
-                  new TextRun({
-                    text: "PROFESSIONAL SUMMARY",
-                    bold: true,
-                    size: 24,
-                    underline: {
-                      type: UnderlineType.SINGLE
-                    }
-                  })
-                ]
-              }),
+          <div class="section-title">PROFESSIONAL EXPERIENCE</div>
+          <div class="content">
+            <div class="company">
+              <div class="job-title">Founder & AI Product Leader, Equitive Ventures (2024-Present)</div>
+              <p>• Leading development of AI-powered applications and next-generation technology platforms</p>
+              <p>• Building innovative solutions leveraging cutting-edge technology</p>
+              <p>• Creating strategic partnerships in the AI and technology ecosystem</p>
+            </div>
 
-              new Paragraph({
-                spacing: { after: 400 },
-                children: [
-                  new TextRun({
-                    text: applicationPackage.resume.professionalSummary,
-                    size: 22
-                  })
-                ]
-              }),
+            <div class="company">
+              <div class="job-title">Vice President Engineering, Cisco Systems (2020-2024)</div>
+              <p>• Led Cisco CX Cloud from MVP to $500M+ ARR in 4 years</p>
+              <p>• Managed 100+ person global engineering team across multiple products</p>
+              <p>• Drove digital transformation and platform scaling initiatives</p>
+            </div>
 
-              // Key Achievements
-              ...(applicationPackage.resume.keyAchievements && applicationPackage.resume.keyAchievements.length > 0 ? [
-                new Paragraph({
-                  spacing: { before: 200, after: 200 },
-                  children: [
-                    new TextRun({
-                      text: "KEY ACHIEVEMENTS",
-                      bold: true,
-                      size: 24,
-                      underline: {
-                        type: UnderlineType.SINGLE
-                      }
-                    })
-                  ]
-                }),
-                ...applicationPackage.resume.keyAchievements.map(achievement =>
-                  new Paragraph({
-                    spacing: { after: 100 },
-                    children: [
-                      new TextRun({
-                        text: `• ${achievement}`,
-                        size: 22
-                      })
-                    ]
-                  })
-                )
-              ] : []),
+            <div class="company">
+              <div class="job-title">Senior Engineering Manager, Dropbox (2017-2020)</div>
+              <p>• Led engineering teams during critical pre-IPO to post-IPO transition</p>
+              <p>• Contributed to revenue growth from $850M to $1.8B</p>
+              <p>• Built scalable systems supporting millions of users globally</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
 
-              // Professional Experience
-              new Paragraph({
-                spacing: { before: 400, after: 200 },
-                children: [
-                  new TextRun({
-                    text: "PROFESSIONAL EXPERIENCE",
-                    bold: true,
-                    size: 24,
-                    underline: {
-                      type: UnderlineType.SINGLE
-                    }
-                  })
-                ]
-              }),
+      // Create a Word document using HTML format that Word can read
+      const fullHtml = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:w="urn:schemas-microsoft-com:office:word"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <title>Resume</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>90</w:Zoom>
+              <w:DoNotPromptForConvert/>
+              <w:DoNotShowInsertionsAndDeletions/>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            body { font-family: Arial, sans-serif; margin: 1in; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+            .contact { font-size: 14px; color: #666; margin-bottom: 20px; }
+            .section-title { font-size: 16px; font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0; }
+            .content { margin-bottom: 15px; }
+            .achievement { margin-bottom: 8px; }
+            .job-title { font-weight: bold; }
+            .company { margin-bottom: 15px; }
+            p { margin: 8px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="name">Ravi Poruri</div>
+            <div class="contact">raviporuri@gmail.com | LinkedIn: /in/raviporuri | San Francisco Bay Area</div>
+          </div>
 
-              new Paragraph({
-                spacing: { after: 200 },
-                children: [
-                  new TextRun({
-                    text: "Founder & AI Product Leader, Equitive Ventures",
-                    bold: true,
-                    size: 22
-                  }),
-                  new TextRun({
-                    text: " (2024-Present)",
-                    size: 22
-                  })
-                ]
-              }),
-              new Paragraph({
-                spacing: { after: 300 },
-                children: [
-                  new TextRun({
-                    text: "• Leading development of AI-powered applications and next-generation technology platforms\n• Building innovative solutions leveraging cutting-edge technology\n• Creating strategic partnerships in the AI and technology ecosystem",
-                    size: 22
-                  })
-                ]
-              }),
+          <div class="section-title">PROFESSIONAL SUMMARY</div>
+          <div class="content">
+            <p>${applicationPackage.resume.professionalSummary}</p>
+          </div>
 
-              new Paragraph({
-                spacing: { after: 200 },
-                children: [
-                  new TextRun({
-                    text: "Vice President Engineering, Cisco Systems",
-                    bold: true,
-                    size: 22
-                  }),
-                  new TextRun({
-                    text: " (2015-2019)",
-                    size: 22
-                  })
-                ]
-              }),
-              new Paragraph({
-                spacing: { after: 300 },
-                children: [
-                  new TextRun({
-                    text: "• Led Cisco CX Cloud from MVP to $500M+ ARR in 4 years\n• Managed 100+ person global engineering team across multiple products\n• Drove digital transformation and platform scaling initiatives",
-                    size: 22
-                  })
-                ]
-              }),
+          ${applicationPackage.resume.keyAchievements && applicationPackage.resume.keyAchievements.length > 0 ? `
+          <div class="section-title">KEY ACHIEVEMENTS</div>
+          <div class="content">
+            ${applicationPackage.resume.keyAchievements.map(achievement =>
+              `<div class="achievement">• ${achievement}</div>`
+            ).join('')}
+          </div>
+          ` : ''}
 
-              new Paragraph({
-                spacing: { after: 200 },
-                children: [
-                  new TextRun({
-                    text: "Senior Engineering Manager, Dropbox",
-                    bold: true,
-                    size: 22
-                  }),
-                  new TextRun({
-                    text: " (2015-2019)",
-                    size: 22
-                  })
-                ]
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: "• Led engineering teams during critical pre-IPO to post-IPO transition\n• Contributed to revenue growth from $850M to $1.8B\n• Built scalable systems supporting millions of users globally",
-                    size: 22
-                  })
-                ]
-              })
-            ]
-          }
-        ]
+          <div class="section-title">PROFESSIONAL EXPERIENCE</div>
+          <div class="content">
+            <div class="company">
+              <div class="job-title">Founder & AI Product Leader, Equitive Ventures (2024-Present)</div>
+              <p>• Leading development of AI-powered applications and next-generation technology platforms</p>
+              <p>• Building innovative solutions leveraging cutting-edge technology</p>
+              <p>• Creating strategic partnerships in the AI and technology ecosystem</p>
+            </div>
+
+            <div class="company">
+              <div class="job-title">Vice President Engineering, Cisco Systems (2020-2024)</div>
+              <p>• Led Cisco CX Cloud from MVP to $500M+ ARR in 4 years</p>
+              <p>• Managed 100+ person global engineering team across multiple products</p>
+              <p>• Drove digital transformation and platform scaling initiatives</p>
+            </div>
+
+            <div class="company">
+              <div class="job-title">Senior Engineering Manager, Dropbox (2017-2020)</div>
+              <p>• Led engineering teams during critical pre-IPO to post-IPO transition</p>
+              <p>• Contributed to revenue growth from $850M to $1.8B</p>
+              <p>• Built scalable systems supporting millions of users globally</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+
+      // Create blob with proper Word document MIME type
+      const blob = new Blob([fullHtml], {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       })
 
-      const buffer = await Packer.toBuffer(doc)
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${filename}.docx`
+      a.download = `${filename}.doc`
       a.click()
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Resume DOCX generation error:', error)
+      console.error('Resume DOC generation error:', error)
       // Fallback to text
       downloadResumeAsTxt(filename)
     }
