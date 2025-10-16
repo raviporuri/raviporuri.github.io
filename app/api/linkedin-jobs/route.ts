@@ -124,7 +124,11 @@ export async function POST(request: NextRequest) {
         id: job.id,
         title: job.title,
         company: job.company || job.organization,
-        hasDescription: !!job.description_text || !!job.description
+        hasDescription: !!job.description_text || !!job.description,
+        salary: job.salary,
+        salaryType: typeof job.salary,
+        salary_raw: job.salary_raw,
+        salaryRawType: typeof job.salary_raw
       })
 
       // Extract clean location string
@@ -144,7 +148,26 @@ export async function POST(request: NextRequest) {
         company: String(job.company || job.organization || 'Unknown Company'),
         location: String(jobLocation),
         remote: Boolean(job.remote_derived || job.location?.toLowerCase().includes('remote') || remoteOnly || false),
-        salary: job.salary ? String(job.salary) : (job.salary_raw ? String(job.salary_raw) : undefined),
+        salary: (() => {
+          if (job.salary) {
+            if (typeof job.salary === 'object' && job.salary.base) {
+              return job.salary.base
+            } else if (typeof job.salary === 'object' && job.salary.total) {
+              return job.salary.total
+            } else if (typeof job.salary === 'string') {
+              return job.salary
+            } else {
+              return JSON.stringify(job.salary)
+            }
+          } else if (job.salary_raw) {
+            if (typeof job.salary_raw === 'object') {
+              return JSON.stringify(job.salary_raw)
+            } else {
+              return String(job.salary_raw)
+            }
+          }
+          return undefined
+        })(),
         description: String(job.description_text || job.description || job.summary || 'No description available'),
         url: String(job.url || job.link || `https://linkedin.com/jobs/view/${job.id}`),
         source: 'LinkedIn',
@@ -158,7 +181,17 @@ export async function POST(request: NextRequest) {
         const value = transformedJob[key as keyof typeof transformedJob]
         if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value)) {
           console.warn(`Converting object field ${key} to string:`, value)
-          ;(transformedJob as any)[key] = String(value)
+          try {
+            // Try to stringify and use meaningful content
+            const stringified = JSON.stringify(value)
+            if (stringified && stringified !== '{}') {
+              ;(transformedJob as any)[key] = stringified
+            } else {
+              ;(transformedJob as any)[key] = '[object Object]'
+            }
+          } catch (e) {
+            ;(transformedJob as any)[key] = '[object Object]'
+          }
         }
       })
 
