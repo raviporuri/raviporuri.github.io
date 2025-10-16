@@ -601,9 +601,11 @@ export default function JobListingsPage() {
                   <Tabs.Tab value="application" leftSection={<IconTrendingUp size={16} />} fw={600}>
                     📋 Application
                   </Tabs.Tab>
-                  <Tabs.Tab value="company" leftSection={<IconBuilding size={16} />} fw={600}>
-                    🏢 Company
-                  </Tabs.Tab>
+                  {jobStrategy.companyResearch && (
+                    <Tabs.Tab value="company" leftSection={<IconBuilding size={16} />} fw={600}>
+                      🏢 Company
+                    </Tabs.Tab>
+                  )}
                 </Tabs.List>
 
                 <Tabs.Panel value="overview" pt="md">
@@ -890,95 +892,121 @@ export default function JobListingsPage() {
                   </Stack>
                 </Tabs.Panel>
 
+{jobStrategy.companyResearch && (
                 <Tabs.Panel value="company" pt="md">
                   <Stack gap="md">
                     <div>
                       <Title order={5} mb="sm">Company Overview</Title>
                       <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
-                        <Text size="sm">{jobStrategy.companyResearch.overview}</Text>
+                        <Text size="sm">{jobStrategy.companyResearch?.overview || 'Company overview not available'}</Text>
                       </Card>
                     </div>
 
-                    <div>
-                      <Title order={5} mb="sm">Recent Developments</Title>
-                      <Stack gap="xs">
-                        {jobStrategy.companyResearch.recentNews.map((news, index) => (
-                          <Text key={index} size="sm">📰 {news}</Text>
-                        ))}
-                      </Stack>
-                    </div>
-
-                    <div>
-                      <Title order={5} mb="sm">Culture & Values</Title>
-                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
-                        <Text size="sm">{jobStrategy.companyResearch.cultureAndValues}</Text>
-                      </Card>
-                    </div>
-
-                    <div>
-                      <Title order={5} mb="sm">Glassdoor Insights (Estimated)</Title>
-                      <Card shadow="sm" padding="md" radius="md" withBorder>
-                        <Stack gap="sm">
-                          <Group>
-                            <Text fw={600} color="orange">Rating:</Text>
-                            <Text size="sm">{jobStrategy.companyResearch.glassdoorEstimate.rating}</Text>
-                          </Group>
-                          <div>
-                            <Text fw={600} color="green" size="sm" mb="xs">Pros:</Text>
-                            <Stack gap="xs">
-                              {jobStrategy.companyResearch.glassdoorEstimate.pros.map((pro, index) => (
-                                <Text key={index} size="sm">✅ {pro}</Text>
-                              ))}
-                            </Stack>
-                          </div>
-                          <div>
-                            <Text fw={600} color="red" size="sm" mb="xs">Cons:</Text>
-                            <Stack gap="xs">
-                              {jobStrategy.companyResearch.glassdoorEstimate.cons.map((con, index) => (
-                                <Text key={index} size="sm">❌ {con}</Text>
-                              ))}
-                            </Stack>
-                          </div>
-                          <div>
-                            <Text fw={600} color="blue" size="sm">Salary Range:</Text>
-                            <Text size="sm">{jobStrategy.companyResearch.glassdoorEstimate.salaryRange}</Text>
-                          </div>
+                    {jobStrategy.companyResearch?.recentNews && jobStrategy.companyResearch.recentNews.length > 0 && (
+                      <div>
+                        <Title order={5} mb="sm">Recent Developments</Title>
+                        <Stack gap="xs">
+                          {jobStrategy.companyResearch.recentNews.map((news, index) => (
+                            <Text key={index} size="sm">📰 {news}</Text>
+                          ))}
                         </Stack>
-                      </Card>
-                    </div>
+                      </div>
+                    )}
 
-                    <div>
-                      <Title order={5} mb="sm">Hiring Manager Research</Title>
-                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-cyan-0)' }}>
-                        <Stack gap="sm">
-                          <div>
-                            <Text fw={600} size="sm" color="cyan">Potential Titles:</Text>
-                            <Group gap="xs" mt="xs">
-                              {jobStrategy.companyResearch.hiringManager.potentialTitles.map((title, index) => (
-                                <Badge key={index} variant="light" color="cyan" size="sm">{title}</Badge>
-                              ))}
-                            </Group>
-                          </div>
-                          <div>
-                            <Text fw={600} size="sm" color="cyan">Research Tips:</Text>
-                            <Text size="sm">{jobStrategy.companyResearch.hiringManager.researchTips}</Text>
-                          </div>
-                          <div>
-                            <Text fw={600} size="sm" color="cyan">Connection Strategy:</Text>
-                            <Text size="sm">{jobStrategy.companyResearch.hiringManager.connectionStrategy}</Text>
-                          </div>
-                        </Stack>
-                      </Card>
-                    </div>
+                    {jobStrategy.companyResearch?.cultureAndValues && (
+                      <div>
+                        <Title order={5} mb="sm">Culture & Values</Title>
+                        <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
+                          <Text size="sm">{jobStrategy.companyResearch.cultureAndValues}</Text>
+                        </Card>
+                      </div>
+                    )}
 
-                    <div>
-                      <Title order={5} mb="sm">Competitive Landscape</Title>
-                      <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-yellow-0)' }}>
-                        <Text size="sm">{jobStrategy.companyResearch.competitiveLandscape}</Text>
-                      </Card>
-                    </div>
+                    {jobStrategy.companyResearch?.glassdoorEstimate && (
+                      <div>
+                        <Title order={5} mb="sm">Glassdoor Insights (Estimated)</Title>
+                        <Card shadow="sm" padding="md" radius="md" withBorder>
+                          <Stack gap="sm">
+                            {jobStrategy.companyResearch.glassdoorEstimate.rating && (
+                              <Group>
+                                <Text fw={600} color="orange">Rating:</Text>
+                                <Text size="sm">{jobStrategy.companyResearch.glassdoorEstimate.rating}</Text>
+                              </Group>
+                            )}
+                            {jobStrategy.companyResearch.glassdoorEstimate.pros && jobStrategy.companyResearch.glassdoorEstimate.pros.length > 0 && (
+                              <div>
+                                <Text fw={600} color="green" size="sm" mb="xs">Pros:</Text>
+                                <Stack gap="xs">
+                                  {jobStrategy.companyResearch.glassdoorEstimate.pros.map((pro, index) => (
+                                    <Text key={index} size="sm">✅ {pro}</Text>
+                                  ))}
+                                </Stack>
+                              </div>
+                            )}
+                            {jobStrategy.companyResearch.glassdoorEstimate.cons && jobStrategy.companyResearch.glassdoorEstimate.cons.length > 0 && (
+                              <div>
+                                <Text fw={600} color="red" size="sm" mb="xs">Cons:</Text>
+                                <Stack gap="xs">
+                                  {jobStrategy.companyResearch.glassdoorEstimate.cons.map((con, index) => (
+                                    <Text key={index} size="sm">❌ {con}</Text>
+                                  ))}
+                                </Stack>
+                              </div>
+                            )}
+                            {jobStrategy.companyResearch.glassdoorEstimate.salaryRange && (
+                              <div>
+                                <Text fw={600} color="blue" size="sm">Salary Range:</Text>
+                                <Text size="sm">{jobStrategy.companyResearch.glassdoorEstimate.salaryRange}</Text>
+                              </div>
+                            )}
+                          </Stack>
+                        </Card>
+                      </div>
+                    )}
+
+                    {jobStrategy.companyResearch?.hiringManager && (
+                      <div>
+                        <Title order={5} mb="sm">Hiring Manager Research</Title>
+                        <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-cyan-0)' }}>
+                          <Stack gap="sm">
+                            {jobStrategy.companyResearch.hiringManager.potentialTitles && jobStrategy.companyResearch.hiringManager.potentialTitles.length > 0 && (
+                              <div>
+                                <Text fw={600} size="sm" color="cyan">Potential Titles:</Text>
+                                <Group gap="xs" mt="xs">
+                                  {jobStrategy.companyResearch.hiringManager.potentialTitles.map((title, index) => (
+                                    <Badge key={index} variant="light" color="cyan" size="sm">{title}</Badge>
+                                  ))}
+                                </Group>
+                              </div>
+                            )}
+                            {jobStrategy.companyResearch.hiringManager.researchTips && (
+                              <div>
+                                <Text fw={600} size="sm" color="cyan">Research Tips:</Text>
+                                <Text size="sm">{jobStrategy.companyResearch.hiringManager.researchTips}</Text>
+                              </div>
+                            )}
+                            {jobStrategy.companyResearch.hiringManager.connectionStrategy && (
+                              <div>
+                                <Text fw={600} size="sm" color="cyan">Connection Strategy:</Text>
+                                <Text size="sm">{jobStrategy.companyResearch.hiringManager.connectionStrategy}</Text>
+                              </div>
+                            )}
+                          </Stack>
+                        </Card>
+                      </div>
+                    )}
+
+                    {jobStrategy.companyResearch?.competitiveLandscape && (
+                      <div>
+                        <Title order={5} mb="sm">Competitive Landscape</Title>
+                        <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-yellow-0)' }}>
+                          <Text size="sm">{jobStrategy.companyResearch.competitiveLandscape}</Text>
+                        </Card>
+                      </div>
+                    )}
                   </Stack>
                 </Tabs.Panel>
+                )}
               </Tabs>
             ) : null}
           </Modal>
