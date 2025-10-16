@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { jsPDF } from 'jspdf'
 import {
   Container,
   Title,
@@ -384,16 +385,48 @@ Timeline:
 ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).join('\n')}
       `.trim()
 
-      // Create and download PDF-like text file
-      const blob = new Blob([pdfContent], { type: 'text/plain' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `application_package_${selectedJob.company.toLowerCase().replace(/\s+/g, '_')}.txt`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      // Create actual PDF using jsPDF
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      // Configure text styling
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(12)
+
+      // Split content into lines that fit the page width
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const margin = 20
+      const lineHeight = 6
+      const maxLineWidth = pageWidth - (margin * 2)
+
+      const lines = doc.splitTextToSize(pdfContent, maxLineWidth)
+      const pageHeight = doc.internal.pageSize.getHeight()
+      const maxLinesPerPage = Math.floor((pageHeight - margin * 2) / lineHeight)
+
+      let currentLine = 0
+      let currentPage = 1
+
+      // Add content page by page
+      while (currentLine < lines.length) {
+        if (currentPage > 1) {
+          doc.addPage()
+        }
+
+        const endLine = Math.min(currentLine + maxLinesPerPage, lines.length)
+        const pageLines = lines.slice(currentLine, endLine)
+
+        doc.text(pageLines, margin, margin + lineHeight)
+
+        currentLine = endLine
+        currentPage++
+      }
+
+      // Download the PDF
+      const filename = `application_package_${selectedJob.company.toLowerCase().replace(/\s+/g, '_')}.pdf`
+      doc.save(filename)
 
     } catch (error) {
       console.error('PDF generation error:', error)
@@ -1062,7 +1095,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <Card shadow="md" padding="lg" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
                           <ScrollArea h={300}>
                             <Text size="sm" style={{ whiteSpace: 'pre-line', lineHeight: 1.6 }}>
-                              {applicationPackage.coverLetter.fullText}
+                              {applicationPackage.coverLetter.fullText || 'Cover letter content not available. Please try generating the package again.'}
                             </Text>
                           </ScrollArea>
                         </Card>

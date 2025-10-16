@@ -544,8 +544,7 @@ Multiple US Provisional Patents - Data Platform Innovations
 }
 
 function generateFallbackCoverLetter(candidateProfile: any, jobTitle: string, company: string): string {
-  return `
-Dear Hiring Manager,
+  const coverLetter = `Dear Hiring Manager,
 
 I am writing to express my strong interest in the ${jobTitle} position at ${company}. With ${candidateProfile.experience} of technology leadership experience and a proven track record of scaling engineering organizations while delivering $3.2B+ in revenue impact, I am excited about the opportunity to contribute to ${company}'s continued growth and innovation.
 
@@ -554,5 +553,10 @@ Throughout my career, I have consistently transformed technology organizations a
 My expertise in data platforms, AI/ML architecture, and cloud-native solutions, combined with my experience scaling teams and driving digital transformation initiatives, positions me well to excel in this ${jobTitle} role. I am particularly drawn to ${company}'s mission and would welcome the opportunity to discuss how my background in building scalable technology platforms and leading high-performing teams can contribute to your organization's strategic objectives.
 
 Thank you for your consideration. I look forward to hearing from you.
-`.trim()
+
+Sincerely,
+${candidateProfile.name}`.trim()
+
+  console.log('Generated cover letter for', company, ':', coverLetter.substring(0, 200) + '...')
+  return coverLetter
 }
