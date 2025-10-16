@@ -183,6 +183,23 @@ Return ONLY valid JSON, no other text:
     "potentialConcerns": ["Need to demonstrate specific product management methodologies", "Ensure alignment with company culture during interview"],
     "positioningStrategy": "Position as a technical leader who bridges engineering and product to deliver exceptional developer experiences"
   },
+  "companyResearch": {
+    "overview": "Leading technology company with strong market position and focus on innovation",
+    "recentNews": ["Recent strategic initiatives", "Product launches", "Market expansion"],
+    "cultureAndValues": "Innovation-driven culture with emphasis on collaboration and excellence",
+    "glassdoorEstimate": {
+      "rating": "4.2/5.0",
+      "pros": ["Strong technology focus", "Growth opportunities", "Competitive compensation"],
+      "cons": ["Fast-paced environment", "High performance expectations"],
+      "salaryRange": "Competitive market rates"
+    },
+    "hiringManager": {
+      "potentialTitles": ["VP Engineering", "Director of Product", "Head of Technology"],
+      "researchTips": "Research company leadership and recent announcements",
+      "connectionStrategy": "Connect with engineering leaders and mention shared interests"
+    },
+    "competitiveLandscape": "Strong competitive position with focus on innovation and market leadership"
+  },
   "resume": {
     "formattedResume": "RAVI PORURI\\nTechnical Product Leader & Platform Engineering Expert\\nEmail: [contact]\\nLinkedIn: [profile]\\n\\nPROFESSIONAL SUMMARY\\nSenior technology executive with 25+ years scaling engineering organizations and delivering exceptional developer experiences. Led $3.2B revenue initiatives at Cisco and Dropbox. Expert in platform engineering, developer tooling, and technical product management with proven track record growing platforms from MVP to $500M+ ARR.\\n\\nCORE COMPETENCIES\\nTechnical Product Management • Platform Engineering • Developer Experience • API Design • Cloud Architecture • Team Leadership • Digital Transformation • Developer Tools\\n\\nPROFESSIONAL EXPERIENCE\\n\\nEQUITI VENTURES - Founder & Technical Product Leader (2024 - Present)\\n• Building developer-focused AI platforms with emphasis on exceptional developer experience\\n• Leading product strategy for next-generation developer tools and platforms\\n• Creating intuitive APIs and SDKs for enterprise AI applications\\n\\nCISCO SYSTEMS - Senior Director, Platform Engineering (2020 - 2024)\\n• Grew CX Cloud platform from MVP to $500M+ ARR serving 4500+ enterprise customers\\n• Led developer experience initiatives improving API adoption by 300%\\n• Built comprehensive developer portal and tooling ecosystem\\n• Managed 100+ person global engineering organization focused on platform excellence\\n\\nDROPBOX - Global Head of Platform & Developer Experience (2017 - 2020)\\n• Led platform strategy during IPO growth phase serving 600M+ users\\n• Launched developer API program with 50,000+ registered developers\\n• Built enterprise-grade developer tools and documentation platforms\\n• Doubled platform adoption through improved developer experience\\n\\nTECHNICAL SKILLS\\nProduct Management: User Research, Roadmapping, Metrics, A/B Testing\\nPlatform Engineering: APIs, SDKs, Developer Tools, Documentation\\nCloud: AWS, Kubernetes, Microservices, CI/CD\\nLeadership: Team Building, Strategy, Cross-functional Collaboration\\n\\nEDUCATION & CERTIFICATIONS\\nMBA Finance | Bachelor Computer Applications\\nProduct Management Certified | Multiple US Patents in Platform Technology",
     "professionalSummary": "Senior technology executive with 25+ years scaling engineering organizations and delivering exceptional developer experiences. Expert in technical product management, platform engineering, and developer tooling with $3.2B+ revenue impact.",
@@ -195,6 +212,49 @@ Return ONLY valid JSON, no other text:
   },
   "coverLetter": {
     "fullText": "Dear Hiring Manager,\\n\\nI am writing to express my strong interest in the Technical Product Manager, Developer Experience role at [COMPANY]. With 25+ years of technology leadership experience and a proven track record of building exceptional developer experiences at scale, I am excited about the opportunity to contribute to [COMPANY]'s developer platform strategy.\\n\\nThroughout my career, I have consistently focused on creating world-class developer experiences that drive adoption and business growth. At Cisco, I grew the CX Cloud platform from MVP to over $500M ARR while leading developer experience initiatives that improved API adoption by 300%. At Dropbox, I launched and scaled developer API programs serving 50,000+ registered developers during the company's IPO growth phase. Currently, as Founder of Equiti Ventures, I'm building next-generation developer-focused AI platforms with emphasis on intuitive APIs and exceptional developer tooling.\\n\\nMy unique combination of deep technical expertise and product management experience positions me perfectly for this role. I understand both the engineering challenges of building robust platforms and the product requirements for creating delightful developer experiences. My experience includes API design, developer portal creation, comprehensive documentation strategies, and building the metrics and feedback loops necessary to continuously improve developer satisfaction.\\n\\nI am particularly drawn to [COMPANY]'s commitment to developer innovation and would welcome the opportunity to discuss how my background in platform engineering and developer experience can help accelerate your developer platform strategy.\\n\\nThank you for your consideration. I look forward to hearing from you.\\n\\nSincerely,\\nRavi Poruri"
+  },
+  "interviewPrep": {
+    "starStories": [
+      {
+        "situation": "Platform needed rapid scaling to meet growing demand",
+        "task": "Transform architecture while building high-performing team",
+        "action": "Led comprehensive platform transformation with focus on scalability",
+        "result": "Achieved 300% growth in platform capabilities and user satisfaction",
+        "relevance": "Demonstrates ability to handle similar scaling challenges"
+      },
+      {
+        "situation": "Developer adoption was declining due to poor API experience",
+        "task": "Redesign developer experience to increase platform adoption",
+        "action": "Implemented comprehensive developer portal and improved documentation",
+        "result": "Increased developer sign-ups by 250% and API usage by 400%",
+        "relevance": "Shows expertise in developer experience optimization"
+      }
+    ],
+    "technicalDiscussion": ["Platform architecture and scalability", "Developer experience optimization", "API design best practices"],
+    "questionsToAsk": [
+      "What are the biggest technical challenges facing the platform currently?",
+      "How does this role contribute to the company's technology strategy?",
+      "What would success look like in the first 90 days?",
+      "How does the engineering culture support innovation?",
+      "What opportunities exist for technical leadership and mentorship?"
+    ],
+    "salaryNegotiation": {
+      "marketData": "Senior technology leadership roles typically range from $400K-$800K+ total compensation",
+      "valueProposition": "Proven track record of delivering significant revenue impact and scaling technology organizations",
+      "negotiationApproach": "Focus on total business impact and transformation capabilities"
+    }
+  },
+  "applicationStrategy": {
+    "preferredChannel": "Direct application combined with targeted LinkedIn outreach",
+    "linkedinStrategy": "Research current team members and connect with relevant leaders",
+    "followUpPlan": "Follow up one week post-application, then bi-weekly with relevant insights",
+    "additionalResearch": "Study recent company announcements and technology blog posts",
+    "timeline": [
+      "Day 1: Submit application and connect with hiring manager on LinkedIn",
+      "Day 3: Follow up with personalized message referencing company initiatives",
+      "Week 1: Share relevant industry insight or article",
+      "Week 2: Check in with additional value-add content"
+    ]
   }
 }`
 }
