@@ -1,0 +1,1230 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import {
+  Container,
+  Title,
+  Text,
+  Button,
+  Group,
+  Card,
+  Stack,
+  Badge,
+  Box,
+  TextInput,
+  Select,
+  Loader,
+  Alert,
+  Stepper,
+  Divider,
+  Progress,
+  ActionIcon,
+  Tooltip,
+  MultiSelect,
+  Switch,
+  Paper,
+  Anchor,
+  ThemeIcon,
+  Tabs,
+  Grid,
+  Modal,
+  Textarea,
+  ScrollArea
+} from '@mantine/core'
+import {
+  IconSearch,
+  IconFilter,
+  IconStar,
+  IconMapPin,
+  IconCurrencyDollar,
+  IconCalendar,
+  IconExternalLink,
+  IconFileText,
+  IconBrain,
+  IconTarget,
+  IconTrendingUp,
+  IconBuilding,
+  IconSettings,
+  IconRefresh,
+  IconAlertCircle,
+  IconCheck,
+  IconDownload,
+  IconCopy,
+  IconRocket,
+  IconEye,
+  IconChevronRight,
+  IconUsers,
+  IconTrophy,
+  IconBrandLinkedin
+} from '@tabler/icons-react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+interface JobListing {
+  id: string
+  title: string
+  company: string
+  location: string
+  remote: boolean
+  salary?: string
+  description: string
+  url: string
+  source: string
+  postedDate: string
+  relevanceScore?: number
+  matchReasons?: string[]
+}
+
+interface ApplicationPackage {
+  jobAnalysis: {
+    relevanceScore: number
+    matchStrengths: string[]
+    potentialConcerns: string[]
+    positioningStrategy: string
+  }
+  companyResearch: {
+    overview: string
+    recentNews: string[]
+    cultureAndValues: string
+    glassdoorEstimate: {
+      rating: string
+      pros: string[]
+      cons: string[]
+      salaryRange: string
+    }
+    hiringManager: {
+      potentialTitles: string[]
+      researchTips: string
+      connectionStrategy: string
+    }
+    competitiveLandscape: string
+  }
+  resume: {
+    formattedResume: string
+    professionalSummary: string
+    keyAchievements: string[]
+    technicalSkills: string[]
+    workExperience: string[]
+    downloadUrl?: string
+  }
+  coverLetter: {
+    fullText: string
+    keyPoints: string[]
+    customization: string
+  }
+  interviewPrep: {
+    starStories: Array<{
+      situation: string
+      task: string
+      action: string
+      result: string
+      relevance: string
+    }>
+    technicalDiscussion: string[]
+    questionsToAsk: string[]
+    salaryNegotiation: {
+      marketData: string
+      valueProposition: string
+      negotiationApproach: string
+    }
+  }
+  applicationStrategy: {
+    preferredChannel: string
+    linkedinStrategy: string
+    followUpPlan: string
+    additionalResearch: string
+    timeline: string[]
+  }
+}
+
+export default function AIJobPlatformPage() {
+  // Authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [accessKey, setAccessKey] = useState('')
+
+  // Application state
+  const [currentStep, setCurrentStep] = useState(0)
+  const [jobs, setJobs] = useState<JobListing[]>([])
+  const [selectedJob, setSelectedJob] = useState<JobListing | null>(null)
+  const [applicationPackage, setApplicationPackage] = useState<ApplicationPackage | null>(null)
+
+  // Search state
+  const [keywords, setKeywords] = useState('')
+  const [location, setLocation] = useState('')
+  const [remoteOnly, setRemoteOnly] = useState(false)
+  const [companies, setCompanies] = useState<string[]>([])
+  const [excludeCompanies, setExcludeCompanies] = useState<string[]>([])
+
+  // UI state
+  const [loading, setLoading] = useState(false)
+  const [packageLoading, setPackageLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState<string>('overview')
+  const [resumeModalOpen, setResumeModalOpen] = useState(false)
+  const [coverLetterModalOpen, setCoverLetterModalOpen] = useState(false)
+
+  // Check authentication
+  useEffect(() => {
+    const stored = sessionStorage.getItem('ai-job-platform-auth')
+    if (stored === 'authenticated') {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const handleAuthentication = () => {
+    if (accessKey === 'ravi2025jobs' || accessKey === 'demo') {
+      setIsAuthenticated(true)
+      sessionStorage.setItem('ai-job-platform-auth', 'authenticated')
+      setError('')
+    } else {
+      setError('Invalid access key. Please contact Ravi for access.')
+    }
+  }
+
+  const searchJobs = async () => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/job-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keywords,
+          location,
+          remote: remoteOnly,
+          companies,
+          excludeCompanies
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to search jobs')
+      }
+
+      const sortedJobs = (data.jobs || []).sort((a: JobListing, b: JobListing) =>
+        (b.relevanceScore || 0) - (a.relevanceScore || 0)
+      )
+
+      setJobs(sortedJobs)
+      setCurrentStep(1)
+    } catch (error) {
+      console.error('Job search error:', error)
+      setError('Failed to search jobs. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const generateApplicationPackage = async (job: JobListing) => {
+    setSelectedJob(job)
+    setPackageLoading(true)
+    setCurrentStep(2)
+
+    try {
+      // Enhanced API call with dynamic prompt generation
+      const response = await fetch('/api/ai-application-package', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobTitle: job.title,
+          company: job.company,
+          jobDescription: job.description,
+          jobUrl: job.url,
+          location: job.location,
+          salary: job.salary,
+          source: job.source,
+          candidateProfile: {
+            name: 'Ravi Poruri',
+            currentRole: 'Founder & AI Product Leader at Equiti Ventures',
+            experience: '25+ years technology leadership',
+            expertise: ['AI/ML Platforms', 'Data Engineering', 'Cloud Architecture', 'Leadership'],
+            achievements: [
+              'Grew Cisco CX Cloud from MVP to $500M+ ARR',
+              'Led Dropbox pre-IPO to IPO, doubled revenue $850M→$1.8B',
+              'Generated $2B+ annual revenue at Yahoo'
+            ]
+          }
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate application package')
+      }
+
+      setApplicationPackage(data)
+      setCurrentStep(3)
+    } catch (error) {
+      console.error('Package generation error:', error)
+      setError('Failed to generate application package.')
+    } finally {
+      setPackageLoading(false)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })
+    } catch {
+      return 'Recent'
+    }
+  }
+
+  const getScoreColor = (score?: number) => {
+    if (!score) return 'gray'
+    if (score >= 80) return 'green'
+    if (score >= 60) return 'yellow'
+    return 'red'
+  }
+
+  const companyOptions = [
+    'OpenAI', 'Anthropic', 'Databricks', 'Snowflake', 'Stripe', 'Airbnb',
+    'Netflix', 'Uber', 'Meta', 'Google', 'Microsoft', 'Amazon', 'Apple'
+  ]
+
+  // Authentication gate
+  if (!isAuthenticated) {
+    return (
+      <Container size="sm" py="4rem">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <Card shadow="lg" padding="xl" radius="md" style={{ maxWidth: 500, margin: '0 auto' }}>
+            <Stack gap="lg" ta="center">
+              <ThemeIcon size={60} radius={30} mx="auto" gradient={{ from: 'blue', to: 'purple' }}>
+                <IconRocket size={30} />
+              </ThemeIcon>
+
+              <div>
+                <Title order={2} mb="md">
+                  AI Job Application Platform
+                </Title>
+                <Text c="dimmed" size="sm">
+                  Complete AI-powered job search, analysis, and application package generation.
+                  Enter your access key to continue.
+                </Text>
+              </div>
+
+              <TextInput
+                placeholder="Enter access key"
+                value={accessKey}
+                onChange={(e) => setAccessKey(e.currentTarget.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAuthentication()}
+                size="md"
+              />
+
+              {error && (
+                <Alert icon={<IconAlertCircle size="1rem" />} color="red" variant="light">
+                  {error}
+                </Alert>
+              )}
+
+              <Button
+                onClick={handleAuthentication}
+                size="md"
+                fullWidth
+                disabled={!accessKey.trim()}
+                gradient={{ from: 'blue', to: 'purple' }}
+              >
+                Access Platform
+              </Button>
+
+              <Text size="xs" c="dimmed">
+                Need access? Contact Ravi through LinkedIn or the website contact form.
+              </Text>
+            </Stack>
+          </Card>
+        </motion.div>
+      </Container>
+    )
+  }
+
+  return (
+    <Container size="xl" py="2rem">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <Stack gap="xl">
+          {/* Header */}
+          <Box ta="center">
+            <Title order={1} size="2.5rem" fw={700} mb="md" gradient={{ from: 'blue', to: 'purple' }} variant="gradient">
+              AI Job Application Platform
+            </Title>
+            <Text size="lg" c="dimmed" maw={700} mx="auto">
+              Complete AI-powered workflow from job discovery to application strategy with industry-standard resume generation.
+            </Text>
+          </Box>
+
+          {/* Progress Stepper */}
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Stepper active={currentStep} onStepClick={setCurrentStep} allowNextStepsSelect={false}>
+              <Stepper.Step
+                label="Job Search"
+                description="Find relevant opportunities"
+                icon={<IconSearch size={18} />}
+              />
+              <Stepper.Step
+                label="Select Position"
+                description="Choose target role"
+                icon={<IconTarget size={18} />}
+              />
+              <Stepper.Step
+                label="AI Analysis"
+                description="Generate application package"
+                icon={<IconBrain size={18} />}
+              />
+              <Stepper.Step
+                label="Application Package"
+                description="Complete strategy & documents"
+                icon={<IconRocket size={18} />}
+              />
+            </Stepper>
+          </Card>
+
+          {/* Step Content */}
+          <AnimatePresence mode="wait">
+            {currentStep === 0 && (
+              <motion.div
+                key="search"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card shadow="sm" padding="xl" radius="md">
+                  <Stack gap="md">
+                    <Group>
+                      <IconFilter size={20} />
+                      <Title order={3}>Job Search Criteria</Title>
+                    </Group>
+
+                    <Grid>
+                      <Grid.Col span={{ base: 12, md: 6 }}>
+                        <TextInput
+                          label="Keywords *"
+                          placeholder="CTO, VP Engineering, Chief Technology Officer"
+                          value={keywords}
+                          onChange={(e) => setKeywords(e.currentTarget.value)}
+                          leftSection={<IconSearch size={16} />}
+                          required
+                          error={!keywords.trim() ? "Keywords are required" : ""}
+                          description="Required: Job titles, skills, or company names"
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, md: 6 }}>
+                        <TextInput
+                          label="Location *"
+                          placeholder="San Francisco Bay Area"
+                          value={location}
+                          onChange={(e) => setLocation(e.currentTarget.value)}
+                          leftSection={<IconMapPin size={16} />}
+                          required
+                          error={!location.trim() ? "Location is required" : ""}
+                          description="Required: City, state, or region"
+                        />
+                      </Grid.Col>
+                    </Grid>
+
+                    <Grid>
+                      <Grid.Col span={{ base: 12, md: 6 }}>
+                        <MultiSelect
+                          label="Target Companies (optional)"
+                          placeholder="Select companies to focus on"
+                          data={companyOptions}
+                          value={companies}
+                          onChange={setCompanies}
+                          searchable
+                          clearable
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, md: 6 }}>
+                        <MultiSelect
+                          label="Exclude Companies (optional)"
+                          placeholder="Companies to exclude"
+                          data={companyOptions}
+                          value={excludeCompanies}
+                          onChange={setExcludeCompanies}
+                          searchable
+                          clearable
+                        />
+                      </Grid.Col>
+                    </Grid>
+
+                    <Group>
+                      <Switch
+                        label="Remote only"
+                        checked={remoteOnly}
+                        onChange={(e) => setRemoteOnly(e.currentTarget.checked)}
+                      />
+                    </Group>
+
+                    {error && (
+                      <Alert icon={<IconAlertCircle size="1rem" />} color="red" variant="light">
+                        {error}
+                      </Alert>
+                    )}
+
+                    <Group justify="center">
+                      <Button
+                        size="lg"
+                        onClick={searchJobs}
+                        disabled={loading || !keywords.trim() || !location.trim()}
+                        leftSection={loading ? <Loader size="sm" /> : <IconSearch size={20} />}
+                        gradient={{ from: 'blue', to: 'purple' }}
+                      >
+                        {loading ? 'Searching Jobs...' : 'Search Jobs'}
+                      </Button>
+                    </Group>
+                  </Stack>
+                </Card>
+              </motion.div>
+            )}
+
+            {currentStep === 1 && jobs.length > 0 && (
+              <motion.div
+                key="jobs"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card shadow="sm" padding="xl" radius="md">
+                  <Group justify="space-between" mb="lg">
+                    <Title order={2}>Found {jobs.length} Opportunities</Title>
+                    <Button
+                      variant="light"
+                      leftSection={<IconRefresh size={16} />}
+                      onClick={() => setCurrentStep(0)}
+                      size="sm"
+                    >
+                      New Search
+                    </Button>
+                  </Group>
+
+                  <Stack gap="md">
+                    {jobs.map((job) => (
+                      <Card key={job.id} shadow="xs" padding="lg" radius="md" withBorder>
+                        <Stack gap="sm">
+                          <Group justify="space-between" align="start">
+                            <div style={{ flex: 1 }}>
+                              <Group gap="sm" mb="xs">
+                                <Title order={4}>{job.title}</Title>
+                                {job.relevanceScore && (
+                                  <Badge color={getScoreColor(job.relevanceScore)} size="sm">
+                                    {job.relevanceScore}% match
+                                  </Badge>
+                                )}
+                                {job.remote && (
+                                  <Badge color="blue" variant="light" size="sm">
+                                    Remote
+                                  </Badge>
+                                )}
+                              </Group>
+
+                              <Group gap="md" mb="sm">
+                                <Group gap="xs">
+                                  <IconBuilding size={16} />
+                                  <Text size="sm" fw={500}>{job.company}</Text>
+                                </Group>
+                                <Group gap="xs">
+                                  <IconMapPin size={16} />
+                                  <Text size="sm">{job.location}</Text>
+                                </Group>
+                                {job.salary && (
+                                  <Group gap="xs">
+                                    <IconCurrencyDollar size={16} />
+                                    <Text size="sm">{job.salary}</Text>
+                                  </Group>
+                                )}
+                                <Group gap="xs">
+                                  <IconCalendar size={16} />
+                                  <Text size="sm">{formatDate(job.postedDate)}</Text>
+                                </Group>
+                              </Group>
+
+                              {job.matchReasons && job.matchReasons.length > 0 && (
+                                <Group gap="xs" mb="sm">
+                                  {job.matchReasons.slice(0, 3).map((reason, index) => (
+                                    <Badge key={index} variant="light" color="green" size="xs">
+                                      {reason}
+                                    </Badge>
+                                  ))}
+                                </Group>
+                              )}
+
+                              <Text size="sm" c="dimmed" lineClamp={2} mb="sm">
+                                {job.description}
+                              </Text>
+
+                              <Group gap="xs">
+                                <Badge variant="outline" size="xs">{job.source}</Badge>
+                              </Group>
+                            </div>
+
+                            <Stack gap="xs">
+                              <Tooltip label="View job details">
+                                <ActionIcon
+                                  component="a"
+                                  href={job.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  variant="light"
+                                  color="blue"
+                                >
+                                  <IconExternalLink size={16} />
+                                </ActionIcon>
+                              </Tooltip>
+
+                              <Tooltip label="Generate AI Application Package">
+                                <Button
+                                  onClick={() => generateApplicationPackage(job)}
+                                  variant="gradient"
+                                  gradient={{ from: 'blue', to: 'purple' }}
+                                  size="sm"
+                                  leftSection={<IconRocket size={16} />}
+                                >
+                                  Generate Package
+                                </Button>
+                              </Tooltip>
+                            </Stack>
+                          </Group>
+                        </Stack>
+                      </Card>
+                    ))}
+                  </Stack>
+                </Card>
+              </motion.div>
+            )}
+
+            {currentStep === 2 && packageLoading && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card shadow="lg" padding="xl" radius="md" ta="center">
+                  <Stack gap="xl" align="center">
+                    <ThemeIcon size={80} radius={40} gradient={{ from: 'blue', to: 'purple' }}>
+                      <IconBrain size={40} />
+                    </ThemeIcon>
+
+                    <div>
+                      <Title order={2} mb="md">AI Generating Your Application Package</Title>
+                      <Text c="dimmed" size="lg" mb="xl">
+                        Analyzing {selectedJob?.title} at {selectedJob?.company}
+                      </Text>
+                    </div>
+
+                    <Progress size="lg" radius="xl" style={{ width: '100%' }} striped animated />
+
+                    <Stack gap="sm" ta="left" style={{ width: '100%', maxWidth: 400 }}>
+                      <Text size="sm" c="dimmed">✓ Analyzing job requirements</Text>
+                      <Text size="sm" c="dimmed">✓ Researching company background</Text>
+                      <Text size="sm" c="dimmed">✓ Generating tailored resume</Text>
+                      <Text size="sm" c="dimmed">✓ Creating cover letter</Text>
+                      <Text size="sm" c="dimmed">✓ Preparing interview strategy</Text>
+                      <Text size="sm" c="dimmed">⏳ Finalizing application package...</Text>
+                    </Stack>
+                  </Stack>
+                </Card>
+              </motion.div>
+            )}
+
+            {currentStep === 3 && applicationPackage && selectedJob && (
+              <motion.div
+                key="package"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card shadow="sm" padding="xl" radius="md">
+                  <Group justify="space-between" mb="lg">
+                    <div>
+                      <Title order={2}>Application Package Complete</Title>
+                      <Text c="dimmed" size="sm">
+                        {selectedJob.title} at {selectedJob.company}
+                      </Text>
+                    </div>
+                    <Group>
+                      <Button
+                        variant="light"
+                        leftSection={<IconRefresh size={16} />}
+                        onClick={() => setCurrentStep(0)}
+                        size="sm"
+                      >
+                        New Search
+                      </Button>
+                    </Group>
+                  </Group>
+
+                  <Tabs value={activeTab} onChange={setActiveTab} variant="pills" radius="md">
+                    <Tabs.List justify="center" mb="lg">
+                      <Tabs.Tab value="overview" leftSection={<IconTarget size={16} />}>
+                        📊 Overview
+                      </Tabs.Tab>
+                      <Tabs.Tab value="resume" leftSection={<IconFileText size={16} />}>
+                        📄 Resume
+                      </Tabs.Tab>
+                      <Tabs.Tab value="cover" leftSection={<IconStar size={16} />}>
+                        💌 Cover Letter
+                      </Tabs.Tab>
+                      <Tabs.Tab value="interview" leftSection={<IconBrain size={16} />}>
+                        🎯 Interview Prep
+                      </Tabs.Tab>
+                      <Tabs.Tab value="strategy" leftSection={<IconTrendingUp size={16} />}>
+                        📋 Strategy
+                      </Tabs.Tab>
+                      <Tabs.Tab value="company" leftSection={<IconBuilding size={16} />}>
+                        🏢 Company
+                      </Tabs.Tab>
+                    </Tabs.List>
+
+                    <Tabs.Panel value="overview" pt="md">
+                      <Stack gap="lg">
+                        <Group align="center">
+                          <Progress
+                            value={applicationPackage.jobAnalysis.relevanceScore}
+                            size="lg"
+                            color={getScoreColor(applicationPackage.jobAnalysis.relevanceScore)}
+                            style={{ flex: 1 }}
+                          />
+                          <Text fw={600} size="lg">{applicationPackage.jobAnalysis.relevanceScore}% Match</Text>
+                        </Group>
+
+                        <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+                          <Title order={5} mb="sm" c="green">🎯 Match Strengths</Title>
+                          <Stack gap="xs">
+                            {applicationPackage.jobAnalysis.matchStrengths.map((strength, index) => (
+                              <Text key={index} size="sm">✓ {strength}</Text>
+                            ))}
+                          </Stack>
+                        </Card>
+
+                        {applicationPackage.jobAnalysis.potentialConcerns.length > 0 && (
+                          <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-orange-0)' }}>
+                            <Title order={5} mb="sm" c="orange">⚠️ Areas to Address</Title>
+                            <Stack gap="xs">
+                              {applicationPackage.jobAnalysis.potentialConcerns.map((concern, index) => (
+                                <Text key={index} size="sm">• {concern}</Text>
+                              ))}
+                            </Stack>
+                          </Card>
+                        )}
+
+                        <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                          <Title order={5} mb="sm" c="blue">🚀 Positioning Strategy</Title>
+                          <Text size="sm">{applicationPackage.jobAnalysis.positioningStrategy}</Text>
+                        </Card>
+
+                        <Group justify="center" mt="xl">
+                          <Button
+                            component="a"
+                            href={selectedJob.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            leftSection={<IconExternalLink size={18} />}
+                            size="lg"
+                            gradient={{ from: 'blue', to: 'purple' }}
+                          >
+                            Apply to Position
+                          </Button>
+                        </Group>
+                      </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="resume" pt="md">
+                      <Stack gap="md">
+                        <Group justify="space-between">
+                          <Title order={4}>ATS-Optimized Executive Resume</Title>
+                          <Group>
+                            <Button
+                              variant="light"
+                              leftSection={<IconEye size={16} />}
+                              onClick={() => setResumeModalOpen(true)}
+                            >
+                              Preview
+                            </Button>
+                            <Button
+                              leftSection={<IconDownload size={16} />}
+                              onClick={() => {
+                                const blob = new Blob([applicationPackage.resume.formattedResume], { type: 'text/plain' })
+                                const url = URL.createObjectURL(blob)
+                                const a = document.createElement('a')
+                                a.href = url
+                                a.download = `${selectedJob.company}_${selectedJob.title}_Resume.txt`
+                                a.click()
+                              }}
+                            >
+                              Download
+                            </Button>
+                          </Group>
+                        </Group>
+
+                        <div>
+                          <Title order={5} mb="sm">Professional Summary</Title>
+                          <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                            <Text size="sm" style={{ whiteSpace: 'pre-line' }}>
+                              {applicationPackage.resume.professionalSummary}
+                            </Text>
+                          </Card>
+                        </div>
+
+                        <div>
+                          <Title order={5} mb="sm">Key Achievements for This Role</Title>
+                          <Stack gap="xs">
+                            {applicationPackage.resume.keyAchievements.map((achievement, index) => (
+                              <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                                <Text size="sm">🏆 {achievement}</Text>
+                              </Card>
+                            ))}
+                          </Stack>
+                        </div>
+
+                        <div>
+                          <Title order={5} mb="sm">Prioritized Technical Skills</Title>
+                          <Group gap="xs">
+                            {applicationPackage.resume.technicalSkills.map((skill, index) => (
+                              <Badge key={index} variant="light" color="blue" size="lg">
+                                {skill}
+                              </Badge>
+                            ))}
+                          </Group>
+                        </div>
+                      </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="cover" pt="md">
+                      <Stack gap="md">
+                        <Group justify="space-between">
+                          <Title order={4}>Tailored Cover Letter</Title>
+                          <Group>
+                            <Button
+                              variant="light"
+                              leftSection={<IconEye size={16} />}
+                              onClick={() => setCoverLetterModalOpen(true)}
+                            >
+                              Preview
+                            </Button>
+                            <Button
+                              leftSection={<IconCopy size={16} />}
+                              onClick={() => {
+                                navigator.clipboard.writeText(applicationPackage.coverLetter.fullText)
+                                // Add toast notification here
+                              }}
+                            >
+                              Copy Text
+                            </Button>
+                          </Group>
+                        </Group>
+
+                        <Card shadow="md" padding="lg" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                          <ScrollArea h={300}>
+                            <Text size="sm" style={{ whiteSpace: 'pre-line', lineHeight: 1.6 }}>
+                              {applicationPackage.coverLetter.fullText}
+                            </Text>
+                          </ScrollArea>
+                        </Card>
+
+                        <div>
+                          <Title order={5} mb="sm">Key Message Points</Title>
+                          <Stack gap="xs">
+                            {applicationPackage.coverLetter.keyPoints.map((point, index) => (
+                              <Card key={index} shadow="xs" padding="sm" radius="sm" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                                <Text size="sm">💡 {point}</Text>
+                              </Card>
+                            ))}
+                          </Stack>
+                        </div>
+
+                        <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
+                          <Title order={5} mb="sm" c="violet">✨ Customization Notes</Title>
+                          <Text size="sm">{applicationPackage.coverLetter.customization}</Text>
+                        </Card>
+                      </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="interview" pt="md">
+                      <Stack gap="md">
+                        <div>
+                          <Title order={5} mb="sm">STAR Method Stories</Title>
+                          <Stack gap="sm">
+                            {applicationPackage.interviewPrep.starStories.map((story, index) => (
+                              <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
+                                <Stack gap="xs">
+                                  <Text fw={600} size="sm" c="blue">Story #{index + 1}</Text>
+                                  <div>
+                                    <Text size="xs" fw={600} c="orange">Situation:</Text>
+                                    <Text size="sm">{story.situation}</Text>
+                                  </div>
+                                  <div>
+                                    <Text size="xs" fw={600} c="orange">Task:</Text>
+                                    <Text size="sm">{story.task}</Text>
+                                  </div>
+                                  <div>
+                                    <Text size="xs" fw={600} c="orange">Action:</Text>
+                                    <Text size="sm">{story.action}</Text>
+                                  </div>
+                                  <div>
+                                    <Text size="xs" fw={600} c="orange">Result:</Text>
+                                    <Text size="sm">{story.result}</Text>
+                                  </div>
+                                  <div>
+                                    <Text size="xs" fw={600} c="green">Relevance:</Text>
+                                    <Text size="sm" style={{ fontStyle: 'italic' }}>{story.relevance}</Text>
+                                  </div>
+                                </Stack>
+                              </Card>
+                            ))}
+                          </Stack>
+                        </div>
+
+                        <div>
+                          <Title order={5} mb="sm">Technical Discussion Points</Title>
+                          <Group gap="xs">
+                            {applicationPackage.interviewPrep.technicalDiscussion.map((area, index) => (
+                              <Badge key={index} variant="outline" color="orange" size="md">
+                                {area}
+                              </Badge>
+                            ))}
+                          </Group>
+                        </div>
+
+                        <div>
+                          <Title order={5} mb="sm">Strategic Questions to Ask</Title>
+                          <Stack gap="xs">
+                            {applicationPackage.interviewPrep.questionsToAsk.map((question, index) => (
+                              <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                                <Text size="sm">❓ {question}</Text>
+                              </Card>
+                            ))}
+                          </Stack>
+                        </div>
+
+                        <div>
+                          <Title order={5} mb="sm">Salary Negotiation Strategy</Title>
+                          <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+                            <Stack gap="sm">
+                              <div>
+                                <Text size="xs" fw={600} c="green">Market Data:</Text>
+                                <Text size="sm">{applicationPackage.interviewPrep.salaryNegotiation.marketData}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} c="green">Value Proposition:</Text>
+                                <Text size="sm">{applicationPackage.interviewPrep.salaryNegotiation.valueProposition}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} c="green">Negotiation Approach:</Text>
+                                <Text size="sm">{applicationPackage.interviewPrep.salaryNegotiation.negotiationApproach}</Text>
+                              </div>
+                            </Stack>
+                          </Card>
+                        </div>
+                      </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="strategy" pt="md">
+                      <Stack gap="md">
+                        <div>
+                          <Title order={5} mb="sm">Application Strategy</Title>
+                          <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                            <Stack gap="sm">
+                              <div>
+                                <Text size="xs" fw={600} c="blue">Preferred Channel:</Text>
+                                <Text size="sm">{applicationPackage.applicationStrategy.preferredChannel}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} c="blue">LinkedIn Strategy:</Text>
+                                <Text size="sm">{applicationPackage.applicationStrategy.linkedinStrategy}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} c="blue">Follow-up Plan:</Text>
+                                <Text size="sm">{applicationPackage.applicationStrategy.followUpPlan}</Text>
+                              </div>
+                              <div>
+                                <Text size="xs" fw={600} c="blue">Additional Research:</Text>
+                                <Text size="sm">{applicationPackage.applicationStrategy.additionalResearch}</Text>
+                              </div>
+                            </Stack>
+                          </Card>
+                        </div>
+
+                        <div>
+                          <Title order={5} mb="sm">Action Timeline</Title>
+                          <Stack gap="xs">
+                            {applicationPackage.applicationStrategy.timeline?.map((action, index) => (
+                              <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                                <Group>
+                                  <ThemeIcon size="sm" radius="xl" color="blue" variant="light">
+                                    <Text size="xs" fw={600}>{index + 1}</Text>
+                                  </ThemeIcon>
+                                  <Text size="sm">{action}</Text>
+                                </Group>
+                              </Card>
+                            ))}
+                          </Stack>
+                        </div>
+
+                        <Group justify="center" mt="xl">
+                          <Button
+                            leftSection={<IconBrandLinkedin size={18} />}
+                            variant="filled"
+                            color="blue"
+                            size="lg"
+                            component="a"
+                            href={`https://linkedin.com/company/${selectedJob.company.toLowerCase().replace(/\s+/g, '-')}`}
+                            target="_blank"
+                          >
+                            Research on LinkedIn
+                          </Button>
+                        </Group>
+                      </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="company" pt="md">
+                      <Stack gap="md">
+                        <div>
+                          <Title order={5} mb="sm">Company Overview</Title>
+                          <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                            <Text size="sm">{applicationPackage.companyResearch.overview}</Text>
+                          </Card>
+                        </div>
+
+                        {applicationPackage.companyResearch.recentNews && applicationPackage.companyResearch.recentNews.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">Recent Developments</Title>
+                            <Stack gap="xs">
+                              {applicationPackage.companyResearch.recentNews.map((news, index) => (
+                                <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                                  <Text size="sm">📰 {news}</Text>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
+
+                        {applicationPackage.companyResearch.cultureAndValues && (
+                          <div>
+                            <Title order={5} mb="sm">Culture & Values</Title>
+                            <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
+                              <Text size="sm">{applicationPackage.companyResearch.cultureAndValues}</Text>
+                            </Card>
+                          </div>
+                        )}
+
+                        {applicationPackage.companyResearch.glassdoorEstimate && (
+                          <div>
+                            <Title order={5} mb="sm">Employee Insights (Estimated)</Title>
+                            <Card shadow="sm" padding="md" radius="md" withBorder>
+                              <Stack gap="sm">
+                                {applicationPackage.companyResearch.glassdoorEstimate.rating && (
+                                  <Group>
+                                    <Text fw={600} c="orange">Rating:</Text>
+                                    <Text size="sm">{applicationPackage.companyResearch.glassdoorEstimate.rating}</Text>
+                                  </Group>
+                                )}
+                                {applicationPackage.companyResearch.glassdoorEstimate.pros && applicationPackage.companyResearch.glassdoorEstimate.pros.length > 0 && (
+                                  <div>
+                                    <Text fw={600} c="green" size="sm" mb="xs">Pros:</Text>
+                                    <Stack gap="xs">
+                                      {applicationPackage.companyResearch.glassdoorEstimate.pros.map((pro, index) => (
+                                        <Text key={index} size="sm">✅ {pro}</Text>
+                                      ))}
+                                    </Stack>
+                                  </div>
+                                )}
+                                {applicationPackage.companyResearch.glassdoorEstimate.cons && applicationPackage.companyResearch.glassdoorEstimate.cons.length > 0 && (
+                                  <div>
+                                    <Text fw={600} c="red" size="sm" mb="xs">Challenges:</Text>
+                                    <Stack gap="xs">
+                                      {applicationPackage.companyResearch.glassdoorEstimate.cons.map((con, index) => (
+                                        <Text key={index} size="sm">⚠️ {con}</Text>
+                                      ))}
+                                    </Stack>
+                                  </div>
+                                )}
+                                {applicationPackage.companyResearch.glassdoorEstimate.salaryRange && (
+                                  <div>
+                                    <Text fw={600} c="blue" size="sm">Salary Range:</Text>
+                                    <Text size="sm">{applicationPackage.companyResearch.glassdoorEstimate.salaryRange}</Text>
+                                  </div>
+                                )}
+                              </Stack>
+                            </Card>
+                          </div>
+                        )}
+
+                        {applicationPackage.companyResearch.hiringManager && (
+                          <div>
+                            <Title order={5} mb="sm">Hiring Manager Research</Title>
+                            <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-cyan-0)' }}>
+                              <Stack gap="sm">
+                                {applicationPackage.companyResearch.hiringManager.potentialTitles && applicationPackage.companyResearch.hiringManager.potentialTitles.length > 0 && (
+                                  <div>
+                                    <Text fw={600} size="sm" c="cyan">Potential Titles:</Text>
+                                    <Group gap="xs" mt="xs">
+                                      {applicationPackage.companyResearch.hiringManager.potentialTitles.map((title, index) => (
+                                        <Badge key={index} variant="light" color="cyan" size="sm">{title}</Badge>
+                                      ))}
+                                    </Group>
+                                  </div>
+                                )}
+                                {applicationPackage.companyResearch.hiringManager.researchTips && (
+                                  <div>
+                                    <Text fw={600} size="sm" c="cyan">Research Tips:</Text>
+                                    <Text size="sm">{applicationPackage.companyResearch.hiringManager.researchTips}</Text>
+                                  </div>
+                                )}
+                                {applicationPackage.companyResearch.hiringManager.connectionStrategy && (
+                                  <div>
+                                    <Text fw={600} size="sm" c="cyan">Connection Strategy:</Text>
+                                    <Text size="sm">{applicationPackage.companyResearch.hiringManager.connectionStrategy}</Text>
+                                  </div>
+                                )}
+                              </Stack>
+                            </Card>
+                          </div>
+                        )}
+
+                        {applicationPackage.companyResearch.competitiveLandscape && (
+                          <div>
+                            <Title order={5} mb="sm">Competitive Landscape</Title>
+                            <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-yellow-0)' }}>
+                              <Text size="sm">{applicationPackage.companyResearch.competitiveLandscape}</Text>
+                            </Card>
+                          </div>
+                        )}
+                      </Stack>
+                    </Tabs.Panel>
+                  </Tabs>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Resume Preview Modal */}
+          <Modal
+            opened={resumeModalOpen}
+            onClose={() => setResumeModalOpen(false)}
+            title={
+              <Group>
+                <IconFileText size={24} color="blue" />
+                <div>
+                  <Text fw={600} size="lg">Resume Preview</Text>
+                  <Text size="sm" c="dimmed">Industry-Standard Executive Format</Text>
+                </div>
+              </Group>
+            }
+            size="xl"
+            padding="lg"
+            radius="md"
+          >
+            {applicationPackage && (
+              <Stack gap="md">
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                  <ScrollArea h={600}>
+                    <Text size="sm" style={{ whiteSpace: 'pre-line', fontFamily: 'monospace', lineHeight: 1.6 }}>
+                      {applicationPackage.resume.formattedResume}
+                    </Text>
+                  </ScrollArea>
+                </Card>
+
+                <Group justify="center">
+                  <Button
+                    leftSection={<IconDownload size={16} />}
+                    onClick={() => {
+                      const blob = new Blob([applicationPackage.resume.formattedResume], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${selectedJob?.company}_${selectedJob?.title}_Resume.txt`
+                      a.click()
+                    }}
+                  >
+                    Download Resume
+                  </Button>
+                  <Button
+                    variant="light"
+                    leftSection={<IconCopy size={16} />}
+                    onClick={() => {
+                      navigator.clipboard.writeText(applicationPackage.resume.formattedResume)
+                    }}
+                  >
+                    Copy to Clipboard
+                  </Button>
+                </Group>
+              </Stack>
+            )}
+          </Modal>
+
+          {/* Cover Letter Preview Modal */}
+          <Modal
+            opened={coverLetterModalOpen}
+            onClose={() => setCoverLetterModalOpen(false)}
+            title={
+              <Group>
+                <IconStar size={24} color="purple" />
+                <div>
+                  <Text fw={600} size="lg">Cover Letter Preview</Text>
+                  <Text size="sm" c="dimmed">Tailored Executive Communication</Text>
+                </div>
+              </Group>
+            }
+            size="lg"
+            padding="lg"
+            radius="md"
+          >
+            {applicationPackage && (
+              <Stack gap="md">
+                <Card shadow="sm" padding="lg" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                  <ScrollArea h={500}>
+                    <Text size="sm" style={{ whiteSpace: 'pre-line', lineHeight: 1.6 }}>
+                      {applicationPackage.coverLetter.fullText}
+                    </Text>
+                  </ScrollArea>
+                </Card>
+
+                <Group justify="center">
+                  <Button
+                    leftSection={<IconDownload size={16} />}
+                    onClick={() => {
+                      const blob = new Blob([applicationPackage.coverLetter.fullText], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${selectedJob?.company}_${selectedJob?.title}_CoverLetter.txt`
+                      a.click()
+                    }}
+                  >
+                    Download Cover Letter
+                  </Button>
+                  <Button
+                    variant="light"
+                    leftSection={<IconCopy size={16} />}
+                    onClick={() => {
+                      navigator.clipboard.writeText(applicationPackage.coverLetter.fullText)
+                    }}
+                  >
+                    Copy to Clipboard
+                  </Button>
+                </Group>
+              </Stack>
+            )}
+          </Modal>
+        </Stack>
+      </motion.div>
+    </Container>
+  )
+}
