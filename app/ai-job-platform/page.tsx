@@ -203,7 +203,7 @@ export default function AIJobPlatformPage() {
   const [analysisStage, setAnalysisStage] = useState('')
   const [analysisError, setAnalysisError] = useState('')
   const [pdfGenerating, setPdfGenerating] = useState(false)
-  const [downloadFormat, setDownloadFormat] = useState('txt')
+  const [downloadFormat, setDownloadFormat] = useState('pdf')
 
   // Check authentication
   useEffect(() => {
@@ -1034,95 +1034,115 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                       <Title order={3}>Job Search Criteria</Title>
                     </Group>
 
-                    <Grid>
-                      <Grid.Col span={{ base: 12, md: 6 }}>
-                        <TextInput
-                          label="Keywords *"
-                          placeholder="CTO, VP Engineering, Chief Technology Officer"
-                          value={keywords}
-                          onChange={(e) => setKeywords(e.currentTarget.value)}
-                          leftSection={<IconSearch size={16} />}
-                          required
-                          error={!keywords.trim() ? "Keywords are required" : ""}
-                          description="Required: Job titles, skills, or company names"
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 4 }}>
-                        <TextInput
-                          label="Location *"
-                          placeholder="San Francisco Bay Area"
-                          value={location}
-                          onChange={(e) => setLocation(e.currentTarget.value)}
-                          leftSection={<IconMapPin size={16} />}
-                          required
-                          error={!location.trim() ? "Location is required" : ""}
-                          description="Required: City, state, or region"
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 2 }}>
-                        <Select
-                          label="Search Radius"
-                          placeholder="Select radius"
-                          value={radius.toString()}
-                          onChange={(value) => setRadius(parseInt(value || '25'))}
-                          data={[
-                            { value: '10', label: '10 miles' },
-                            { value: '25', label: '25 miles' },
-                            { value: '50', label: '50 miles' },
-                            { value: '75', label: '75 miles' },
-                            { value: '100', label: '100 miles' }
-                          ]}
-                          description="Distance from location"
-                        />
-                      </Grid.Col>
-                    </Grid>
+                    <Box>
+                      <Text size="sm" fw={500} mb="sm" c="dimmed">🎯 Essential Search Criteria</Text>
+                      <Grid>
+                        <Grid.Col span={{ base: 12, md: 5 }}>
+                          <TextInput
+                            label="Keywords *"
+                            placeholder="CTO, VP Engineering, Chief Technology Officer"
+                            value={keywords}
+                            onChange={(e) => setKeywords(e.currentTarget.value)}
+                            leftSection={<IconSearch size={16} />}
+                            required
+                            error={!keywords.trim() ? "Keywords are required" : ""}
+                            description="Job titles, skills, or company names"
+                            size="md"
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={{ base: 12, md: 4 }}>
+                          <TextInput
+                            label="Location *"
+                            placeholder="San Francisco Bay Area"
+                            value={location}
+                            onChange={(e) => setLocation(e.currentTarget.value)}
+                            leftSection={<IconMapPin size={16} />}
+                            required
+                            error={!location.trim() ? "Location is required" : ""}
+                            description="City, state, or region"
+                            size="md"
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={{ base: 12, md: 3 }}>
+                          <Select
+                            label="Search Radius"
+                            placeholder="Select radius"
+                            value={radius.toString()}
+                            onChange={(value) => setRadius(parseInt(value || '25'))}
+                            data={[
+                              { value: '10', label: '10 miles' },
+                              { value: '25', label: '25 miles' },
+                              { value: '50', label: '50 miles' },
+                              { value: '75', label: '75 miles' },
+                              { value: '100', label: '100 miles' }
+                            ]}
+                            description="Distance from location"
+                            size="md"
+                          />
+                        </Grid.Col>
+                      </Grid>
+                    </Box>
 
-                    <Grid>
-                      <Grid.Col span={{ base: 12, md: 4 }}>
-                        <Select
-                          label="Time Period"
-                          placeholder="Select job posting time period"
-                          value={timePeriod}
-                          onChange={(value) => setTimePeriod(value || '7d')}
-                          data={[
-                            { value: '1h', label: 'Last Hour (Ultra Fresh)' },
-                            { value: '24h', label: 'Last 24 Hours' },
-                            { value: '7d', label: 'Last 7 Days (Recommended)' }
-                          ]}
-                          description="How recent the job postings should be"
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 4 }}>
-                        <MultiSelect
-                          label="Target Companies (optional)"
-                          placeholder="Select companies to focus on"
-                          data={companyOptions}
-                          value={companies}
-                          onChange={setCompanies}
-                          searchable
-                          clearable
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 4 }}>
-                        <MultiSelect
-                          label="Exclude Companies (optional)"
-                          placeholder="Companies to exclude"
-                          data={companyOptions}
-                          value={excludeCompanies}
-                          onChange={setExcludeCompanies}
-                          searchable
-                          clearable
-                        />
-                      </Grid.Col>
-                    </Grid>
+                    <Divider my="lg" />
 
-                    <Group>
-                      <Switch
-                        label="Remote only"
-                        checked={remoteOnly}
-                        onChange={(e) => setRemoteOnly(e.currentTarget.checked)}
-                      />
-                    </Group>
+                    <Box>
+                      <Text size="sm" fw={500} mb="sm" c="dimmed">⚙️ Advanced Filters</Text>
+                      <Grid>
+                        <Grid.Col span={{ base: 12, md: 3 }}>
+                          <Select
+                            label="Time Period"
+                            placeholder="Select posting period"
+                            value={timePeriod}
+                            onChange={(value) => setTimePeriod(value || '7d')}
+                            data={[
+                              { value: '1h', label: 'Last Hour' },
+                              { value: '24h', label: 'Last 24 Hours' },
+                              { value: '7d', label: 'Last 7 Days (Recommended)' }
+                            ]}
+                            description="How recent the postings are"
+                            size="md"
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={{ base: 12, md: 4 }}>
+                          <MultiSelect
+                            label="Target Companies (optional)"
+                            placeholder="Select companies to focus on"
+                            data={companyOptions}
+                            value={companies}
+                            onChange={setCompanies}
+                            searchable
+                            clearable
+                            description="Focus search on specific companies"
+                            size="md"
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={{ base: 12, md: 4 }}>
+                          <MultiSelect
+                            label="Exclude Companies (optional)"
+                            placeholder="Companies to exclude"
+                            data={companyOptions}
+                            value={excludeCompanies}
+                            onChange={setExcludeCompanies}
+                            searchable
+                            clearable
+                            description="Avoid specific companies"
+                            size="md"
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={{ base: 12, md: 1 }}>
+                          <Box pt="lg">
+                            <Switch
+                              label="Remote only"
+                              checked={remoteOnly}
+                              onChange={(e) => setRemoteOnly(e.currentTarget.checked)}
+                              size="md"
+                              color="blue"
+                            />
+                          </Box>
+                        </Grid.Col>
+                      </Grid>
+                    </Box>
+
 
                     {error && (
                       <Alert icon={<IconAlertCircle size="1rem" />} color="red" variant="light">
@@ -1409,7 +1429,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         loading={pdfGenerating}
                         size="sm"
                       >
-                        Download PDF
+                        Download Application Package
                       </Button>
                       <Button
                         variant="light"
