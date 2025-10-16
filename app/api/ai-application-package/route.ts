@@ -175,20 +175,25 @@ Research ${company} specifically and provide:
 
 DOCUMENT GENERATION REQUIREMENTS:
 
-1. RESUME - Industry-Standard Executive Format:
-- ATS-optimized with relevant keywords from job description
-- Executive summary (3-4 lines) positioning for this specific role
-- Quantified achievements that directly relate to job requirements
-- Technical skills section tailored to role needs
-- Professional experience with impact metrics
-- Format: Clean, professional, executive-level presentation
+1. RESUME - ATS-Optimized Professional Format:
+CRITICAL: Generate ONLY professional resume content without any AI-generated footers, headers, or metadata.
+- Use industry-standard ATS-compatible formatting
+- Include exact keywords from job description naturally
+- Professional Summary: 3-4 lines tailored specifically to ${jobTitle} at ${company}
+- Core Competencies: Keywords from job posting presented professionally
+- Professional Experience: Role-specific achievements with quantified impact
+- Technical Skills: Match required technologies and tools
+- Education & Certifications: Industry-relevant credentials
+- NO AI footers, NO generation timestamps, NO platform references
 
-2. COVER LETTER - Compelling Executive Communication:
-- 3-4 paragraphs, 300-350 words
-- Opening: Strong hook related to ${company} and ${jobTitle}
-- Body: Specific achievements that solve their challenges
-- Closing: Clear call to action and next steps
-- Tone: Executive confidence with demonstrated value
+2. COVER LETTER - Executive Professional Format:
+CRITICAL: Generate ONLY professional cover letter content without any AI-generated elements.
+- Professional business letter format
+- Addressed specifically to ${company} for ${jobTitle} role
+- Opening: Compelling connection to role requirements
+- Body: Specific achievements addressing their needs
+- Closing: Professional call to action
+- NO AI footers, NO generation metadata, NO platform references
 
 3. INTERVIEW PREPARATION - Comprehensive Strategy:
 - 5 STAR-method stories tailored to role requirements
@@ -231,24 +236,22 @@ Return ONLY valid JSON with this exact structure:
   },
 
   "resume": {
-    "formattedResume": "Complete ATS-optimized resume in clean text format with proper spacing and structure",
-    "professionalSummary": "3-4 line executive summary optimized for this role",
+    "formattedResume": "RAVI PORURI\\n[Your Contact Information]\\n\\nPROFESSIONAL SUMMARY\\n[3-4 lines specifically tailored to ${jobTitle} at ${company} incorporating key job requirements]\\n\\nCORE COMPETENCIES\\n[Keywords from job description presented as professional skills]\\n\\nPROFESSIONAL EXPERIENCE\\n\\nEQUITI VENTURES - Founder & AI Product Leader (2024 - Present)\\n• [Achievement directly relevant to ${jobTitle}]\\n• [Impact statement addressing job requirements]\\n• [Technical accomplishment with quantified results]\\n\\n[Previous roles with role-specific achievements]\\n\\nTECHNICAL SKILLS\\n[Technologies and tools from job description]\\n\\nEDUCATION & CERTIFICATIONS\\n[Relevant credentials]",
+    "professionalSummary": "3-4 line executive summary optimized specifically for ${jobTitle} at ${company}",
     "keyAchievements": [
-      "Quantified achievement 1 directly relevant to ${jobTitle}",
-      "Quantified achievement 2 solving their business challenges",
-      "Quantified achievement 3 demonstrating required expertise",
-      "Quantified achievement 4 showing leadership at scale"
+      "Quantified achievement 1 directly addressing ${jobTitle} requirements",
+      "Quantified achievement 2 solving specific business challenges mentioned in job",
+      "Quantified achievement 3 demonstrating required technical expertise",
+      "Quantified achievement 4 showing leadership scale relevant to role"
     ],
-    "technicalSkills": ["Skill 1 from job description", "Skill 2 from job description", "Skill 3 relevant to role"],
-    "workExperience": [
-      "COMPANY - TITLE (MM/YYYY - MM/YYYY)\\n• Achievement with metrics relevant to new role\\n• Impact statement addressing job requirements\\n• Leadership accomplishment with quantified results"
-    ]
+    "technicalSkills": ["Keywords from job description naturally integrated"],
+    "workExperience": "Professional experience section formatted for ATS optimization"
   },
 
   "coverLetter": {
-    "fullText": "Complete 300-350 word cover letter specifically tailored to ${company} and ${jobTitle}",
-    "keyPoints": ["Main value proposition 1", "Key differentiator 2", "Specific company connection 3"],
-    "customization": "Explanation of how this letter is specifically tailored to ${company} and role requirements"
+    "fullText": "[Date]\\n\\nHiring Manager\\n${company}\\n[Company Address]\\n\\nDear Hiring Manager,\\n\\n[Opening paragraph with compelling connection to ${jobTitle} role]\\n\\n[Body paragraph with specific achievements addressing their needs]\\n\\n[Body paragraph demonstrating understanding of company and role requirements]\\n\\n[Closing paragraph with professional call to action]\\n\\nSincerely,\\nRavi Poruri",
+    "keyPoints": ["Value proposition for ${jobTitle}", "Company-specific connection", "Role-relevant achievements"],
+    "customization": "Professional business letter tailored to ${company} and ${jobTitle}"
   },
 
   "interviewPrep": {
@@ -352,18 +355,8 @@ async function enhanceApplicationPackage(
 }
 
 function formatExecutiveResume(resumeContent: string, candidateProfile: any): string {
-  // Industry-standard executive resume formatting
-  return `
-${candidateProfile.name.toUpperCase()}
-Senior Technology Executive | ${candidateProfile.currentRole}
-
-${resumeContent}
-
-────────────────────────────────────────────────────────────────
-
-Generated by AI Job Application Platform
-Professional Resume Template - Executive Level
-`.trim()
+  // Clean professional resume formatting without AI footers
+  return resumeContent.trim()
 }
 
 function formatCoverLetter(coverLetterContent: string, candidateProfile: any, company: string): string {
@@ -389,10 +382,6 @@ ${coverLetterContent}
 Sincerely,
 
 ${candidateProfile.name}
-
-────────────────────────────────────────────────────────────────
-Generated by AI Job Application Platform
-Professional Cover Letter Template
 `.trim()
 }
 

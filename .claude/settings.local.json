@@ -51,7 +51,12 @@
       "Bash(sed:*)",
       "Bash(printf \"f7fb75b3\")",
       "WebFetch(domain:fantastic.jobs)",
-      "WebFetch(domain:rapidapi.com)"
+      "WebFetch(domain:rapidapi.com)",
+      "WebFetch(domain:raviporuri-website-git-master-equitiventures.vercel.app)",
+      "WebFetch(domain:raviporuri-website-nblnke1vx-equitiventures.vercel.app)",
+      "WebFetch(domain:raviporuri-website-8drg9cn67-equitiventures.vercel.app)",
+      "Bash(/dev/null)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
