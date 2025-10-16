@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 interface CompanyData {
   name: string
   overview?: string
@@ -110,7 +113,7 @@ async function fetchGlassdoorData(companyName: string): Promise<CompanyData | nu
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const searchParams = request.nextUrl.searchParams
     const companyName = searchParams.get('company')
 
     if (!companyName) {

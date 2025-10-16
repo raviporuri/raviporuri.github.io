@@ -36,7 +36,7 @@ import {
   IconTarget,
   IconTrendingUp
 } from '@tabler/icons-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 
@@ -71,7 +71,8 @@ interface JobStrategy {
   positioningStrategy?: string
 }
 
-export default function ResumeCustomizerPage() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function ResumeCustomizerContent() {
   const searchParams = useSearchParams()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [accessKey, setAccessKey] = useState('')
@@ -944,5 +945,23 @@ Requirements:
         </Stack>
       </motion.div>
     </Container>
+  )
+}
+
+// Main export wrapped in Suspense boundary
+export default function ResumeCustomizerPage() {
+  return (
+    <Suspense fallback={
+      <Container size="lg" py="2rem">
+        <Card shadow="sm" padding="xl" radius="md">
+          <Group justify="center">
+            <Loader size="lg" />
+            <Text>Loading resume customizer...</Text>
+          </Group>
+        </Card>
+      </Container>
+    }>
+      <ResumeCustomizerContent />
+    </Suspense>
   )
 }
