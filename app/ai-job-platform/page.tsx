@@ -1120,7 +1120,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
                           <Title order={5} mb="sm" c="green">🎯 Match Strengths</Title>
                           <Stack gap="xs">
-                            {applicationPackage.jobAnalysis.matchStrengths.map((strength, index) => (
+                            {(applicationPackage.jobAnalysis.matchStrengths || []).map((strength, index) => (
                               <Text key={index} size="sm">✓ {strength}</Text>
                             ))}
                           </Stack>
@@ -1130,7 +1130,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-orange-0)' }}>
                             <Title order={5} mb="sm" c="orange">⚠️ Areas to Address</Title>
                             <Stack gap="xs">
-                              {applicationPackage.jobAnalysis.potentialConcerns.map((concern, index) => (
+                              {(applicationPackage.jobAnalysis.potentialConcerns || []).map((concern, index) => (
                                 <Text key={index} size="sm">• {concern}</Text>
                               ))}
                             </Stack>
@@ -1198,7 +1198,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">Key Achievements for This Role</Title>
                           <Stack gap="xs">
-                            {applicationPackage.resume.keyAchievements.map((achievement, index) => (
+                            {(applicationPackage.resume.keyAchievements || []).map((achievement, index) => (
                               <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
                                 <Text size="sm">🏆 {achievement}</Text>
                               </Card>
@@ -1209,7 +1209,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">Prioritized Technical Skills</Title>
                           <Group gap="xs">
-                            {applicationPackage.resume.technicalSkills.map((skill, index) => (
+                            {(applicationPackage.resume.technicalSkills || []).map((skill, index) => (
                               <Badge key={index} variant="light" color="blue" size="lg">
                                 {skill}
                               </Badge>
@@ -1254,7 +1254,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">Key Message Points</Title>
                           <Stack gap="xs">
-                            {applicationPackage.coverLetter.keyPoints.map((point, index) => (
+                            {(applicationPackage.coverLetter.keyPoints || []).map((point, index) => (
                               <Card key={index} shadow="xs" padding="sm" radius="sm" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
                                 <Text size="sm">💡 {point}</Text>
                               </Card>
@@ -1274,7 +1274,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">STAR Method Stories</Title>
                           <Stack gap="sm">
-                            {applicationPackage.interviewPrep.starStories.map((story, index) => (
+                            {(applicationPackage.interviewPrep.starStories || []).map((story, index) => (
                               <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
                                 <Stack gap="xs">
                                   <Text fw={600} size="sm" c="blue">Story #{index + 1}</Text>
@@ -1307,7 +1307,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">Technical Discussion Points</Title>
                           <Group gap="xs">
-                            {applicationPackage.interviewPrep.technicalDiscussion.map((area, index) => (
+                            {(applicationPackage.interviewPrep.technicalDiscussion || []).map((area, index) => (
                               <Badge key={index} variant="outline" color="orange" size="md">
                                 {area}
                               </Badge>
@@ -1318,7 +1318,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">Strategic Questions to Ask</Title>
                           <Stack gap="xs">
-                            {applicationPackage.interviewPrep.questionsToAsk.map((question, index) => (
+                            {(applicationPackage.interviewPrep.questionsToAsk || []).map((question, index) => (
                               <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
                                 <Text size="sm">❓ {question}</Text>
                               </Card>
@@ -1377,7 +1377,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <div>
                           <Title order={5} mb="sm">Action Timeline</Title>
                           <Stack gap="xs">
-                            {applicationPackage.applicationStrategy.timeline?.map((action, index) => (
+                            {(applicationPackage.applicationStrategy.timeline || []).map((action, index) => (
                               <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
                                 <Group>
                                   <ThemeIcon size="sm" radius="xl" color="blue" variant="light">
@@ -1419,7 +1419,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           <div>
                             <Title order={5} mb="sm">Recent Developments</Title>
                             <Stack gap="xs">
-                              {applicationPackage.companyResearch.recentNews.map((news, index) => (
+                              {(applicationPackage.companyResearch.recentNews || []).map((news, index) => (
                                 <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
                                   <Text size="sm">📰 {news}</Text>
                                 </Card>
@@ -1452,7 +1452,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                   <div>
                                     <Text fw={600} c="green" size="sm" mb="xs">Pros:</Text>
                                     <Stack gap="xs">
-                                      {applicationPackage.companyResearch.glassdoorEstimate.pros.map((pro, index) => (
+                                      {(applicationPackage.companyResearch.glassdoorEstimate.pros || []).map((pro, index) => (
                                         <Text key={index} size="sm">✅ {pro}</Text>
                                       ))}
                                     </Stack>
@@ -1462,7 +1462,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                   <div>
                                     <Text fw={600} c="red" size="sm" mb="xs">Challenges:</Text>
                                     <Stack gap="xs">
-                                      {applicationPackage.companyResearch.glassdoorEstimate.cons.map((con, index) => (
+                                      {(applicationPackage.companyResearch.glassdoorEstimate.cons || []).map((con, index) => (
                                         <Text key={index} size="sm">⚠️ {con}</Text>
                                       ))}
                                     </Stack>
@@ -1488,7 +1488,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                   <div>
                                     <Text fw={600} size="sm" c="cyan">Potential Titles:</Text>
                                     <Group gap="xs" mt="xs">
-                                      {applicationPackage.companyResearch.hiringManager.potentialTitles.map((title, index) => (
+                                      {(applicationPackage.companyResearch.hiringManager.potentialTitles || []).map((title, index) => (
                                         <Badge key={index} variant="light" color="cyan" size="sm">{title}</Badge>
                                       ))}
                                     </Group>
