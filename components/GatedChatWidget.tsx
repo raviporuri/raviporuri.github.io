@@ -215,7 +215,16 @@ Thanks ${data.visitor.name}! I'll tailor this conversation for a ${data.visitor.
       // Check if user message indicates conversation ending
       let responseContent = data.response
       if (isConversationEnding(userMessage)) {
-        responseContent += `\n\nI hope this conversation has been helpful! While I can share information about Ravi's professional background, I'd definitely encourage you to connect with him directly for a more personal discussion. He'd be happy to share deeper insights about his experience, approach to leadership, and what drives his passion for technology.\n\nTo get in touch:\n• **LinkedIn**: linkedin.com/in/poruriravi\n• **Contact Form**: Click the 'Contact Me' button on this website\n\nThank you for your interest in Ravi's work!`\n      }\n\n      // Add assistant response\n      const assistantMessage: Message = {\n        role: 'assistant',\n        content: responseContent,\n        timestamp: new Date()\n      }\n      setMessages(prev => [...prev, assistantMessage])
+        responseContent += `\n\nI hope this conversation has been helpful! While I can share information about Ravi's professional background, I'd definitely encourage you to connect with him directly for a more personal discussion. He'd be happy to share deeper insights about his experience, approach to leadership, and what drives his passion for technology.\n\nTo get in touch:\n• **LinkedIn**: linkedin.com/in/poruriravi\n• **Contact Form**: Click the 'Contact Me' button on this website\n\nThank you for your interest in Ravi's work!`
+      }
+
+      // Add assistant response
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: responseContent,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, assistantMessage])
 
     } catch (error) {
       console.error('Chat error:', error)
