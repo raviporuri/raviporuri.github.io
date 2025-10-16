@@ -33,7 +33,7 @@ async function testLinkedInAPI(apiKey: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
-    const { keywords, location, remoteOnly, companies, excludeCompanies } = await request.json()
+    const { keywords, location, remoteOnly, companies, excludeCompanies, timePeriod } = await request.json()
 
     if (!process.env.LINKEDIN_RAPIDAPI_KEY) {
       return NextResponse.json({
@@ -58,8 +58,16 @@ export async function POST(request: NextRequest) {
       searchQuery += ` ${companies.join(' OR ')}`
     }
 
+    // Determine endpoint based on time period
+    const endpointMap = {
+      '1h': 'active-jb-1h',
+      '24h': 'active-jb-24h',
+      '7d': 'active-jb-7d'
+    }
+    const endpoint = endpointMap[timePeriod as keyof typeof endpointMap] || 'active-jb-7d'
+
     // Prepare API request to LinkedIn Job Search
-    const url = 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-7d'
+    const url = `https://linkedin-job-search-api.p.rapidapi.com/${endpoint}`
     const options = {
       method: 'GET',
       headers: {
@@ -68,9 +76,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Build URL parameters using correct API parameter names
+    // Build URL parameters using correct API parameter names (removed limits as requested)
     const params = new URLSearchParams({
-      limit: '300',
       offset: '0',
       description_type: 'text',
       ...(keywords && { title_filter: searchQuery }),
@@ -131,19 +138,31 @@ export async function POST(request: NextRequest) {
       }
 
       // Ensure all fields are strings/primitives, not objects
-      return {
+      const transformedJob = {
         id: String(job.id || `linkedin-${index}`),
         title: String(job.title || 'Software Engineer'),
         company: String(job.company || job.organization || 'Unknown Company'),
         location: String(jobLocation),
         remote: Boolean(job.remote_derived || job.location?.toLowerCase().includes('remote') || remoteOnly || false),
-        salary: job.salary || job.salary_raw || undefined,
+        salary: job.salary ? String(job.salary) : (job.salary_raw ? String(job.salary_raw) : undefined),
         description: String(job.description_text || job.description || job.summary || 'No description available'),
         url: String(job.url || job.link || `https://linkedin.com/jobs/view/${job.id}`),
         source: 'LinkedIn',
         postedDate: String(job.date_posted || job.posted_date || new Date().toISOString()),
-        relevanceScore: Math.floor(Math.random() * 20) + 80 // 80-100 for real jobs
+        relevanceScore: Math.floor(Math.random() * 20) + 80, // 80-100 for real jobs
+        matchReasons: [] // Initialize as empty array to prevent undefined errors
       }
+
+      // Additional safety check - convert any remaining objects to strings
+      Object.keys(transformedJob).forEach(key => {
+        const value = transformedJob[key as keyof typeof transformedJob]
+        if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value)) {
+          console.warn(`Converting object field ${key} to string:`, value)
+          ;(transformedJob as any)[key] = String(value)
+        }
+      })
+
+      return transformedJob
     })
 
     console.log('Transformed jobs count:', transformedJobs.length)
