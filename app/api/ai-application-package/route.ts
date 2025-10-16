@@ -6,6 +6,8 @@ const anthropic = new Anthropic({
 })
 
 export async function POST(request: NextRequest) {
+  console.log('AI Application Package API called at:', new Date().toISOString())
+
   try {
     const {
       jobTitle,
@@ -18,17 +20,28 @@ export async function POST(request: NextRequest) {
       candidateProfile
     } = await request.json()
 
+    console.log('Request data:', {
+      jobTitle,
+      company,
+      hasJobDescription: !!jobDescription,
+      hasCandidateProfile: !!candidateProfile
+    })
+
     if (!jobTitle || !company || !jobDescription || !candidateProfile) {
+      console.log('Missing required fields:', { jobTitle: !!jobTitle, company: !!company, jobDescription: !!jobDescription, candidateProfile: !!candidateProfile })
       return NextResponse.json({
         error: 'Job details and candidate profile are required'
       }, { status: 400 })
     }
 
     if (!process.env.ANTHROPIC_API_KEY) {
+      console.log('ANTHROPIC_API_KEY missing')
       return NextResponse.json({
         error: 'API configuration missing'
       }, { status: 500 })
     }
+
+    console.log('ANTHROPIC_API_KEY found, length:', process.env.ANTHROPIC_API_KEY?.length)
 
     // Dynamic AI prompt generation based on job specifics
     const dynamicPrompt = generateDynamicPrompt(
@@ -40,6 +53,7 @@ export async function POST(request: NextRequest) {
       candidateProfile
     )
 
+    console.log('Creating Anthropic message...')
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 16000,
@@ -49,6 +63,7 @@ export async function POST(request: NextRequest) {
         content: dynamicPrompt
       }]
     })
+    console.log('Anthropic response received, processing...')
 
     const responseText = response.content[0].type === 'text' ? response.content[0].text : ''
 
@@ -89,8 +104,10 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Application package generation error:', error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
     return NextResponse.json({
-      error: 'Failed to generate application package'
+      error: 'Failed to generate application package',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }
