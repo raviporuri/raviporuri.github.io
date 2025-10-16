@@ -66,15 +66,19 @@ export async function POST(request: NextRequest) {
     console.log('Anthropic response received, processing...')
 
     const responseText = response.content[0].type === 'text' ? response.content[0].text : ''
+    console.log('AI response text length:', responseText.length)
+    console.log('AI response preview:', responseText.substring(0, 200))
 
     try {
       const applicationPackage = JSON.parse(responseText)
 
       // Enhanced package with additional processing
+      console.log('Parsing successful, enhancing package...')
       const enhancedPackage = await enhanceApplicationPackage(
         applicationPackage,
         { jobTitle, company, jobDescription, location, salary, candidateProfile }
       )
+      console.log('Package enhanced successfully')
 
       return NextResponse.json({
         ...enhancedPackage,
@@ -89,7 +93,8 @@ export async function POST(request: NextRequest) {
         generatedAt: new Date().toISOString()
       })
     } catch (parseError) {
-      console.error('Failed to parse AI response:', responseText)
+      console.error('Failed to parse AI response as JSON:', parseError)
+      console.error('Full AI response text:', responseText)
 
       // Enhanced fallback with dynamic content
       const fallbackPackage = generateEnhancedFallback(
