@@ -170,6 +170,15 @@ export async function POST(request: NextRequest) {
                   return `${currency} ${val.minValue.toLocaleString()}-${val.maxValue.toLocaleString()} per ${unit.toLowerCase()}`
                 }
               }
+              // Handle MonetaryAmount format: {"@type":"MonetaryAmount","currency":"USD","value":{"@type":"QuantitativeValue","minValue":10106,"maxValue":32441,"unitText":"YEAR"}}
+              if (job.salary['@type'] === 'MonetaryAmount' && job.salary.value) {
+                const val = job.salary.value
+                if (val.minValue && val.maxValue) {
+                  const currency = job.salary.currency || 'USD'
+                  const unit = val.unitText || 'YEAR'
+                  return `${currency} ${val.minValue.toLocaleString()}-${val.maxValue.toLocaleString()} per ${unit.toLowerCase()}`
+                }
+              }
               if (job.salary.base) {
                 return job.salary.base
               }
@@ -178,20 +187,66 @@ export async function POST(request: NextRequest) {
               }
               return JSON.stringify(job.salary)
             } else if (typeof job.salary === 'string') {
+              // Try to parse stringified JSON salary objects
+              if (job.salary.startsWith('{') && job.salary.includes('@type')) {
+                try {
+                  const parsed = JSON.parse(job.salary)
+                  if (parsed['@type'] === 'MonetaryAmount' && parsed.value) {
+                    const val = parsed.value
+                    if (val.minValue && val.maxValue) {
+                      const currency = parsed.currency || 'USD'
+                      const unit = val.unitText || 'YEAR'
+                      return `${currency} ${val.minValue.toLocaleString()}-${val.maxValue.toLocaleString()} per ${unit.toLowerCase()}`
+                    }
+                  }
+                } catch (e) {
+                  // If JSON parsing fails, return original string
+                }
+              }
               return job.salary
             } else {
               return String(job.salary)
             }
           } else if (job.salary_raw) {
             if (typeof job.salary_raw === 'object') {
+              // Handle MonetaryAmount format in salary_raw field
+              if (job.salary_raw['@type'] === 'MonetaryAmount' && job.salary_raw.value) {
+                const val = job.salary_raw.value
+                if (val.minValue && val.maxValue) {
+                  const currency = job.salary_raw.currency || 'USD'
+                  const unit = val.unitText || 'YEAR'
+                  return `${currency} ${val.minValue.toLocaleString()}-${val.maxValue.toLocaleString()} per ${unit.toLowerCase()}`
+                }
+              }
               return JSON.stringify(job.salary_raw)
             } else {
               return String(job.salary_raw)
             }
           }
+
+          // Extract salary from description as fallback
+          const description = job.description_text || job.description || ''
+          const salaryMatch = description.match(/\$[\d,]+(?:\s*-\s*\$?[\d,]+)?(?:\s*(?:per\s+year|annually|\/year))?/i)
+          if (salaryMatch) {
+            return salaryMatch[0]
+          }
+
           return undefined
         })(),
-        description: String(job.description_text || job.description || job.summary || 'No description available'),
+        description: (() => {
+          const rawDescription = job.description_text || job.description || job.summary || 'No description available'
+
+          // Format the description for better readability
+          return rawDescription
+            .replace(/\n\n+/g, '\n\n') // Normalize multiple line breaks
+            .replace(/([A-Z][a-z\s]+:?)(?=\n|\r)/g, '\n**$1**\n') // Bold section headers
+            .replace(/(\n|^)([A-Z][A-Za-z\s&/(),-]+)\n\n/g, '\n## $2\n\n') // Convert major sections to h2
+            .replace(/Job Description\n\n/g, '') // Remove redundant "Job Description" header
+            .replace(/\n(Required Qualifications|Preferred Qualifications|Who You Are|Your Impact|About [A-Z][A-Za-z\s]+|Benefits|Compensation|Notice To Third Party Agencies)\n/g, '\n\n## $1\n\n') // Format major sections
+            .replace(/\n([A-Z][A-Za-z\s&]+)\n\n(?=[A-Z])/g, '\n\n### $1\n\n') // Format subsections
+            .replace(/\n\n\n+/g, '\n\n') // Clean up excessive line breaks
+            .trim()
+        })(),
         url: String(job.url || job.link || `https://linkedin.com/jobs/view/${job.id}`),
         source: 'LinkedIn',
         postedDate: String(job.date_posted || job.posted_date || new Date().toISOString()),
