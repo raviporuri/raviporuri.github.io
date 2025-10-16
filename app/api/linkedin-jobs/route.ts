@@ -41,14 +41,14 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Test API availability before proceeding
-    const isAPIHealthy = await testLinkedInAPI(process.env.LINKEDIN_RAPIDAPI_KEY)
-    if (!isAPIHealthy) {
-      return NextResponse.json({
-        error: 'LinkedIn API is currently unavailable. Please try again later.',
-        status: 'API_UNAVAILABLE'
-      }, { status: 503 })
-    }
+    // Test API availability before proceeding (temporarily disabled for debugging)
+    // const isAPIHealthy = await testLinkedInAPI(process.env.LINKEDIN_RAPIDAPI_KEY)
+    // if (!isAPIHealthy) {
+    //   return NextResponse.json({
+    //     error: 'LinkedIn API is currently unavailable. Please try again later.',
+    //     status: 'API_UNAVAILABLE'
+    //   }, { status: 503 })
+    // }
 
     // Build search query
     let searchQuery = keywords || 'software engineer'
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare API request to LinkedIn Job Search
-    const url = 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-lhf'
+    const url = 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-7d'
     const options = {
       method: 'GET',
       headers: {
@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
 
     // Build URL parameters using correct API parameter names
     const params = new URLSearchParams({
+      limit: '300',
       offset: '0',
       description_type: 'text',
       ...(keywords && { title_filter: searchQuery }),
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
 
     const fullUrl = `${url}?${params.toString()}`
     console.log('LinkedIn API Request:', fullUrl)
+    console.log('Using API Key:', process.env.LINKEDIN_RAPIDAPI_KEY?.substring(0, 10) + '...')
 
     const response = await fetch(fullUrl, options)
     const data = await response.json()
