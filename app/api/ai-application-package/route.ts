@@ -172,7 +172,22 @@ ACHIEVEMENTS: ${candidateProfile.achievements.join(' | ')}
 JOB DESCRIPTION:
 ${jobDescription}
 
-Generate a professional resume and cover letter specifically tailored to this role and company. Focus on matching the candidate's experience to job requirements.
+REQUIREMENTS:
+1. Generate professional resume and cover letter specifically tailored to this role
+2. Create 3-4 relevant external reading links based on unique job requirements and skills mentioned
+3. Provide 6-7 behavioral interview questions appropriate for the role seniority level with suggested responses
+4. Research role attributes that successful candidates should display based on job requirements
+5. Provide interview tips and industry insights specific to this role and company type
+6. Search for potential networking contacts at the company in similar or related roles for outreach opportunities
+7. Ensure all content is personalized to both the job requirements and candidate profile
+
+For external reading links: Identify 3-4 key technical skills or business domains mentioned in the job description and provide genuine, helpful learning resources.
+
+For behavioral questions: Create questions that test the specific competencies required for this role level and provide strategic response guidance.
+
+For role attributes: Analyze the job description to identify what qualities the ideal candidate should demonstrate.
+
+For networking contacts: Search for 2-3 potential contacts at the company in similar roles (VP Engineering, Director roles, Senior engineers in same department). If you cannot identify specific contacts, skip this section and return an empty array. Include realistic names, titles, and strategic outreach approaches. Focus on people who would be peers, hiring managers, or cross-functional partners.
 
 Return ONLY valid JSON, no other text:
 
@@ -238,6 +253,58 @@ Return ONLY valid JSON, no other text:
       "How does the engineering culture support innovation?",
       "What opportunities exist for technical leadership and mentorship?"
     ],
+    "externalReadingLinks": [
+      {
+        "title": "Platform Engineering Best Practices",
+        "url": "https://platformengineering.org/blog/platform-engineering-best-practices",
+        "description": "Comprehensive guide to modern platform engineering approaches and methodologies",
+        "skillArea": "Platform Engineering"
+      },
+      {
+        "title": "Developer Experience: What Actually Matters",
+        "url": "https://future.com/developer-experience-what-actually-matters/",
+        "description": "Research-backed insights on what makes exceptional developer experiences",
+        "skillArea": "Developer Experience"
+      },
+      {
+        "title": "API Design Guidelines for Enterprise Scale",
+        "url": "https://cloud.google.com/apis/design",
+        "description": "Google's comprehensive API design guide for building scalable systems",
+        "skillArea": "API Design"
+      }
+    ],
+    "behavioralQuestions": [
+      {
+        "question": "Tell me about a time when you had to make a difficult technical decision that impacted the entire organization.",
+        "suggestedResponse": "Focus on the Cisco CX Cloud platform decision to migrate to microservices architecture. Explain the analysis process, stakeholder communication, and results ($500M+ ARR impact).",
+        "tips": "Emphasize data-driven decision making and cross-functional leadership"
+      },
+      {
+        "question": "Describe a situation where you had to influence without authority to achieve a critical goal.",
+        "suggestedResponse": "Discuss the Dropbox developer experience initiative during IPO transition. Highlight coalition building, alignment strategies, and measurable outcomes.",
+        "tips": "Show diplomatic skills and ability to build consensus across teams"
+      },
+      {
+        "question": "How do you approach scaling teams and technology simultaneously?",
+        "suggestedResponse": "Reference both Cisco (100+ person team) and Dropbox (600M+ users) experiences. Focus on parallel scaling strategies and maintaining quality.",
+        "tips": "Demonstrate understanding of Conway's Law and organizational design"
+      },
+      {
+        "question": "Tell me about a time when you failed and what you learned from it.",
+        "suggestedResponse": "Share a specific early-career platform decision that required course correction. Focus on learning, adaptation, and improved outcomes.",
+        "tips": "Show vulnerability, growth mindset, and resilience"
+      },
+      {
+        "question": "How do you prioritize competing technical initiatives with limited resources?",
+        "suggestedResponse": "Explain framework using business impact, technical debt, and strategic alignment. Use specific examples from platform engineering experience.",
+        "tips": "Demonstrate analytical thinking and business acumen"
+      },
+      {
+        "question": "Describe your approach to mentoring and developing senior engineers.",
+        "suggestedResponse": "Discuss coaching strategies used at Cisco and Dropbox. Focus on career development, technical growth, and leadership pipeline building.",
+        "tips": "Show investment in people development and long-term thinking"
+      }
+    ],
     "salaryNegotiation": {
       "marketData": "Senior technology leadership roles typically range from $400K-$800K+ total compensation",
       "valueProposition": "Proven track record of delivering significant revenue impact and scaling technology organizations",
@@ -254,6 +321,63 @@ Return ONLY valid JSON, no other text:
       "Day 3: Follow up with personalized message referencing company initiatives",
       "Week 1: Share relevant industry insight or article",
       "Week 2: Check in with additional value-add content"
+    ],
+    "roleAttributes": [
+      {
+        "attribute": "Technical Depth",
+        "description": "Deep understanding of platform engineering, API design, and scalable architecture patterns",
+        "importance": "Critical for credibility with engineering teams and technical decision-making"
+      },
+      {
+        "attribute": "Product Thinking",
+        "description": "Ability to balance technical excellence with business outcomes and user experience",
+        "importance": "Essential for prioritization and stakeholder alignment in product roles"
+      },
+      {
+        "attribute": "Leadership Presence",
+        "description": "Executive communication skills and ability to influence across organizational levels",
+        "importance": "Required for senior roles involving cross-functional collaboration and strategic initiatives"
+      },
+      {
+        "attribute": "Data-Driven Mindset",
+        "description": "Track record of using metrics and analytics to drive decisions and measure success",
+        "importance": "Modern tech companies expect quantitative approach to product and platform optimization"
+      }
+    ],
+    "interviewTips": [
+      "Prepare specific metrics and business impact numbers for each major initiative",
+      "Practice explaining technical concepts to non-technical stakeholders clearly",
+      "Research the company's current platform challenges and come with thoughtful questions",
+      "Demonstrate knowledge of industry trends and competitive landscape",
+      "Show examples of how you've built and scaled high-performing teams",
+      "Be ready to discuss both successes and failures with equal detail and learning"
+    ],
+    "industryInsights": [
+      "Platform engineering is evolving towards self-service developer experiences with embedded security and observability",
+      "Companies are increasingly focusing on developer productivity metrics and internal platform adoption rates",
+      "AI-assisted development tools are becoming standard, requiring platform leaders to integrate AI capabilities",
+      "Multi-cloud and hybrid strategies are driving demand for platform abstraction and standardization",
+      "Developer experience is now recognized as a competitive advantage for technology companies"
+    ],
+    "networkingContacts": [
+      {
+        "name": "Sarah Chen",
+        "title": "VP of Engineering",
+        "department": "Engineering",
+        "linkedinProfile": "https://linkedin.com/in/sarahchen-tech",
+        "connectionReason": "Similar background in platform engineering and developer experience",
+        "outreachStrategy": "Connect with message about shared interest in platform scaling challenges",
+        "roleRelevance": "Direct reporting relationship - likely hiring manager or influential in decision"
+      },
+      {
+        "name": "Michael Rodriguez",
+        "title": "Senior Director, Product Engineering",
+        "department": "Product",
+        "linkedinProfile": "https://linkedin.com/in/michael-rodriguez-product",
+        "connectionReason": "Cross-functional collaboration experience in product and engineering",
+        "outreachStrategy": "Share insight about developer experience trends and platform optimization",
+        "roleRelevance": "Cross-functional partner who would work closely with this role"
+      }
     ]
   }
 }`

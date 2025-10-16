@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { jsPDF } from 'jspdf'
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, UnderlineType } from 'docx'
 import {
   Container,
   Title,
@@ -127,6 +128,17 @@ interface ApplicationPackage {
     }>
     technicalDiscussion: string[]
     questionsToAsk: string[]
+    externalReadingLinks: Array<{
+      title: string
+      url: string
+      description: string
+      skillArea: string
+    }>
+    behavioralQuestions: Array<{
+      question: string
+      suggestedResponse: string
+      tips: string
+    }>
     salaryNegotiation: {
       marketData: string
       valueProposition: string
@@ -139,6 +151,22 @@ interface ApplicationPackage {
     followUpPlan: string
     additionalResearch: string
     timeline: string[]
+    roleAttributes: Array<{
+      attribute: string
+      description: string
+      importance: string
+    }>
+    interviewTips: string[]
+    industryInsights: string[]
+    networkingContacts: Array<{
+      name: string
+      title: string
+      department: string
+      linkedinProfile: string
+      connectionReason: string
+      outreachStrategy: string
+      roleRelevance: string
+    }>
   }
 }
 
@@ -175,6 +203,7 @@ export default function AIJobPlatformPage() {
   const [analysisStage, setAnalysisStage] = useState('')
   const [analysisError, setAnalysisError] = useState('')
   const [pdfGenerating, setPdfGenerating] = useState(false)
+  const [downloadFormat, setDownloadFormat] = useState('txt')
 
   // Check authentication
   useEffect(() => {
@@ -559,6 +588,323 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
       a.href = url
       a.download = `${selectedJob?.company}_${selectedJob?.title}_Resume.txt`
       a.click()
+    }
+  }
+
+  // Professional resume download with format selection
+  const downloadResumeWithFormat = async (format: string) => {
+    if (!applicationPackage || !selectedJob) return
+
+    const filename = `${selectedJob.company}_${selectedJob.title}_Resume`
+
+    switch (format) {
+      case 'txt':
+        downloadResumeAsTxt(filename)
+        break
+      case 'pdf':
+        downloadResumeAsPDF(filename)
+        break
+      case 'doc':
+        await downloadResumeAsDocx(filename)
+        break
+      default:
+        downloadResumeAsTxt(filename)
+    }
+  }
+
+  const downloadResumeAsTxt = (filename: string) => {
+    if (!applicationPackage) return
+    const blob = new Blob([applicationPackage.resume.formattedResume], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${filename}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const downloadResumeAsPDF = (filename: string) => {
+    if (!applicationPackage || !selectedJob) return
+
+    try {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const margin = 20
+      let yPosition = margin
+
+      // Helper function to check if we need a new page
+      const checkNewPage = (neededHeight: number) => {
+        if (yPosition + neededHeight > doc.internal.pageSize.getHeight() - margin) {
+          doc.addPage()
+          yPosition = margin
+        }
+      }
+
+      // Header with name and contact info
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(18)
+      doc.text('Ravi Poruri', margin, yPosition)
+      yPosition += 10
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(11)
+      doc.text('raviporuri@gmail.com | LinkedIn: /in/raviporuri | San Francisco Bay Area', margin, yPosition)
+      yPosition += 15
+
+      // Professional Summary
+      checkNewPage(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.text('PROFESSIONAL SUMMARY', margin, yPosition)
+      yPosition += 8
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(11)
+      const summaryLines = doc.splitTextToSize(applicationPackage.resume.professionalSummary, pageWidth - (margin * 2))
+      doc.text(summaryLines, margin, yPosition)
+      yPosition += summaryLines.length * 4 + 10
+
+      // Key Achievements
+      if (applicationPackage.resume.keyAchievements && applicationPackage.resume.keyAchievements.length > 0) {
+        checkNewPage(20)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(14)
+        doc.text('KEY ACHIEVEMENTS', margin, yPosition)
+        yPosition += 8
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(11)
+        applicationPackage.resume.keyAchievements.forEach((achievement) => {
+          checkNewPage(8)
+          const achievementLines = doc.splitTextToSize(`• ${achievement}`, pageWidth - (margin * 2))
+          doc.text(achievementLines, margin, yPosition)
+          yPosition += achievementLines.length * 4 + 2
+        })
+        yPosition += 8
+      }
+
+      // Work Experience
+      checkNewPage(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.text('PROFESSIONAL EXPERIENCE', margin, yPosition)
+      yPosition += 10
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(11)
+      const workExperience = [
+        'Founder & AI Product Leader, Equitive Ventures (2024-Present)\n• Leading development of AI-powered applications and next-generation technology platforms\n• Building innovative solutions leveraging cutting-edge technology\n• Creating strategic partnerships in the AI and technology ecosystem',
+        'Vice President Engineering, Cisco Systems (2019-2024)\n• Led Cisco CX Cloud from MVP to $500M+ ARR in 4 years\n• Managed 100+ person global engineering team across multiple products\n• Drove digital transformation and platform scaling initiatives',
+        'Senior Engineering Manager, Dropbox (2015-2019)\n• Led engineering teams during critical pre-IPO to post-IPO transition\n• Contributed to revenue growth from $850M to $1.8B\n• Built scalable systems supporting millions of users globally'
+      ]
+      workExperience.forEach((experience) => {
+        checkNewPage(15)
+        const expLines = doc.splitTextToSize(experience, pageWidth - (margin * 2))
+        doc.text(expLines, margin, yPosition)
+        yPosition += expLines.length * 4 + 8
+      })
+
+      doc.save(`${filename}.pdf`)
+    } catch (error) {
+      console.error('Resume PDF generation error:', error)
+      // Fallback to text
+      downloadResumeAsTxt(filename)
+    }
+  }
+
+  const downloadResumeAsDocx = async (filename: string) => {
+    if (!applicationPackage) return
+
+    try {
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              // Header with name
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: "Ravi Poruri",
+                    bold: true,
+                    size: 32
+                  })
+                ]
+              }),
+
+              // Contact info
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 400 },
+                children: [
+                  new TextRun({
+                    text: "raviporuri@gmail.com | LinkedIn: /in/raviporuri | San Francisco Bay Area",
+                    size: 22
+                  })
+                ]
+              }),
+
+              // Professional Summary
+              new Paragraph({
+                spacing: { before: 200, after: 200 },
+                children: [
+                  new TextRun({
+                    text: "PROFESSIONAL SUMMARY",
+                    bold: true,
+                    size: 24,
+                    underline: {
+                      type: UnderlineType.SINGLE
+                    }
+                  })
+                ]
+              }),
+
+              new Paragraph({
+                spacing: { after: 400 },
+                children: [
+                  new TextRun({
+                    text: applicationPackage.resume.professionalSummary,
+                    size: 22
+                  })
+                ]
+              }),
+
+              // Key Achievements
+              ...(applicationPackage.resume.keyAchievements && applicationPackage.resume.keyAchievements.length > 0 ? [
+                new Paragraph({
+                  spacing: { before: 200, after: 200 },
+                  children: [
+                    new TextRun({
+                      text: "KEY ACHIEVEMENTS",
+                      bold: true,
+                      size: 24,
+                      underline: {
+                        type: UnderlineType.SINGLE
+                      }
+                    })
+                  ]
+                }),
+                ...applicationPackage.resume.keyAchievements.map(achievement =>
+                  new Paragraph({
+                    spacing: { after: 100 },
+                    children: [
+                      new TextRun({
+                        text: `• ${achievement}`,
+                        size: 22
+                      })
+                    ]
+                  })
+                )
+              ] : []),
+
+              // Professional Experience
+              new Paragraph({
+                spacing: { before: 400, after: 200 },
+                children: [
+                  new TextRun({
+                    text: "PROFESSIONAL EXPERIENCE",
+                    bold: true,
+                    size: 24,
+                    underline: {
+                      type: UnderlineType.SINGLE
+                    }
+                  })
+                ]
+              }),
+
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: "Founder & AI Product Leader, Equitive Ventures",
+                    bold: true,
+                    size: 22
+                  }),
+                  new TextRun({
+                    text: " (2024-Present)",
+                    size: 22
+                  })
+                ]
+              }),
+              new Paragraph({
+                spacing: { after: 300 },
+                children: [
+                  new TextRun({
+                    text: "• Leading development of AI-powered applications and next-generation technology platforms\n• Building innovative solutions leveraging cutting-edge technology\n• Creating strategic partnerships in the AI and technology ecosystem",
+                    size: 22
+                  })
+                ]
+              }),
+
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: "Vice President Engineering, Cisco Systems",
+                    bold: true,
+                    size: 22
+                  }),
+                  new TextRun({
+                    text: " (2019-2024)",
+                    size: 22
+                  })
+                ]
+              }),
+              new Paragraph({
+                spacing: { after: 300 },
+                children: [
+                  new TextRun({
+                    text: "• Led Cisco CX Cloud from MVP to $500M+ ARR in 4 years\n• Managed 100+ person global engineering team across multiple products\n• Drove digital transformation and platform scaling initiatives",
+                    size: 22
+                  })
+                ]
+              }),
+
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: "Senior Engineering Manager, Dropbox",
+                    bold: true,
+                    size: 22
+                  }),
+                  new TextRun({
+                    text: " (2015-2019)",
+                    size: 22
+                  })
+                ]
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "• Led engineering teams during critical pre-IPO to post-IPO transition\n• Contributed to revenue growth from $850M to $1.8B\n• Built scalable systems supporting millions of users globally",
+                    size: 22
+                  })
+                ]
+              })
+            ]
+          }
+        ]
+      })
+
+      const buffer = await Packer.toBuffer(doc)
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${filename}.docx`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Resume DOCX generation error:', error)
+      // Fallback to text
+      downloadResumeAsTxt(filename)
     }
   }
 
@@ -1188,19 +1534,26 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                             >
                               Preview
                             </Button>
-                            <Button
-                              leftSection={<IconDownload size={16} />}
-                              onClick={() => {
-                                const blob = new Blob([applicationPackage.resume.formattedResume], { type: 'text/plain' })
-                                const url = URL.createObjectURL(blob)
-                                const a = document.createElement('a')
-                                a.href = url
-                                a.download = `${selectedJob.company}_${selectedJob.title}_Resume.txt`
-                                a.click()
-                              }}
-                            >
-                              Download
-                            </Button>
+                            <Group gap="xs">
+                              <Select
+                                value={downloadFormat}
+                                onChange={(value) => setDownloadFormat(value || 'txt')}
+                                data={[
+                                  { value: 'txt', label: 'TXT (Plain Text)' },
+                                  { value: 'pdf', label: 'PDF (Professional)' },
+                                  { value: 'doc', label: 'DOC (Word Document)' }
+                                ]}
+                                w={180}
+                                size="sm"
+                              />
+                              <Button
+                                leftSection={<IconDownload size={16} />}
+                                onClick={() => downloadResumeWithFormat(downloadFormat)}
+                                size="sm"
+                              >
+                                Download
+                              </Button>
+                            </Group>
                           </Group>
                         </Group>
 
@@ -1344,6 +1697,67 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           </Stack>
                         </div>
 
+                        {applicationPackage.interviewPrep.externalReadingLinks && applicationPackage.interviewPrep.externalReadingLinks.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">📚 External Reading Links</Title>
+                            <Stack gap="sm">
+                              {applicationPackage.interviewPrep.externalReadingLinks.map((link, index) => (
+                                <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
+                                  <Stack gap="xs">
+                                    <Group justify="space-between" align="start">
+                                      <div style={{ flex: 1 }}>
+                                        <Text fw={600} size="sm" c="blue">{link.title}</Text>
+                                        <Badge variant="light" color="purple" size="xs" mt="xs">
+                                          {link.skillArea}
+                                        </Badge>
+                                      </div>
+                                      <ActionIcon
+                                        component="a"
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        variant="light"
+                                        color="blue"
+                                        size="sm"
+                                      >
+                                        <IconExternalLink size={14} />
+                                      </ActionIcon>
+                                    </Group>
+                                    <Text size="sm" c="dimmed">
+                                      {link.description}
+                                    </Text>
+                                  </Stack>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
+
+                        {applicationPackage.interviewPrep.behavioralQuestions && applicationPackage.interviewPrep.behavioralQuestions.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">🎯 Behavioral Interview Questions</Title>
+                            <Stack gap="sm">
+                              {applicationPackage.interviewPrep.behavioralQuestions.map((question, index) => (
+                                <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
+                                  <Stack gap="sm">
+                                    <Text fw={600} size="sm" c="purple">
+                                      Q{index + 1}: {question.question}
+                                    </Text>
+                                    <div style={{ backgroundColor: 'var(--mantine-color-blue-0)', padding: '12px', borderRadius: '6px' }}>
+                                      <Text size="xs" fw={600} c="blue" mb="xs">Suggested Response Strategy:</Text>
+                                      <Text size="sm">{question.suggestedResponse}</Text>
+                                    </div>
+                                    <div style={{ backgroundColor: 'var(--mantine-color-green-0)', padding: '8px', borderRadius: '6px' }}>
+                                      <Text size="xs" fw={600} c="green" mb="xs">💡 Tips:</Text>
+                                      <Text size="sm">{question.tips}</Text>
+                                    </div>
+                                  </Stack>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
+
                         <div>
                           <Title order={5} mb="sm">Salary Negotiation Strategy</Title>
                           <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
@@ -1407,6 +1821,97 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                             ))}
                           </Stack>
                         </div>
+
+                        {applicationPackage.applicationStrategy.roleAttributes && applicationPackage.applicationStrategy.roleAttributes.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">🎯 Essential Role Attributes</Title>
+                            <Stack gap="sm">
+                              {applicationPackage.applicationStrategy.roleAttributes.map((attribute, index) => (
+                                <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
+                                  <Stack gap="xs">
+                                    <Text fw={600} size="sm" c="purple">{attribute.attribute}</Text>
+                                    <Text size="sm">{attribute.description}</Text>
+                                    <div style={{ backgroundColor: 'var(--mantine-color-orange-0)', padding: '8px', borderRadius: '6px' }}>
+                                      <Text size="xs" fw={600} c="orange" mb="xs">Why it matters:</Text>
+                                      <Text size="sm">{attribute.importance}</Text>
+                                    </div>
+                                  </Stack>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
+
+                        {applicationPackage.applicationStrategy.interviewTips && applicationPackage.applicationStrategy.interviewTips.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">💡 Interview Tips</Title>
+                            <Stack gap="xs">
+                              {applicationPackage.applicationStrategy.interviewTips.map((tip, index) => (
+                                <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                                  <Text size="sm">💡 {tip}</Text>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
+
+                        {applicationPackage.applicationStrategy.industryInsights && applicationPackage.applicationStrategy.industryInsights.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">📈 Industry Insights</Title>
+                            <Stack gap="xs">
+                              {applicationPackage.applicationStrategy.industryInsights.map((insight, index) => (
+                                <Card key={index} shadow="xs" padding="sm" radius="md" withBorder>
+                                  <Text size="sm">📈 {insight}</Text>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
+
+                        {applicationPackage.applicationStrategy.networkingContacts && applicationPackage.applicationStrategy.networkingContacts.length > 0 && (
+                          <div>
+                            <Title order={5} mb="sm">🤝 Networking Contacts</Title>
+                            <Stack gap="sm">
+                              {applicationPackage.applicationStrategy.networkingContacts.map((contact, index) => (
+                                <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
+                                  <Stack gap="sm">
+                                    <Group justify="space-between" align="start">
+                                      <div style={{ flex: 1 }}>
+                                        <Text fw={600} size="sm" c="blue">{contact.name}</Text>
+                                        <Text size="sm" c="dimmed">{contact.title}</Text>
+                                        <Badge variant="light" color="green" size="xs" mt="xs">
+                                          {contact.department}
+                                        </Badge>
+                                      </div>
+                                      <ActionIcon
+                                        component="a"
+                                        href={contact.linkedinProfile}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        variant="light"
+                                        color="blue"
+                                        size="sm"
+                                      >
+                                        <IconBrandLinkedin size={14} />
+                                      </ActionIcon>
+                                    </Group>
+                                    <div style={{ backgroundColor: 'var(--mantine-color-blue-0)', padding: '8px', borderRadius: '6px' }}>
+                                      <Text size="xs" fw={600} c="blue" mb="xs">Connection Strategy:</Text>
+                                      <Text size="sm">{contact.outreachStrategy}</Text>
+                                    </div>
+                                    <div style={{ backgroundColor: 'var(--mantine-color-green-0)', padding: '8px', borderRadius: '6px' }}>
+                                      <Text size="xs" fw={600} c="green" mb="xs">Why Connect:</Text>
+                                      <Text size="sm">{contact.connectionReason}</Text>
+                                    </div>
+                                    <Text size="xs" c="dimmed" style={{ fontStyle: 'italic' }}>
+                                      Role Relevance: {contact.roleRelevance}
+                                    </Text>
+                                  </Stack>
+                                </Card>
+                              ))}
+                            </Stack>
+                          </div>
+                        )}
 
                         <Group justify="center" mt="xl">
                           <Button
