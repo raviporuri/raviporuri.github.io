@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating Anthropic message...')
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 8192,
       temperature: 0.2,
       messages: [{
@@ -70,7 +70,34 @@ export async function POST(request: NextRequest) {
     console.log('AI response preview:', responseText.substring(0, 200))
 
     try {
-      const applicationPackage = JSON.parse(responseText)
+      // Clean the response text to extract JSON
+      let jsonText = responseText.trim()
+
+      // Remove any markdown code blocks if present
+      if (jsonText.startsWith('```json')) {
+        jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+      } else if (jsonText.startsWith('```')) {
+        jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+      }
+
+      // Find JSON object boundaries
+      const jsonStart = jsonText.indexOf('{')
+      const jsonEnd = jsonText.lastIndexOf('}')
+
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        jsonText = jsonText.substring(jsonStart, jsonEnd + 1)
+      }
+
+      console.log('Cleaned JSON text preview:', jsonText.substring(0, 300))
+
+      const applicationPackage = JSON.parse(jsonText)
+
+      // Process the cover letter to replace placeholders
+      if (applicationPackage.coverLetter?.fullText) {
+        applicationPackage.coverLetter.fullText = applicationPackage.coverLetter.fullText
+          .replace(/\[POSITION\]/g, jobTitle)
+          .replace(/\[COMPANY\]/g, company)
+      }
 
       // Enhanced package with additional processing
       console.log('Parsing successful, enhancing package...')
@@ -133,168 +160,37 @@ function generateDynamicPrompt(
   const techStack = extractTechStack(jobDescription)
   const leadership = extractLeadershipReqs(jobDescription)
 
-  return `You are an expert executive career strategist, company research analyst, and professional document writer.
+  return `Generate a comprehensive application package for this job opportunity.
 
-MISSION: Generate a comprehensive, industry-standard application package for a senior technology executive, including detailed company research, ATS-optimized resume, compelling cover letter, and complete application strategy.
+CANDIDATE: ${candidateProfile.name}, ${candidateProfile.currentRole}, ${candidateProfile.experience}
+JOB: ${jobTitle} at ${company} (${location})
+${salary ? `SALARY: ${salary}` : ''}
 
-CANDIDATE PROFILE:
-Name: ${candidateProfile.name}
-Current Role: ${candidateProfile.currentRole}
-Experience: ${candidateProfile.experience}
-Core Expertise: ${candidateProfile.expertise.join(', ')}
+EXPERTISE: ${candidateProfile.expertise.join(', ')}
+ACHIEVEMENTS: ${candidateProfile.achievements.join(' | ')}
 
-Key Achievements:
-${candidateProfile.achievements.map((achievement: string) => `- ${achievement}`).join('\n')}
-
-TARGET OPPORTUNITY:
-Position: ${jobTitle}
-Company: ${company}
-Location: ${location}
-${salary ? `Salary Range: ${salary}` : ''}
-Source: Job found via professional search
-
-Job Description Analysis:
-${isExecutiveRole ? '🎯 EXECUTIVE LEADERSHIP ROLE - Focus on strategic vision, organizational transformation, and business impact' : ''}
-${isAIRole ? '🤖 AI/ML FOCUS - Emphasize AI platform expertise, machine learning at scale, and data-driven decision making' : ''}
-${isStartup ? '🚀 STARTUP ENVIRONMENT - Highlight rapid scaling, agility, and hands-on leadership experience' : ''}
-${companySize ? `👥 COMPANY SIZE: ${companySize}` : ''}
-${techStack ? `⚙️ TECH STACK: ${techStack}` : ''}
-${leadership ? `👨‍💼 LEADERSHIP REQUIREMENTS: ${leadership}` : ''}
-
-Full Job Description:
+JOB DESCRIPTION:
 ${jobDescription}
 
-COMPANY-SPECIFIC RESEARCH REQUIREMENTS:
-Research ${company} specifically and provide:
-1. Current business model, mission, and market position
-2. Recent news, funding, product launches, or strategic initiatives
-3. Company culture, values, and work environment assessment
-4. Leadership team analysis and potential hiring managers
-5. Competitive landscape and market challenges
-6. Growth stage and scaling requirements
+Generate a professional resume and cover letter specifically tailored to this role and company. Focus on matching the candidate's experience to job requirements.
 
-DOCUMENT GENERATION REQUIREMENTS:
-
-1. RESUME - ATS-Optimized Professional Format:
-CRITICAL: Generate ONLY professional resume content without any AI-generated footers, headers, or metadata.
-- Use industry-standard ATS-compatible formatting
-- Include exact keywords from job description naturally
-- Professional Summary: 3-4 lines tailored specifically to ${jobTitle} at ${company}
-- Core Competencies: Keywords from job posting presented professionally
-- Professional Experience: Role-specific achievements with quantified impact
-- Technical Skills: Match required technologies and tools
-- Education & Certifications: Industry-relevant credentials
-- NO AI footers, NO generation timestamps, NO platform references
-
-2. COVER LETTER - Executive Professional Format:
-CRITICAL: Generate ONLY professional cover letter content without any AI-generated elements.
-- Professional business letter format
-- Addressed specifically to ${company} for ${jobTitle} role
-- Opening: Compelling connection to role requirements
-- Body: Specific achievements addressing their needs
-- Closing: Professional call to action
-- NO AI footers, NO generation metadata, NO platform references
-
-3. INTERVIEW PREPARATION - Comprehensive Strategy:
-- 5 STAR-method stories tailored to role requirements
-- Technical discussion points relevant to their tech stack
-- Strategic questions demonstrating executive-level thinking
-- Salary negotiation approach based on market data
-
-4. APPLICATION STRATEGY - Multi-Channel Approach:
-- Optimal application method and timing
-- LinkedIn networking strategy with specific contact approach
-- Follow-up sequence with value-added touchpoints
-- Additional research recommendations
-
-Return ONLY valid JSON with this exact structure:
+Return ONLY valid JSON, no other text:
 
 {
-  "jobAnalysis": {
-    "relevanceScore": 85,
-    "matchStrengths": ["specific strength matching job requirement", "quantified achievement relevant to role", "technical expertise alignment"],
-    "potentialConcerns": ["gap or challenge to address", "area requiring explanation"],
-    "positioningStrategy": "How to position ${candidateProfile.name} for maximum impact and differentiation"
-  },
-
-  "companyResearch": {
-    "overview": "Comprehensive 2-3 sentence overview of ${company} - business model, market position, mission",
-    "recentNews": ["Recent development 1 with date", "Recent development 2 with date", "Recent development 3 with date"],
-    "cultureAndValues": "Assessment of company culture, values, work environment based on research",
-    "glassdoorEstimate": {
-      "rating": "4.2/5.0",
-      "pros": ["Specific pro 1", "Specific pro 2", "Specific pro 3"],
-      "cons": ["Specific challenge 1", "Specific challenge 2"],
-      "salaryRange": "${salary || 'Estimated range based on role and location'}"
-    },
-    "hiringManager": {
-      "potentialTitles": ["Likely hiring manager titles for this role"],
-      "researchTips": "Specific advice for identifying and researching the hiring manager",
-      "connectionStrategy": "LinkedIn outreach approach and messaging strategy"
-    },
-    "competitiveLandscape": "Analysis of ${company}'s competitive position and market challenges"
-  },
-
   "resume": {
-    "formattedResume": "RAVI PORURI\\n[Your Contact Information]\\n\\nPROFESSIONAL SUMMARY\\n[3-4 lines specifically tailored to ${jobTitle} at ${company} incorporating key job requirements]\\n\\nCORE COMPETENCIES\\n[Keywords from job description presented as professional skills]\\n\\nPROFESSIONAL EXPERIENCE\\n\\nEQUITI VENTURES - Founder & AI Product Leader (2024 - Present)\\n• [Achievement directly relevant to ${jobTitle}]\\n• [Impact statement addressing job requirements]\\n• [Technical accomplishment with quantified results]\\n\\n[Previous roles with role-specific achievements]\\n\\nTECHNICAL SKILLS\\n[Technologies and tools from job description]\\n\\nEDUCATION & CERTIFICATIONS\\n[Relevant credentials]",
-    "professionalSummary": "3-4 line executive summary optimized specifically for ${jobTitle} at ${company}",
+    "formattedResume": "RAVI PORURI\\nEquiti Ventures Founder & AI Product Leader\\nEmail: [contact]\\nLinkedIn: [profile]\\n\\nPROFESSIONAL SUMMARY\\nSenior technology executive with 25+ years scaling engineering organizations. Led $3.2B revenue initiatives at Cisco and Dropbox. Expert in AI/ML platforms, cloud architecture, and team leadership. Proven track record growing platforms from MVP to $500M+ ARR.\\n\\nCORE COMPETENCIES\\nTechnology Leadership • AI/ML Platforms • Data Engineering • Cloud Architecture • Team Scaling • Digital Transformation • Product Strategy • Revenue Growth\\n\\nPROFESSIONAL EXPERIENCE\\n\\nEQUITI VENTURES - Founder & AI Product Leader (2024 - Present)\\n• Building AI-first companies using advanced LLMs and computer vision\\n• Developing next-generation AI security platforms with ML capabilities\\n• Creating innovative AI-native applications for enterprise markets\\n\\nCISCO SYSTEMS - Senior Director, CX Platform Engineering (2020 - 2024)\\n• Grew CX Cloud from MVP to $500M+ ARR serving 4500+ enterprise customers\\n• Led 100+ person global organization across data engineering and analytics\\n• Achieved 25% increase in annual services revenue and 50% reduction in renewals cycle\\n\\nDROPBOX - Global Head of Data & BI (2017 - 2020)\\n• Led pre-IPO to IPO transition, doubling revenue from $850M to $1.8B\\n• Built enterprise analytics platform on AWS/Snowflake serving 600M+ users\\n• Managed 35+ person global team across data engineering and business intelligence\\n\\nTECHNICAL SKILLS\\nAI/ML: TensorFlow, PyTorch, LLMs, Computer Vision\\nCloud: AWS, Snowflake, Kubernetes, Docker\\nData: Spark, Databricks, Real-time Analytics\\nLeadership: Team Building, Strategy, Digital Transformation\\n\\nEDUCATION & CERTIFICATIONS\\nMBA Finance | Bachelor Computer Applications\\nOracle Certified Professional | Multiple US Patents",
+    "professionalSummary": "Senior technology executive with 25+ years scaling engineering organizations and delivering $3.2B+ revenue impact. Expert in AI/ML platforms, data engineering, and digital transformation with proven track record growing platforms from MVP to $500M+ ARR.",
     "keyAchievements": [
-      "Quantified achievement 1 directly addressing ${jobTitle} requirements",
-      "Quantified achievement 2 solving specific business challenges mentioned in job",
-      "Quantified achievement 3 demonstrating required technical expertise",
-      "Quantified achievement 4 showing leadership scale relevant to role"
-    ],
-    "technicalSkills": ["Keywords from job description naturally integrated"],
-    "workExperience": "Professional experience section formatted for ATS optimization"
+      "Grew Cisco CX Cloud from MVP to $500M+ ARR in 4 years leading 100+ global team",
+      "Led Dropbox from pre-IPO to IPO, doubling revenue from $850M to $1.8B",
+      "Built enterprise analytics platforms serving 600M+ users on AWS/Snowflake",
+      "Currently building AI-first companies with cutting-edge ML and computer vision"
+    ]
   },
-
   "coverLetter": {
-    "fullText": "[Date]\\n\\nHiring Manager\\n${company}\\n[Company Address]\\n\\nDear Hiring Manager,\\n\\n[Opening paragraph with compelling connection to ${jobTitle} role]\\n\\n[Body paragraph with specific achievements addressing their needs]\\n\\n[Body paragraph demonstrating understanding of company and role requirements]\\n\\n[Closing paragraph with professional call to action]\\n\\nSincerely,\\nRavi Poruri",
-    "keyPoints": ["Value proposition for ${jobTitle}", "Company-specific connection", "Role-relevant achievements"],
-    "customization": "Professional business letter tailored to ${company} and ${jobTitle}"
-  },
-
-  "interviewPrep": {
-    "starStories": [
-      {
-        "situation": "Context relevant to ${jobTitle} challenges",
-        "task": "What needed to be accomplished",
-        "action": "Specific actions ${candidateProfile.name} took",
-        "result": "Quantified business impact",
-        "relevance": "Why this story matters for ${company} and this role"
-      }
-    ],
-    "technicalDiscussion": ["Technical point 1 relevant to their stack", "Technical point 2 addressing role requirements"],
-    "questionsToAsk": [
-      "Strategic question about ${company}'s direction",
-      "Technical question about their platform/architecture",
-      "Leadership question about team and culture",
-      "Growth question about scaling challenges",
-      "Success metrics question for the role"
-    ],
-    "salaryNegotiation": {
-      "marketData": "Research-based salary insights for ${jobTitle} at ${company} level companies",
-      "valueProposition": "Key points highlighting ${candidateProfile.name}'s worth",
-      "negotiationApproach": "Recommended strategy for salary discussions"
-    }
-  },
-
-  "applicationStrategy": {
-    "preferredChannel": "Optimal application method for ${company}",
-    "linkedinStrategy": "Specific networking approach and connection sequence",
-    "followUpPlan": "Timeline and content for follow-up communications",
-    "additionalResearch": "Company-specific research recommendations",
-    "timeline": ["Day 1: Action", "Day 3: Follow-up", "Week 1: Check-in", "Week 2: Value-add touchpoint"]
+    "fullText": "Dear Hiring Manager,\\n\\nI am writing to express my strong interest in the [POSITION] role at [COMPANY]. With 25+ years of technology leadership experience and a proven track record of scaling engineering organizations while delivering $3.2B+ in revenue impact, I am excited about the opportunity to contribute to [COMPANY]'s continued growth and innovation.\\n\\nThroughout my career, I have consistently transformed technology organizations and driven significant business outcomes. At Cisco, I grew the CX Cloud platform from MVP to over $500M ARR in just four years while leading a global team of 100+ engineers. Previously, at Dropbox, I led the company through its pre-IPO to IPO transition, helping double revenue from $850M to $1.8B while serving 600M+ users globally. Currently, as Founder of Equiti Ventures, I'm building AI-first companies that leverage cutting-edge technology.\\n\\nMy expertise in data platforms, AI/ML architecture, and cloud-native solutions, combined with my experience scaling teams and driving digital transformation initiatives, positions me well to excel in this role. I am particularly drawn to [COMPANY]'s mission and would welcome the opportunity to discuss how my background in building scalable technology platforms and leading high-performing teams can contribute to your organization's strategic objectives.\\n\\nThank you for your consideration. I look forward to hearing from you.\\n\\nSincerely,\\nRavi Poruri"
   }
-}
-
-CRITICAL REQUIREMENTS:
-- All content must be specific to ${company} and ${jobTitle}
-- Resume must be ATS-optimized with keywords from job description
-- Cover letter must reference specific ${company} initiatives or challenges
-- Company research must be accurate and current
-- All achievements must be quantified with metrics
-- Response must be valid JSON only, no additional text`
+}`
 }
 
 function extractCompanySize(jobDescription: string): string {
