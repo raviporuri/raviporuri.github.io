@@ -120,17 +120,28 @@ export async function POST(request: NextRequest) {
         hasDescription: !!job.description_text || !!job.description
       })
 
+      // Extract clean location string
+      let jobLocation = location || 'Remote'
+      if (job.location && typeof job.location === 'string') {
+        jobLocation = job.location
+      } else if (job.locations_derived && Array.isArray(job.locations_derived) && job.locations_derived[0]) {
+        jobLocation = job.locations_derived[0]
+      } else if (job.locations_raw && Array.isArray(job.locations_raw) && job.locations_raw[0]?.address?.addressLocality) {
+        jobLocation = job.locations_raw[0].address.addressLocality
+      }
+
+      // Ensure all fields are strings/primitives, not objects
       return {
-        id: job.id || `linkedin-${index}`,
-        title: job.title || 'Software Engineer',
-        company: job.company || job.organization || 'Unknown Company',
-        location: job.location || job.locations_derived?.[0] || location || 'Remote',
-        remote: job.remote_derived || job.location?.toLowerCase().includes('remote') || remoteOnly || false,
+        id: String(job.id || `linkedin-${index}`),
+        title: String(job.title || 'Software Engineer'),
+        company: String(job.company || job.organization || 'Unknown Company'),
+        location: String(jobLocation),
+        remote: Boolean(job.remote_derived || job.location?.toLowerCase().includes('remote') || remoteOnly || false),
         salary: job.salary || job.salary_raw || undefined,
-        description: job.description_text || job.description || job.summary || 'No description available',
-        url: job.url || job.link || `https://linkedin.com/jobs/view/${job.id}`,
+        description: String(job.description_text || job.description || job.summary || 'No description available'),
+        url: String(job.url || job.link || `https://linkedin.com/jobs/view/${job.id}`),
         source: 'LinkedIn',
-        postedDate: job.date_posted || job.posted_date || new Date().toISOString(),
+        postedDate: String(job.date_posted || job.posted_date || new Date().toISOString()),
         relevanceScore: Math.floor(Math.random() * 20) + 80 // 80-100 for real jobs
       }
     })
