@@ -436,6 +436,117 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
     }
   }
 
+  const generateResumePDF = (applicationPackage: ApplicationPackage, selectedJob: JobListing | null) => {
+    if (!applicationPackage || !selectedJob) return
+
+    try {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const pageHeight = doc.internal.pageSize.getHeight()
+      const margin = 20
+      let yPosition = margin
+
+      // Helper function to check if we need a new page
+      const checkNewPage = (requiredHeight: number) => {
+        if (yPosition + requiredHeight > pageHeight - margin) {
+          doc.addPage()
+          yPosition = margin
+        }
+      }
+
+      // Header - Name and Contact Info
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(20)
+      doc.text('Ravi Poruri', margin, yPosition)
+      yPosition += 8
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(11)
+      doc.text('Founder & AI Product Leader | Technology Executive', margin, yPosition)
+      yPosition += 6
+      doc.text('Email: ravi@equitiventures.com | LinkedIn: linkedin.com/in/raviporuri', margin, yPosition)
+      yPosition += 10
+
+      // Professional Summary
+      checkNewPage(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.text('PROFESSIONAL SUMMARY', margin, yPosition)
+      yPosition += 8
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      const summaryLines = doc.splitTextToSize(applicationPackage.resume.professionalSummary, pageWidth - (margin * 2))
+      doc.text(summaryLines, margin, yPosition)
+      yPosition += summaryLines.length * 4 + 8
+
+      // Key Achievements
+      checkNewPage(30)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.text('KEY ACHIEVEMENTS', margin, yPosition)
+      yPosition += 8
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      applicationPackage.resume.keyAchievements.forEach((achievement) => {
+        checkNewPage(6)
+        doc.text(`• ${achievement}`, margin, yPosition)
+        yPosition += 5
+      })
+      yPosition += 5
+
+      // Technical Skills
+      checkNewPage(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.text('TECHNICAL SKILLS', margin, yPosition)
+      yPosition += 8
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      const skillsText = applicationPackage.resume.technicalSkills.join(' • ')
+      const skillsLines = doc.splitTextToSize(skillsText, pageWidth - (margin * 2))
+      doc.text(skillsLines, margin, yPosition)
+      yPosition += skillsLines.length * 4 + 8
+
+      // Work Experience
+      checkNewPage(30)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.text('PROFESSIONAL EXPERIENCE', margin, yPosition)
+      yPosition += 8
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      applicationPackage.resume.workExperience.forEach((experience) => {
+        checkNewPage(15)
+        const expLines = doc.splitTextToSize(experience, pageWidth - (margin * 2))
+        doc.text(expLines, margin, yPosition)
+        yPosition += expLines.length * 4 + 6
+      })
+
+      // Download the PDF
+      const filename = `${selectedJob.company}_${selectedJob.title}_Resume.pdf`
+      doc.save(filename)
+
+    } catch (error) {
+      console.error('Resume PDF generation error:', error)
+      // Fallback to text download if PDF generation fails
+      const blob = new Blob([applicationPackage.resume.formattedResume], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${selectedJob?.company}_${selectedJob?.title}_Resume.txt`
+      a.click()
+    }
+  }
+
   const backToJobListings = () => {
     setCurrentStep(1)
     setSelectedJob(null)
@@ -1407,12 +1518,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                   <Button
                     leftSection={<IconDownload size={16} />}
                     onClick={() => {
-                      const blob = new Blob([applicationPackage.resume.formattedResume], { type: 'text/plain' })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `${selectedJob?.company}_${selectedJob?.title}_Resume.txt`
-                      a.click()
+                      generateResumePDF(applicationPackage, selectedJob)
                     }}
                   >
                     Download Resume
