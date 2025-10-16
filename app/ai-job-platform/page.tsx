@@ -158,6 +158,7 @@ export default function AIJobPlatformPage() {
   const [remoteOnly, setRemoteOnly] = useState(false)
   const [companies, setCompanies] = useState<string[]>([])
   const [excludeCompanies, setExcludeCompanies] = useState<string[]>([])
+  const [timePeriod, setTimePeriod] = useState('7d')
 
   // UI state
   const [loading, setLoading] = useState(false)
@@ -205,7 +206,8 @@ export default function AIJobPlatformPage() {
           location,
           remoteOnly,
           companies,
-          excludeCompanies
+          excludeCompanies,
+          timePeriod
         })
       })
 
@@ -580,7 +582,21 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                     </Grid>
 
                     <Grid>
-                      <Grid.Col span={{ base: 12, md: 6 }}>
+                      <Grid.Col span={{ base: 12, md: 4 }}>
+                        <Select
+                          label="Time Period"
+                          placeholder="Select job posting time period"
+                          value={timePeriod}
+                          onChange={(value) => setTimePeriod(value || '7d')}
+                          data={[
+                            { value: '1h', label: 'Last Hour (Ultra Fresh)' },
+                            { value: '24h', label: 'Last 24 Hours' },
+                            { value: '7d', label: 'Last 7 Days (Recommended)' }
+                          ]}
+                          description="How recent the job postings should be"
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, md: 4 }}>
                         <MultiSelect
                           label="Target Companies (optional)"
                           placeholder="Select companies to focus on"
@@ -591,7 +607,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           clearable
                         />
                       </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 6 }}>
+                      <Grid.Col span={{ base: 12, md: 4 }}>
                         <MultiSelect
                           label="Exclude Companies (optional)"
                           placeholder="Companies to exclude"
@@ -656,7 +672,24 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                   </Group>
 
                   <Stack gap="md">
-                    {jobs.map((job) => (
+                    {jobs.length === 0 ? (
+                      <Card shadow="xs" padding="xl" radius="md" withBorder ta="center">
+                        <Stack gap="md" align="center">
+                          <Text size="lg" fw={500} c="dimmed">No jobs found</Text>
+                          <Text size="sm" c="dimmed">
+                            Try adjusting your search criteria or selecting a different time period
+                          </Text>
+                          <Button
+                            variant="light"
+                            onClick={() => setCurrentStep(0)}
+                            leftSection={<IconRefresh size={16} />}
+                          >
+                            Try New Search
+                          </Button>
+                        </Stack>
+                      </Card>
+                    ) : (
+                      jobs.map((job) => (
                       <Card key={job.id} shadow="xs" padding="lg" radius="md" withBorder>
                         <Stack gap="sm">
                           <Group justify="space-between" align="start">
@@ -706,7 +739,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                 </Group>
                               )}
 
-                              <Text size="sm" c="dimmed" lineClamp={2} mb="sm">
+                              <Text size="sm" c="dimmed" mb="sm">
                                 {job.description}
                               </Text>
 
@@ -744,7 +777,8 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           </Group>
                         </Stack>
                       </Card>
-                    ))}
+                      ))
+                    )}
                   </Stack>
                 </Card>
               </motion.div>

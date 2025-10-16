@@ -52,11 +52,21 @@ export async function POST(request: NextRequest) {
     //   }, { status: 503 })
     // }
 
-    // Build search query
+    // Build search query - use simpler terms for better results
     let searchQuery = keywords || 'software engineer'
     if (companies && companies.length > 0) {
       searchQuery += ` ${companies.join(' OR ')}`
     }
+
+    console.log('Search parameters:', {
+      keywords,
+      location,
+      remoteOnly,
+      companies,
+      excludeCompanies,
+      timePeriod,
+      finalSearchQuery: searchQuery
+    })
 
     // Determine endpoint based on time period
     const endpointMap = {
@@ -150,14 +160,27 @@ export async function POST(request: NextRequest) {
         remote: Boolean(job.remote_derived || job.location?.toLowerCase().includes('remote') || remoteOnly || false),
         salary: (() => {
           if (job.salary) {
-            if (typeof job.salary === 'object' && job.salary.base) {
-              return job.salary.base
-            } else if (typeof job.salary === 'object' && job.salary.total) {
-              return job.salary.total
+            if (typeof job.salary === 'object') {
+              // Handle LinkedIn's complex salary structure
+              if (job.salary.value) {
+                const val = job.salary.value
+                if (val.minValue && val.maxValue) {
+                  const currency = job.salary.currency || 'USD'
+                  const unit = val.unitText || 'YEAR'
+                  return `${currency} ${val.minValue.toLocaleString()}-${val.maxValue.toLocaleString()} per ${unit.toLowerCase()}`
+                }
+              }
+              if (job.salary.base) {
+                return job.salary.base
+              }
+              if (job.salary.total) {
+                return job.salary.total
+              }
+              return JSON.stringify(job.salary)
             } else if (typeof job.salary === 'string') {
               return job.salary
             } else {
-              return JSON.stringify(job.salary)
+              return String(job.salary)
             }
           } else if (job.salary_raw) {
             if (typeof job.salary_raw === 'object') {
