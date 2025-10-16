@@ -834,7 +834,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         <Stack gap="md" align="center">
                           <Text size="lg" fw={500} c="dimmed">No jobs found</Text>
                           <Text size="sm" c="dimmed">
-                            Try adjusting your search criteria or selecting a different time period
+                            Executive roles like CTO/VP are rare. Try broader terms like "Software Engineer", "Engineering Manager", or extend the time period to 24 hours.
                           </Text>
                           <Button
                             variant="light"

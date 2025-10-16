@@ -33,7 +33,7 @@ async function testLinkedInAPI(apiKey: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
-    const { keywords, location, remoteOnly, companies, excludeCompanies, timePeriod } = await request.json()
+    const { keywords, location, remoteOnly, companies, excludeCompanies, timePeriod, maxResults = 200 } = await request.json()
 
     if (!process.env.LINKEDIN_RAPIDAPI_KEY) {
       return NextResponse.json({
@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
       companies,
       excludeCompanies,
       timePeriod,
+      maxResults,
       finalSearchQuery: searchQuery
     })
 
@@ -76,7 +77,14 @@ export async function POST(request: NextRequest) {
     }
     const endpoint = endpointMap[timePeriod as keyof typeof endpointMap] || 'active-jb-7d'
 
-    // Prepare API request to LinkedIn Job Search
+    // Calculate pagination parameters
+    const jobsPerPage = 100 // LinkedIn API returns max 100 jobs per request
+    const totalPages = Math.ceil(maxResults / jobsPerPage)
+    const pagesToFetch = Math.min(totalPages, 5) // Limit to 5 pages max to avoid hitting rate limits
+
+    console.log(`Fetching ${pagesToFetch} pages (${jobsPerPage} jobs each) to get up to ${pagesToFetch * jobsPerPage} jobs`)
+
+    // Prepare base API request parameters
     const url = `https://linkedin-job-search-api.p.rapidapi.com/${endpoint}`
     const options = {
       method: 'GET',
@@ -86,48 +94,72 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Build URL parameters using correct API parameter names (removed limits as requested)
-    const params = new URLSearchParams({
-      offset: '0',
+    const baseParams = {
       description_type: 'text',
+      order: 'desc', // Most recent jobs first
+      include_ai: 'true', // Get AI-enhanced fields including better salary data
       ...(keywords && { title_filter: searchQuery }),
       ...(location && { location_filter: location }),
-      ...(remoteOnly && { remote: 'true' })
-    })
-
-    const fullUrl = `${url}?${params.toString()}`
-    console.log('LinkedIn API Request:', fullUrl)
-    console.log('Using API Key:', process.env.LINKEDIN_RAPIDAPI_KEY?.substring(0, 10) + '...')
-
-    console.log('Making fetch request...')
-    const response = await fetch(fullUrl, options)
-    console.log('Fetch response received, status:', response.status)
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-
-    console.log('Parsing JSON...')
-    const data = await response.json()
-    console.log('JSON parsed, data type:', typeof data, 'isArray:', Array.isArray(data))
-    console.log('Data sample:', JSON.stringify(data).substring(0, 500) + '...')
-
-    if (!response.ok) {
-      console.error('LinkedIn API Error:', data)
-      throw new Error(data.message || 'Failed to fetch LinkedIn jobs')
+      ...(remoteOnly && { remote: 'true' }),
+      // Add filters to get more relevant results
+      type_filter: 'FULL_TIME,PART_TIME,CONTRACTOR', // Include multiple job types
+      seniority_filter: 'Entry level,Mid-Senior level,Director,Executive', // Include all relevant levels
+      employees_gte: '1', // Exclude very small companies (1+ employees)
+      ai_experience_level_filter: '0-2,2-5,5-10,10+', // Include all experience levels
+      // Enhanced AI filters for better results
+      ai_work_arrangement_filter: 'On-site,Hybrid,Remote OK,Remote Solely', // All work arrangements
+      directapply: 'false' // Exclude easy apply jobs which are often lower quality
     }
 
-    console.log('API call successful, processing data...')
+    // Fetch multiple pages of results
+    const allJobs: any[] = []
+    let totalFetched = 0
 
-    // Transform LinkedIn data to our format
-    console.log('Raw data structure:', {
-      hasData: !!data.data,
-      dataLength: data.data?.length || 0,
-      isArray: Array.isArray(data),
-      directLength: Array.isArray(data) ? data.length : 'not array',
-      keys: Object.keys(data)
-    })
+    for (let page = 0; page < pagesToFetch; page++) {
+      const offset = page * jobsPerPage
+      const params = new URLSearchParams({
+        ...baseParams,
+        offset: offset.toString()
+      })
 
-    // Handle both data.data and direct array formats
-    const jobsArray = data.data || (Array.isArray(data) ? data : [])
-    console.log('Jobs array length:', jobsArray.length)
+      const fullUrl = `${url}?${params.toString()}`
+      console.log(`Page ${page + 1}/${pagesToFetch}: LinkedIn API Request with offset ${offset}`)
+
+      try {
+        const response = await fetch(fullUrl, options)
+        console.log(`Page ${page + 1} response status:`, response.status)
+
+        if (!response.ok) {
+          console.error(`Page ${page + 1} API Error:`, response.statusText)
+          continue // Skip this page but continue with others
+        }
+
+        const data = await response.json()
+        const jobsArray = data.data || (Array.isArray(data) ? data : [])
+
+        console.log(`Page ${page + 1} jobs received:`, jobsArray.length)
+
+        if (jobsArray.length === 0) {
+          console.log(`Page ${page + 1} returned no jobs, stopping pagination`)
+          break // No more jobs available
+        }
+
+        allJobs.push(...jobsArray)
+        totalFetched += jobsArray.length
+
+        // Add small delay between requests to be respectful to the API
+        if (page < pagesToFetch - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+
+      } catch (error) {
+        console.error(`Error fetching page ${page + 1}:`, error)
+        continue // Continue with next page
+      }
+    }
+
+    console.log(`Total jobs fetched across ${pagesToFetch} pages:`, totalFetched)
+    const jobsArray = allJobs
 
     const transformedJobs = jobsArray.map((job: any, index: number) => {
       console.log(`Processing job ${index}:`, {
@@ -288,12 +320,16 @@ export async function POST(request: NextRequest) {
       return true
     })
 
+    // Limit to maxResults if we fetched more than requested
+    const finalJobs = filteredJobs.slice(0, maxResults)
+
     console.log('Final filtered jobs count:', filteredJobs.length)
+    console.log('Jobs after maxResults limit:', finalJobs.length)
     console.log('Returning response...')
 
     return NextResponse.json({
-      jobs: filteredJobs,
-      total: filteredJobs.length,
+      jobs: finalJobs,
+      total: finalJobs.length,
       source: 'LinkedIn API'
     })
 
