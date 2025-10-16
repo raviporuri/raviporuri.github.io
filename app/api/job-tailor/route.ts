@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    const tailoringPrompt = `You are an executive career strategist creating comprehensive application materials for a senior technology leader.
+    const tailoringPrompt = `You are an expert executive career strategist and company research analyst. Generate a comprehensive application strategy for a senior technology leader based on detailed company research and career analysis.
 
 CANDIDATE PROFILE:
 Ravi Poruri - Senior technology executive with 25+ years scaling engineering organizations and delivering $3.2B+ revenue impact. Currently Founder & AI Product Leader at Equiti Ventures. Previously Senior Director at Cisco (grew CX Cloud to $500M+ ARR), Global Head of Data at Dropbox (led pre-IPO to IPO, doubled revenue $850M→$1.8B). Expert in data platforms, AI/ML, cloud architecture, and leading teams of 100+ people.
@@ -41,6 +41,8 @@ TARGET OPPORTUNITY:
 Position: ${jobTitle}
 Company: ${company}
 Job Description: ${jobDescription}
+
+IMPORTANT: You must analyze the company ${company} and generate realistic, specific insights based on their industry, size, and business model. Use your knowledge of technology companies to provide accurate assessments of company culture, challenges, and opportunities.
 
 Create comprehensive application materials with these components:
 
