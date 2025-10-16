@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { jsPDF } from 'jspdf'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, UnderlineType } from 'docx'
+// Dynamic import for docx to avoid build issues
 import {
   Container,
   Title,
@@ -721,6 +721,9 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
     if (!applicationPackage) return
 
     try {
+      // Dynamic import to avoid build issues
+      const { Document, Packer, Paragraph, TextRun, AlignmentType, UnderlineType } = await import('docx')
+
       const doc = new Document({
         sections: [
           {
@@ -851,7 +854,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                     size: 22
                   }),
                   new TextRun({
-                    text: " (2019-2024)",
+                    text: " (2015-2019)",
                     size: 22
                   })
                 ]
