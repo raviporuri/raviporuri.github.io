@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Box,
   Paper,
@@ -48,6 +48,10 @@ export default function GatedChatWidget() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
+  const [showPrivacyDisclaimer, setShowPrivacyDisclaimer] = useState(true)
+  const [lastActivity, setLastActivity] = useState(Date.now())
+  const [hasShownInactivityPrompt, setHasShownInactivityPrompt] = useState(false)
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const form = useForm<GateFormData>({
     initialValues: {
@@ -94,14 +98,19 @@ export default function GatedChatWidget() {
       setSessionId(data.session_id)
       setVisitor(data.visitor)
 
-      // Add welcome message
-      const welcomeMessage = `Thanks ${data.visitor.name}! I'll tailor this conversation for a ${data.visitor.role} interested in ${data.visitor.purpose}. How can I help you learn about Ravi's background?`
+      // Add privacy disclaimer and welcome message
+      const privacyMessage = `🔒 **Privacy Notice**: This conversation is completely confidential and is not recorded. I'm here to help you learn about Ravi's professional background and experience.
+
+Thanks ${data.visitor.name}! I'll tailor this conversation for a ${data.visitor.role} interested in ${data.visitor.purpose}. How can I help you learn about Ravi's background?`
 
       setMessages([{
         role: 'assistant',
-        content: welcomeMessage,
+        content: privacyMessage,
         timestamp: new Date()
       }])
+
+      setShowPrivacyDisclaimer(false)
+      setLastActivity(Date.now())
 
       notifications.show({
         title: 'Welcome!',
@@ -121,11 +130,62 @@ export default function GatedChatWidget() {
     }
   }
 
+  // Inactivity detection
+  useEffect(() => {
+    if (!sessionId) return
+
+    // Clear existing timer
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current)
+    }
+
+    // Set new timer for 15 seconds of inactivity
+    inactivityTimerRef.current = setTimeout(() => {
+      if (!hasShownInactivityPrompt) {
+        handleInactivityPrompt()
+      }
+    }, 15000)
+
+    return () => {
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current)
+      }
+    }
+  }, [lastActivity, sessionId, hasShownInactivityPrompt])
+
+  const handleInactivityPrompt = () => {
+    if (hasShownInactivityPrompt) return
+
+    const inactivityMessage: Message = {
+      role: 'assistant',
+      content: `I'm here if you'd like to know more about Ravi's experience! Is there anything specific you'd like to explore?\n\nOr, if you're ready to connect with Ravi directly, I'd recommend reaching out - speaking with him personally will give you much deeper insights into his experience, personality, and how he approaches challenges.\n\nYou can contact him through:\n• LinkedIn: linkedin.com/in/poruriravi\n• Use the 'Contact Me' button on this website`,
+      timestamp: new Date()
+    }
+
+    setMessages(prev => [...prev, inactivityMessage])
+    setHasShownInactivityPrompt(true)
+  }
+
+  const isConversationEnding = (message: string): boolean => {
+    const endingPatterns = [
+      /^(bye|goodbye|thanks?( you)?|thank you|see you)$/i,
+      /^(ok|okay|alright),?\s*(bye|goodbye|thanks?( you)?|thank you)$/i,
+      /^(that('s| is)\s*)?(all|enough|good|great|perfect|helpful|sufficient)$/i,
+      /^(i('m| am)\s*)?(done|finished|good|set)$/i
+    ]
+
+    return endingPatterns.some(pattern => pattern.test(message.trim()))
+  }
+
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !sessionId || isLoading) return
 
     const userMessage = inputValue.trim()
     setInputValue('')
+
+    // Update activity timestamp
+    setLastActivity(Date.now())
+    setHasShownInactivityPrompt(false)
 
     // Add user message immediately
     const newUserMessage: Message = {
@@ -152,13 +212,10 @@ export default function GatedChatWidget() {
         throw new Error(data.error || 'Failed to send message')
       }
 
-      // Add assistant response
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.response,
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, assistantMessage])
+      // Check if user message indicates conversation ending
+      let responseContent = data.response
+      if (isConversationEnding(userMessage)) {
+        responseContent += `\n\nI hope this conversation has been helpful! While I can share information about Ravi's professional background, I'd definitely encourage you to connect with him directly for a more personal discussion. He'd be happy to share deeper insights about his experience, approach to leadership, and what drives his passion for technology.\n\nTo get in touch:\n• **LinkedIn**: linkedin.com/in/poruriravi\n• **Contact Form**: Click the 'Contact Me' button on this website\n\nThank you for your interest in Ravi's work!`\n      }\n\n      // Add assistant response\n      const assistantMessage: Message = {\n        role: 'assistant',\n        content: responseContent,\n        timestamp: new Date()\n      }\n      setMessages(prev => [...prev, assistantMessage])
 
     } catch (error) {
       console.error('Chat error:', error)
