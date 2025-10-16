@@ -82,28 +82,60 @@ export async function POST(request: NextRequest) {
     console.log('LinkedIn API Request:', fullUrl)
     console.log('Using API Key:', process.env.LINKEDIN_RAPIDAPI_KEY?.substring(0, 10) + '...')
 
+    console.log('Making fetch request...')
     const response = await fetch(fullUrl, options)
+    console.log('Fetch response received, status:', response.status)
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
+    console.log('Parsing JSON...')
     const data = await response.json()
+    console.log('JSON parsed, data type:', typeof data, 'isArray:', Array.isArray(data))
+    console.log('Data sample:', JSON.stringify(data).substring(0, 500) + '...')
 
     if (!response.ok) {
       console.error('LinkedIn API Error:', data)
       throw new Error(data.message || 'Failed to fetch LinkedIn jobs')
     }
 
+    console.log('API call successful, processing data...')
+
     // Transform LinkedIn data to our format
-    const transformedJobs = (data.data || []).map((job: any, index: number) => ({
-      id: job.id || `linkedin-${index}`,
-      title: job.title || 'Software Engineer',
-      company: job.company || 'Unknown Company',
-      location: job.location || location || 'Remote',
-      remote: job.location?.toLowerCase().includes('remote') || remoteOnly || false,
-      salary: job.salary || undefined,
-      description: job.description || job.summary || 'No description available',
-      url: job.link || job.url || `https://linkedin.com/jobs/view/${job.id}`,
-      source: 'LinkedIn',
-      postedDate: job.posted_date || new Date().toISOString(),
-      relevanceScore: Math.floor(Math.random() * 20) + 80 // 80-100 for real jobs
-    }))
+    console.log('Raw data structure:', {
+      hasData: !!data.data,
+      dataLength: data.data?.length || 0,
+      isArray: Array.isArray(data),
+      directLength: Array.isArray(data) ? data.length : 'not array',
+      keys: Object.keys(data)
+    })
+
+    // Handle both data.data and direct array formats
+    const jobsArray = data.data || (Array.isArray(data) ? data : [])
+    console.log('Jobs array length:', jobsArray.length)
+
+    const transformedJobs = jobsArray.map((job: any, index: number) => {
+      console.log(`Processing job ${index}:`, {
+        id: job.id,
+        title: job.title,
+        company: job.company || job.organization,
+        hasDescription: !!job.description_text || !!job.description
+      })
+
+      return {
+        id: job.id || `linkedin-${index}`,
+        title: job.title || 'Software Engineer',
+        company: job.company || job.organization || 'Unknown Company',
+        location: job.location || job.locations_derived?.[0] || location || 'Remote',
+        remote: job.remote_derived || job.location?.toLowerCase().includes('remote') || remoteOnly || false,
+        salary: job.salary || job.salary_raw || undefined,
+        description: job.description_text || job.description || job.summary || 'No description available',
+        url: job.url || job.link || `https://linkedin.com/jobs/view/${job.id}`,
+        source: 'LinkedIn',
+        postedDate: job.date_posted || job.posted_date || new Date().toISOString(),
+        relevanceScore: Math.floor(Math.random() * 20) + 80 // 80-100 for real jobs
+      }
+    })
+
+    console.log('Transformed jobs count:', transformedJobs.length)
 
     // Filter out excluded companies
     const filteredJobs = transformedJobs.filter((job: any) => {
@@ -114,6 +146,9 @@ export async function POST(request: NextRequest) {
       }
       return true
     })
+
+    console.log('Final filtered jobs count:', filteredJobs.length)
+    console.log('Returning response...')
 
     return NextResponse.json({
       jobs: filteredJobs,
