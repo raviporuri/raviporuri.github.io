@@ -41,28 +41,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Simple curl-equivalent test first
-    console.log('Testing with simple API call...')
-    const testResponse = await fetch('https://linkedin-job-search-api.p.rapidapi.com/active-jb-1h?offset=0&description_type=text&limit=10', {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': process.env.LINKEDIN_RAPIDAPI_KEY,
-        'x-rapidapi-host': 'linkedin-job-search-api.p.rapidapi.com'
-      }
-    })
-
-    console.log('Test response status:', testResponse.status)
-    if (!testResponse.ok) {
-      const testError = await testResponse.text()
-      console.error('Test API call failed:', testError)
-      return NextResponse.json({
-        error: 'API test failed',
-        details: testError
-      }, { status: 500 })
-    }
-
-    const testData = await testResponse.json()
-    console.log('Test API success, got', Array.isArray(testData) ? testData.length : 'unknown', 'results')
+    // API is working - removing debug test code since it's confirmed working
 
     // Test API availability before proceeding (temporarily disabled for debugging)
     // const isAPIHealthy = await testLinkedInAPI(process.env.LINKEDIN_RAPIDAPI_KEY)
@@ -80,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare API request to LinkedIn Job Search
-    const url = 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-1h'
+    const url = 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-7d'
     const options = {
       method: 'GET',
       headers: {
