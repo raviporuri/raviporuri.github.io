@@ -33,7 +33,7 @@ async function testLinkedInAPI(apiKey: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
-    const { keywords, location, remoteOnly, companies, excludeCompanies, timePeriod, maxResults = 200 } = await request.json()
+    const { keywords, location, remoteOnly, companies, excludeCompanies, timePeriod, maxResults = 200, radius = 25 } = await request.json()
 
     if (!process.env.LINKEDIN_RAPIDAPI_KEY) {
       return NextResponse.json({
@@ -58,9 +58,18 @@ export async function POST(request: NextRequest) {
       searchQuery += ` ${companies.join(' OR ')}`
     }
 
+    // Simple location handling for maximum job listings
+    function enhanceLocationSearch(inputLocation: string, userRadius: number): { location_filter: string } {
+      if (!inputLocation) return { location_filter: '' }
+      return { location_filter: inputLocation }
+    }
+
+    const enhancedLocation = enhanceLocationSearch(location, radius)
+
     console.log('Search parameters:', {
       keywords,
       location,
+      enhancedLocation,
       remoteOnly,
       companies,
       excludeCompanies,
@@ -99,7 +108,8 @@ export async function POST(request: NextRequest) {
       order: 'desc', // Most recent jobs first
       include_ai: 'true', // Get AI-enhanced fields including better salary data
       ...(keywords && { title_filter: searchQuery }),
-      ...(location && { location_filter: location }),
+      ...(enhancedLocation.location_filter && { location_filter: enhancedLocation.location_filter }),
+      // Note: distance parameter is not supported by this LinkedIn API
       ...(remoteOnly && { remote: 'true' }),
       // Add filters to get more relevant results
       type_filter: 'FULL_TIME,PART_TIME,CONTRACTOR', // Include multiple job types

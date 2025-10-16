@@ -156,6 +156,7 @@ export default function AIJobPlatformPage() {
   // Search state
   const [keywords, setKeywords] = useState('')
   const [location, setLocation] = useState('')
+  const [radius, setRadius] = useState(25)
   const [remoteOnly, setRemoteOnly] = useState(false)
   const [companies, setCompanies] = useState<string[]>([])
   const [excludeCompanies, setExcludeCompanies] = useState<string[]>([])
@@ -205,6 +206,7 @@ export default function AIJobPlatformPage() {
         body: JSON.stringify({
           keywords,
           location,
+          radius,
           remoteOnly,
           companies,
           excludeCompanies,
@@ -724,7 +726,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           description="Required: Job titles, skills, or company names"
                         />
                       </Grid.Col>
-                      <Grid.Col span={{ base: 12, md: 6 }}>
+                      <Grid.Col span={{ base: 12, md: 4 }}>
                         <TextInput
                           label="Location *"
                           placeholder="San Francisco Bay Area"
@@ -734,6 +736,22 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           required
                           error={!location.trim() ? "Location is required" : ""}
                           description="Required: City, state, or region"
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, md: 2 }}>
+                        <Select
+                          label="Search Radius"
+                          placeholder="Select radius"
+                          value={radius.toString()}
+                          onChange={(value) => setRadius(parseInt(value || '25'))}
+                          data={[
+                            { value: '10', label: '10 miles' },
+                            { value: '25', label: '25 miles' },
+                            { value: '50', label: '50 miles' },
+                            { value: '75', label: '75 miles' },
+                            { value: '100', label: '100 miles' }
+                          ]}
+                          description="Distance from location"
                         />
                       </Grid.Col>
                     </Grid>
