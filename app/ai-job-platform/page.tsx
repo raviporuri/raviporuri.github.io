@@ -196,13 +196,14 @@ export default function AIJobPlatformPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/job-search', {
+      // Use LinkedIn Job Search API
+      const response = await fetch('/api/linkedin-jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           keywords,
           location,
-          remote: remoteOnly,
+          remoteOnly,
           companies,
           excludeCompanies
         })
@@ -211,7 +212,7 @@ export default function AIJobPlatformPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to search jobs')
+        throw new Error(data.error || 'Failed to search LinkedIn jobs')
       }
 
       const sortedJobs = (data.jobs || []).sort((a: JobListing, b: JobListing) =>
@@ -221,8 +222,8 @@ export default function AIJobPlatformPage() {
       setJobs(sortedJobs)
       setCurrentStep(1)
     } catch (error) {
-      console.error('Job search error:', error)
-      setError('Failed to search jobs. Please try again.')
+      console.error('LinkedIn job search error:', error)
+      setError('Failed to search jobs from LinkedIn. Please try again.')
     } finally {
       setLoading(false)
     }
