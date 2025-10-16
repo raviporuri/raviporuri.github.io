@@ -55,7 +55,12 @@ import {
   IconChevronRight,
   IconUsers,
   IconTrophy,
-  IconBrandLinkedin
+  IconBrandLinkedin,
+  IconArrowLeft,
+  IconFileTypePdf,
+  IconProgress,
+  IconCheckCircle,
+  IconX
 } from '@tabler/icons-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -162,6 +167,12 @@ export default function AIJobPlatformPage() {
   const [resumeModalOpen, setResumeModalOpen] = useState(false)
   const [coverLetterModalOpen, setCoverLetterModalOpen] = useState(false)
 
+  // New state for enhancements
+  const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [analysisStage, setAnalysisStage] = useState('')
+  const [analysisError, setAnalysisError] = useState('')
+  const [pdfGenerating, setPdfGenerating] = useState(false)
+
   // Check authentication
   useEffect(() => {
     const stored = sessionStorage.getItem('ai-job-platform-auth')
@@ -221,8 +232,15 @@ export default function AIJobPlatformPage() {
     setSelectedJob(job)
     setPackageLoading(true)
     setCurrentStep(2)
+    setAnalysisProgress(0)
+    setAnalysisStage('Initializing AI analysis...')
+    setAnalysisError('')
 
     try {
+      // Simulate progress stages
+      setAnalysisProgress(20)
+      setAnalysisStage('Analyzing job requirements...')
+
       // Enhanced API call with dynamic prompt generation
       const response = await fetch('/api/ai-application-package', {
         method: 'POST',
@@ -249,20 +267,145 @@ export default function AIJobPlatformPage() {
         })
       })
 
+      setAnalysisProgress(50)
+      setAnalysisStage('Researching company information...')
+
       const data = await response.json()
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to generate application package')
       }
 
+      setAnalysisProgress(80)
+      setAnalysisStage('Generating resume and cover letter...')
+
+      // Simulate final processing
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      setAnalysisProgress(100)
+      setAnalysisStage('Analysis complete!')
+
       setApplicationPackage(data)
       setCurrentStep(3)
     } catch (error) {
       console.error('Package generation error:', error)
+      setAnalysisError(error instanceof Error ? error.message : 'Failed to generate application package.')
       setError('Failed to generate application package.')
     } finally {
       setPackageLoading(false)
     }
+  }
+
+  const generatePDF = async () => {
+    if (!applicationPackage || !selectedJob) return
+
+    setPdfGenerating(true)
+
+    try {
+      // Create PDF content
+      const pdfContent = `
+APPLICATION PACKAGE
+${selectedJob.title} at ${selectedJob.company}
+Generated on ${new Date().toLocaleDateString()}
+
+====================================
+
+JOB ANALYSIS
+Relevance Score: ${applicationPackage.jobAnalysis.relevanceScore}%
+
+Match Strengths:
+${applicationPackage.jobAnalysis.matchStrengths.map(strength => `• ${strength}`).join('\n')}
+
+Potential Concerns:
+${applicationPackage.jobAnalysis.potentialConcerns.map(concern => `• ${concern}`).join('\n')}
+
+Positioning Strategy:
+${applicationPackage.jobAnalysis.positioningStrategy}
+
+====================================
+
+COMPANY RESEARCH
+${applicationPackage.companyResearch.overview}
+
+Recent Developments:
+${applicationPackage.companyResearch.recentNews.map(news => `• ${news}`).join('\n')}
+
+Culture & Values:
+${applicationPackage.companyResearch.cultureAndValues}
+
+Glassdoor Insights:
+Rating: ${applicationPackage.companyResearch.glassdoorEstimate.rating}
+Pros: ${applicationPackage.companyResearch.glassdoorEstimate.pros.join(', ')}
+Cons: ${applicationPackage.companyResearch.glassdoorEstimate.cons.join(', ')}
+Salary Range: ${applicationPackage.companyResearch.glassdoorEstimate.salaryRange}
+
+====================================
+
+RESUME
+${applicationPackage.resume.formattedResume}
+
+====================================
+
+COVER LETTER
+${applicationPackage.coverLetter.fullText}
+
+====================================
+
+INTERVIEW PREPARATION
+
+STAR Stories:
+${applicationPackage.interviewPrep.starStories.map((story, index) => `
+Story ${index + 1}:
+Situation: ${story.situation}
+Task: ${story.task}
+Action: ${story.action}
+Result: ${story.result}
+Relevance: ${story.relevance}
+`).join('\n')}
+
+Questions to Ask:
+${applicationPackage.interviewPrep.questionsToAsk.map(q => `• ${q}`).join('\n')}
+
+====================================
+
+APPLICATION STRATEGY
+${applicationPackage.applicationStrategy.preferredChannel}
+
+LinkedIn Strategy:
+${applicationPackage.applicationStrategy.linkedinStrategy}
+
+Follow-up Plan:
+${applicationPackage.applicationStrategy.followUpPlan}
+
+Timeline:
+${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).join('\n')}
+      `.trim()
+
+      // Create and download PDF-like text file
+      const blob = new Blob([pdfContent], { type: 'text/plain' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `application_package_${selectedJob.company.toLowerCase().replace(/\s+/g, '_')}.txt`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      setError('Failed to generate PDF. Please try again.')
+    } finally {
+      setPdfGenerating(false)
+    }
+  }
+
+  const backToJobListings = () => {
+    setCurrentStep(1)
+    setSelectedJob(null)
+    setApplicationPackage(null)
+    setError('')
+    setAnalysisError('')
   }
 
   const formatDate = (dateString: string) => {
@@ -622,12 +765,45 @@ export default function AIJobPlatformPage() {
 
                     <div>
                       <Title order={2} mb="md">AI Generating Your Application Package</Title>
-                      <Text c="dimmed" size="lg" mb="xl">
-                        Analyzing {selectedJob?.title} at {selectedJob?.company}
-                      </Text>
+                      {analysisError ? (
+                        <Alert
+                          icon={<IconX size={16} />}
+                          title="Analysis Failed"
+                          color="red"
+                          mb="lg"
+                        >
+                          {analysisError}
+                          <Group justify="center" mt="md">
+                            <Button
+                              variant="light"
+                              color="red"
+                              onClick={() => setCurrentStep(1)}
+                              leftSection={<IconArrowLeft size={16} />}
+                            >
+                              Back to Job Listings
+                            </Button>
+                          </Group>
+                        </Alert>
+                      ) : (
+                        <>
+                          <Text c="dimmed" mb="lg">
+                            {analysisStage}
+                          </Text>
+                          <Progress
+                            value={analysisProgress}
+                            size="lg"
+                            radius="xl"
+                            striped
+                            animated
+                            color={analysisProgress === 100 ? 'green' : 'blue'}
+                            mb="md"
+                          />
+                          <Text size="sm" c="dimmed">
+                            {analysisProgress}% Complete
+                          </Text>
+                        </>
+                      )}
                     </div>
-
-                    <Progress size="lg" radius="xl" style={{ width: '100%' }} striped animated />
 
                     <Stack gap="sm" ta="left" style={{ width: '100%', maxWidth: 400 }}>
                       <Text size="sm" c="dimmed">✓ Analyzing job requirements</Text>
@@ -659,6 +835,24 @@ export default function AIJobPlatformPage() {
                       </Text>
                     </div>
                     <Group>
+                      <Button
+                        variant="light"
+                        leftSection={<IconArrowLeft size={16} />}
+                        onClick={backToJobListings}
+                        size="sm"
+                      >
+                        Back to Job Listings
+                      </Button>
+                      <Button
+                        variant="gradient"
+                        gradient={{ from: 'green', to: 'teal' }}
+                        leftSection={<IconFileTypePdf size={16} />}
+                        onClick={generatePDF}
+                        loading={pdfGenerating}
+                        size="sm"
+                      >
+                        Download PDF
+                      </Button>
                       <Button
                         variant="light"
                         leftSection={<IconRefresh size={16} />}
