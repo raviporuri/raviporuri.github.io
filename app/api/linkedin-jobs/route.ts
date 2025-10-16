@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 async function testLinkedInAPI(apiKey: string): Promise<boolean> {
   try {
     console.log('Testing LinkedIn API health...')
-    const response = await fetch('https://linkedin-job-search-api.p.rapidapi.com/active-jb-lhf?offset=0&keywords=test', {
+    const response = await fetch('https://linkedin-job-search-api.p.rapidapi.com/active-jb-lhf?offset=0&title_filter=test', {
       method: 'GET',
       headers: {
         'x-rapidapi-key': apiKey,
@@ -66,12 +66,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Build URL parameters
+    // Build URL parameters using correct API parameter names
     const params = new URLSearchParams({
       offset: '0',
       description_type: 'text',
-      ...(keywords && { keywords: searchQuery }),
-      ...(location && { location }),
+      ...(keywords && { title_filter: searchQuery }),
+      ...(location && { location_filter: location }),
       ...(remoteOnly && { remote: 'true' })
     })
 
