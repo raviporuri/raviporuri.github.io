@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     console.log('Creating Anthropic message...')
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 16000,
+      max_tokens: 8192,
       temperature: 0.2,
       messages: [{
         role: 'user',
