@@ -1,5 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Test API availability with a simple health check
+async function testLinkedInAPI(apiKey: string): Promise<boolean> {
+  try {
+    console.log('Testing LinkedIn API health...')
+    const response = await fetch('https://linkedin-job-search-api.p.rapidapi.com/active-jb-lhf?offset=0&keywords=test', {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'linkedin-job-search-api.p.rapidapi.com'
+      },
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    })
+
+    console.log('LinkedIn API health check response:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('LinkedIn API health check error response:', errorText)
+    }
+
+    return response.ok
+  } catch (error) {
+    console.error('LinkedIn API health check failed:', error)
+    return false
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { keywords, location, remoteOnly, companies, excludeCompanies } = await request.json()
@@ -8,6 +39,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         error: 'LinkedIn API key not configured'
       }, { status: 500 })
+    }
+
+    // Test API availability before proceeding
+    const isAPIHealthy = await testLinkedInAPI(process.env.LINKEDIN_RAPIDAPI_KEY)
+    if (!isAPIHealthy) {
+      return NextResponse.json({
+        error: 'LinkedIn API is currently unavailable. Please try again later.',
+        status: 'API_UNAVAILABLE'
+      }, { status: 503 })
     }
 
     // Build search query
