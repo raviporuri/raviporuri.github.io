@@ -31,7 +31,9 @@ import {
   Grid,
   Modal,
   Textarea,
-  ScrollArea
+  ScrollArea,
+  Pagination,
+  Collapse
 } from '@mantine/core'
 import {
   IconSearch,
@@ -63,7 +65,9 @@ import {
   IconFileTypePdf,
   IconProgress,
   IconCheckCircle,
-  IconX
+  IconX,
+  IconChevronDown,
+  IconChevronUp
 } from '@tabler/icons-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -206,6 +210,11 @@ export default function AIJobPlatformPage() {
   const [pdfGenerating, setPdfGenerating] = useState(false)
   const [downloadFormat, setDownloadFormat] = useState('pdf')
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set())
+  const jobsPerPage = 10
+
   // Check authentication
   useEffect(() => {
     const stored = sessionStorage.getItem('ai-job-platform-auth')
@@ -255,6 +264,7 @@ export default function AIJobPlatformPage() {
       )
 
       setJobs(sortedJobs)
+      resetPagination() // Reset pagination for new search
       setCurrentStep(1)
     } catch (error) {
       console.error('LinkedIn job search error:', error)
@@ -1060,6 +1070,37 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
     'Netflix', 'Uber', 'Meta', 'Google', 'Microsoft', 'Amazon', 'Apple'
   ]
 
+  // Helper functions for pagination and job expansion
+  const toggleJobExpansion = (jobId: string) => {
+    const newExpanded = new Set(expandedJobs)
+    if (newExpanded.has(jobId)) {
+      newExpanded.delete(jobId)
+    } else {
+      newExpanded.add(jobId)
+    }
+    setExpandedJobs(newExpanded)
+  }
+
+  const truncateDescription = (description: string, lines: number = 3) => {
+    const words = description.split(' ')
+    const wordsPerLine = 15 // Approximate words per line
+    const maxWords = lines * wordsPerLine
+    if (words.length <= maxWords) return description
+    return words.slice(0, maxWords).join(' ') + '...'
+  }
+
+  // Pagination calculations
+  const totalPages = Math.ceil(jobs.length / jobsPerPage)
+  const startIndex = (currentPage - 1) * jobsPerPage
+  const endIndex = startIndex + jobsPerPage
+  const currentJobs = jobs.slice(startIndex, endIndex)
+
+  // Reset pagination when jobs change
+  const resetPagination = () => {
+    setCurrentPage(1)
+    setExpandedJobs(new Set())
+  }
+
   // Authentication gate
   if (!isAuthenticated) {
     return (
@@ -1178,11 +1219,22 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card shadow="sm" padding="xl" radius="md">
+                <Card shadow="xl" padding="xl" radius="lg" style={{
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                  border: '1px solid rgba(148, 163, 184, 0.2)',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                }}>
                   <Stack gap="md">
-                    <Group>
-                      <IconFilter size={20} />
-                      <Title order={3}>Job Search Criteria</Title>
+                    <Group justify="center" mb="md">
+                      <ThemeIcon size={50} radius="xl" style={{
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
+                      }}>
+                        <IconSearch size={24} />
+                      </ThemeIcon>
+                      <div>
+                        <Title order={3} ta="center">Job Search Criteria</Title>
+                        <Text size="sm" c="dimmed" ta="center">Find your next executive opportunity</Text>
+                      </div>
                     </Group>
 
                     <Box>
@@ -1327,7 +1379,12 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
               >
                 <Card shadow="sm" padding="xl" radius="md">
                   <Group justify="space-between" mb="lg">
-                    <Title order={2}>Found {jobs.length} Opportunities</Title>
+                    <div>
+                      <Title order={2}>Found {jobs.length} Opportunities</Title>
+                      <Text size="sm" c="dimmed" mt="xs">
+                        Showing {startIndex + 1}-{Math.min(endIndex, jobs.length)} of {jobs.length} results • Page {currentPage} of {totalPages}
+                      </Text>
+                    </div>
                     <Button
                       variant="light"
                       leftSection={<IconRefresh size={16} />}
@@ -1356,122 +1413,152 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         </Stack>
                       </Card>
                     ) : (
-                      jobs.map((job) => (
-                      <Card key={job.id} shadow="xs" padding="lg" radius="md" withBorder>
-                        <Stack gap="sm">
-                          <Group justify="space-between" align="start">
-                            <div style={{ flex: 1 }}>
-                              <Group gap="sm" mb="xs">
-                                <Title order={4}>{job.title}</Title>
-                                {job.relevanceScore && (
-                                  <Badge color={getScoreColor(job.relevanceScore)} size="sm">
-                                    {job.relevanceScore}% match
-                                  </Badge>
-                                )}
-                                {job.remote && (
-                                  <Badge color="blue" variant="light" size="sm">
-                                    Remote
-                                  </Badge>
-                                )}
-                              </Group>
+                      <>
+                        {currentJobs.map((job) => {
+                          const isExpanded = expandedJobs.has(job.id)
+                          const truncatedDescription = truncateDescription(job.description)
+                          const showExpandButton = job.description.length > truncatedDescription.length
 
-                              <Group gap="md" mb="sm">
-                                <Group gap="xs">
-                                  <IconBuilding size={16} />
-                                  <Text size="sm" fw={500}>{job.company}</Text>
-                                </Group>
-                                <Group gap="xs">
-                                  <IconMapPin size={16} />
-                                  <Text size="sm">{job.location}</Text>
-                                </Group>
-                                {job.salary && (
-                                  <Group gap="xs">
-                                    <IconCurrencyDollar size={16} />
-                                    <Text size="sm">{job.salary}</Text>
-                                  </Group>
-                                )}
-                                <Group gap="xs">
-                                  <IconCalendar size={16} />
-                                  <Text size="sm">{formatDate(job.postedDate)}</Text>
-                                </Group>
-                              </Group>
+                          return (
+                            <Card key={job.id} shadow="md" padding="lg" radius="md" withBorder style={{
+                              transition: 'all 0.2s ease',
+                              '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 25px rgba(0,0,0,0.12)' }
+                            }}>
+                              <Stack gap="sm">
+                                <Group justify="space-between" align="start">
+                                  <div style={{ flex: 1 }}>
+                                    <Group gap="sm" mb="xs" wrap="wrap">
+                                      <Title order={4} style={{ color: '#2563eb' }}>{job.title}</Title>
+                                      {job.relevanceScore && (
+                                        <Badge color={getScoreColor(job.relevanceScore)} size="sm" variant="filled">
+                                          {job.relevanceScore}% match
+                                        </Badge>
+                                      )}
+                                      {job.remote && (
+                                        <Badge color="blue" variant="light" size="sm">
+                                          🌐 Remote
+                                        </Badge>
+                                      )}
+                                    </Group>
 
-                              {job.matchReasons && job.matchReasons.length > 0 && (
-                                <Group gap="xs" mb="sm">
-                                  {job.matchReasons.slice(0, 3).map((reason, index) => (
-                                    <Badge key={index} variant="light" color="green" size="xs">
-                                      {reason}
-                                    </Badge>
-                                  ))}
-                                </Group>
-                              )}
+                                    <Group gap="md" mb="sm" wrap="wrap">
+                                      <Group gap="xs">
+                                        <IconBuilding size={16} color="#6b7280" />
+                                        <Text size="sm" fw={500}>{job.company}</Text>
+                                      </Group>
+                                      <Group gap="xs">
+                                        <IconMapPin size={16} color="#6b7280" />
+                                        <Text size="sm">{job.location}</Text>
+                                      </Group>
+                                      {job.salary && (
+                                        <Group gap="xs">
+                                          <IconCurrencyDollar size={16} color="#6b7280" />
+                                          <Text size="sm" fw={500} c="green">{job.salary}</Text>
+                                        </Group>
+                                      )}
+                                      <Group gap="xs">
+                                        <IconCalendar size={16} color="#6b7280" />
+                                        <Text size="sm">{formatDate(job.postedDate)}</Text>
+                                      </Group>
+                                    </Group>
 
-                              <div className="job-description" style={{ fontSize: '0.875rem', color: 'var(--mantine-color-dimmed)', marginBottom: '1rem', lineHeight: '1.5' }}>
-                                {job.description.split('\n').map((line, index) => {
-                                  // Handle headers
-                                  if (line.startsWith('## ')) {
-                                    return <h3 key={index} style={{ fontSize: '1rem', fontWeight: 600, margin: '1rem 0 0.5rem 0', color: 'var(--mantine-color-text)' }}>{line.replace('## ', '')}</h3>
-                                  }
-                                  if (line.startsWith('### ')) {
-                                    return <h4 key={index} style={{ fontSize: '0.9rem', fontWeight: 600, margin: '0.8rem 0 0.4rem 0', color: 'var(--mantine-color-text)' }}>{line.replace('### ', '')}</h4>
-                                  }
-                                  // Handle bold text
-                                  if (line.includes('**')) {
-                                    const parts = line.split(/(\*\*[^*]+\*\*)/g)
-                                    return (
-                                      <p key={index} style={{ margin: '0.5rem 0' }}>
-                                        {parts.map((part, partIndex) =>
-                                          part.startsWith('**') && part.endsWith('**') ?
-                                            <strong key={partIndex}>{part.slice(2, -2)}</strong> :
-                                            part
+                                    {job.matchReasons && job.matchReasons.length > 0 && (
+                                      <Group gap="xs" mb="sm">
+                                        {job.matchReasons.slice(0, 3).map((reason, index) => (
+                                          <Badge key={index} variant="light" color="green" size="xs">
+                                            ✓ {reason}
+                                          </Badge>
+                                        ))}
+                                        {job.matchReasons.length > 3 && (
+                                          <Badge variant="light" color="gray" size="xs">
+                                            +{job.matchReasons.length - 3} more
+                                          </Badge>
                                         )}
-                                      </p>
-                                    )
-                                  }
-                                  // Handle empty lines
-                                  if (line.trim() === '') {
-                                    return <br key={index} />
-                                  }
-                                  // Regular text
-                                  return <p key={index} style={{ margin: '0.5rem 0' }}>{line}</p>
-                                })}
-                              </div>
+                                      </Group>
+                                    )}
 
-                              <Group gap="xs">
-                                <Badge variant="outline" size="xs">{job.source}</Badge>
-                              </Group>
-                            </div>
+                                    <Box mb="sm">
+                                      <Collapse in={isExpanded}>
+                                        <Text size="sm" c="dimmed" style={{ lineHeight: 1.6 }}>
+                                          {job.description}
+                                        </Text>
+                                      </Collapse>
 
-                            <Stack gap="xs">
-                              <Tooltip label="View job details">
-                                <ActionIcon
-                                  component="a"
-                                  href={job.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  variant="light"
-                                  color="blue"
-                                >
-                                  <IconExternalLink size={16} />
-                                </ActionIcon>
-                              </Tooltip>
+                                      {!isExpanded && (
+                                        <Text size="sm" c="dimmed" style={{ lineHeight: 1.6 }}>
+                                          {truncatedDescription}
+                                        </Text>
+                                      )}
 
-                              <Tooltip label="Generate AI Application Package">
-                                <Button
-                                  onClick={() => generateApplicationPackage(job)}
-                                  variant="gradient"
-                                  gradient={{ from: 'blue', to: 'purple' }}
-                                  size="sm"
-                                  leftSection={<IconRocket size={16} />}
-                                >
-                                  Generate Package
-                                </Button>
-                              </Tooltip>
-                            </Stack>
+                                      {showExpandButton && (
+                                        <Button
+                                          variant="subtle"
+                                          size="xs"
+                                          onClick={() => toggleJobExpansion(job.id)}
+                                          leftSection={isExpanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+                                          mt="xs"
+                                        >
+                                          {isExpanded ? 'Show less' : 'Show more'}
+                                        </Button>
+                                      )}
+                                    </Box>
+
+                                    <Group gap="xs">
+                                      <Badge variant="outline" size="xs" color="gray">{job.source}</Badge>
+                                    </Group>
+                                  </div>
+
+                                  <Stack gap="xs" align="end">
+                                    <Tooltip label="View job details">
+                                      <ActionIcon
+                                        component="a"
+                                        href={job.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        variant="light"
+                                        color="blue"
+                                        size="lg"
+                                      >
+                                        <IconExternalLink size={18} />
+                                      </ActionIcon>
+                                    </Tooltip>
+
+                                    <Button
+                                      onClick={() => generateApplicationPackage(job)}
+                                      variant="gradient"
+                                      gradient={{ from: 'blue', to: 'purple' }}
+                                      size="sm"
+                                      leftSection={<IconRocket size={16} />}
+                                    >
+                                      Generate Package
+                                    </Button>
+                                  </Stack>
+                                </Group>
+                              </Stack>
+                            </Card>
+                          )
+                        })}
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                          <Group justify="center" mt="xl">
+                            <Pagination
+                              total={totalPages}
+                              value={currentPage}
+                              onChange={setCurrentPage}
+                              size="md"
+                              radius="md"
+                              withEdges
+                              style={{
+                                '& .mantine-Pagination-control[data-active]': {
+                                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                                  border: 'none'
+                                }
+                              }}
+                            />
                           </Group>
-                        </Stack>
-                      </Card>
-                      ))
+                        )}
+                      </>
                     )}
                   </Stack>
                 </Card>
