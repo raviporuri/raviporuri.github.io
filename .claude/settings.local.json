@@ -56,7 +56,8 @@
       "WebFetch(domain:raviporuri-website-nblnke1vx-equitiventures.vercel.app)",
       "WebFetch(domain:raviporuri-website-8drg9cn67-equitiventures.vercel.app)",
       "Bash(/dev/null)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

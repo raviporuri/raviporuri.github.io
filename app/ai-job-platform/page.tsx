@@ -1369,7 +1369,7 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
               </motion.div>
             )}
 
-            {currentStep === 1 && jobs.length > 0 && (
+            {currentStep === 1 && (
               <motion.div
                 key="jobs"
                 initial={{ opacity: 0, x: 20 }}
@@ -1397,18 +1397,45 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
 
                   <Stack gap="md">
                     {jobs.length === 0 ? (
-                      <Card shadow="xs" padding="xl" radius="md" withBorder ta="center">
-                        <Stack gap="md" align="center">
-                          <Text size="lg" fw={500} c="dimmed">No jobs found</Text>
-                          <Text size="sm" c="dimmed">
-                            Executive roles like CTO/VP are rare. Try broader terms like "Software Engineer", "Engineering Manager", or extend the time period to 24 hours.
-                          </Text>
+                      <Card shadow="lg" padding="xl" radius="md" style={{
+                        background: 'linear-gradient(135deg, #fef9c7 0%, #fde68a 100%)',
+                        border: '1px solid rgba(245, 158, 11, 0.2)',
+                        boxShadow: '0 10px 15px -3px rgba(245, 158, 11, 0.1), 0 4px 6px -2px rgba(245, 158, 11, 0.05)'
+                      }} ta="center">
+                        <Stack gap="lg" align="center">
+                          <ThemeIcon size={60} radius="xl" style={{
+                            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+                          }}>
+                            <IconSearch size={30} />
+                          </ThemeIcon>
+                          <div>
+                            <Text size="xl" fw={600} c="dark" mb="xs">No Jobs Found</Text>
+                            <Text size="md" c="dimmed" mb="lg">
+                              We couldn't find any positions matching your search criteria.
+                            </Text>
+                          </div>
+                          <Box style={{
+                            background: 'rgba(255, 255, 255, 0.7)',
+                            padding: '16px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(245, 158, 11, 0.2)'
+                          }}>
+                            <Text size="sm" fw={500} c="dark" mb="xs">💡 Try these suggestions:</Text>
+                            <Text size="sm" c="dimmed" ta="left">
+                              • Use broader terms like "Software Engineer" or "Engineering Manager"<br/>
+                              • Extend the time period to "Last 24 Hours"<br/>
+                              • Try different locations or increase the search radius<br/>
+                              • Remove company-specific filters
+                            </Text>
+                          </Box>
                           <Button
-                            variant="light"
+                            variant="gradient"
+                            gradient={{ from: 'orange', to: 'yellow' }}
                             onClick={() => setCurrentStep(0)}
                             leftSection={<IconRefresh size={16} />}
+                            size="md"
                           >
-                            Try New Search
+                            Modify Search Criteria
                           </Button>
                         </Stack>
                       </Card>

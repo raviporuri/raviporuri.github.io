@@ -1,3 +1,21 @@
 {
-  "/api/linkedin-jobs/route": "app/api/linkedin-jobs/route.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/ai-job-platform/page": "app/ai-job-platform/page.js",
+  "/api/analyze-job/route": "app/api/analyze-job/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/career-scraper/route": "app/api/career-scraper/route.js",
+  "/api/ai-application-package/route": "app/api/ai-application-package/route.js",
+  "/api/debug/route": "app/api/debug/route.js",
+  "/api/job-matcher/route": "app/api/job-matcher/route.js",
+  "/api/job-tailor/route": "app/api/job-tailor/route.js",
+  "/api/contact/route": "app/api/contact/route.js",
+  "/api/linkedin-jobs/route": "app/api/linkedin-jobs/route.js",
+  "/api/session/route": "app/api/session/route.js",
+  "/job-matcher/page": "app/job-matcher/page.js",
+  "/api/resume-customizer/route": "app/api/resume-customizer/route.js",
+  "/page": "app/page.js",
+  "/resume-customizer/page": "app/resume-customizer/page.js",
+  "/api/chat/route": "app/api/chat/route.js",
+  "/job-listings/page": "app/job-listings/page.js",
+  "/api/company-data/route": "app/api/company-data/route.js"
 }
