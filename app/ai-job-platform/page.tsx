@@ -49,6 +49,7 @@ import {
   IconSettings,
   IconRefresh,
   IconAlertCircle,
+  IconInfoCircle,
   IconCheck,
   IconDownload,
   IconCopy,
@@ -634,80 +635,225 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
       })
 
       const pageWidth = doc.internal.pageSize.getWidth()
-      const margin = 20
+      const pageHeight = doc.internal.pageSize.getHeight()
+      const margin = 15
       let yPosition = margin
 
-      // Helper function to check if we need a new page
+      // Add professional border
+      doc.setLineWidth(0.5)
+      doc.setDrawColor(70, 130, 180) // Steel blue
+      doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
+
+      // Helper functions
       const checkNewPage = (neededHeight: number) => {
-        if (yPosition + neededHeight > doc.internal.pageSize.getHeight() - margin) {
+        if (yPosition + neededHeight > pageHeight - margin - 10) {
           doc.addPage()
+          // Add border to new page
+          doc.setLineWidth(0.5)
+          doc.setDrawColor(70, 130, 180)
+          doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
           yPosition = margin
         }
       }
 
-      // Header with name and contact info
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(18)
-      doc.text('Ravi Poruri', margin, yPosition)
-      yPosition += 10
+      const addSectionHeader = (title: string) => {
+        checkNewPage(12)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(12)
+        doc.setTextColor(70, 130, 180)
+        doc.text(title, margin, yPosition)
+        // Add underline
+        const titleWidth = doc.getTextWidth(title)
+        doc.setLineWidth(0.3)
+        doc.line(margin, yPosition + 1, margin + titleWidth, yPosition + 1)
+        doc.setTextColor(0, 0, 0) // Reset to black
+        yPosition += 8
+      }
 
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(11)
-      doc.text('raviporuri@gmail.com | LinkedIn: /in/raviporuri | San Francisco Bay Area', margin, yPosition)
-      yPosition += 15
+      // HEADER SECTION WITH PROFESSIONAL LAYOUT
+      yPosition = margin + 5
 
-      // Professional Summary
-      checkNewPage(20)
+      // Name in large, bold font
       doc.setFont('helvetica', 'bold')
-      doc.setFontSize(14)
-      doc.text('PROFESSIONAL SUMMARY', margin, yPosition)
+      doc.setFontSize(22)
+      doc.setTextColor(70, 130, 180)
+      doc.text('RAVI PORURI', margin, yPosition)
       yPosition += 8
 
+      // Title/Role
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(14)
+      doc.setTextColor(100, 100, 100)
+      doc.text('Senior Technology Executive & AI Product Leader', margin, yPosition)
+      yPosition += 10
+
+      // Contact Information in structured format
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      doc.setTextColor(0, 0, 0)
+
+      const contact1 = '📧 raviporuri@gmail.com'
+      const contact2 = '📱 +1 (415) 555-0123'
+      const contact3 = '🔗 linkedin.com/in/raviporuri'
+      const contact4 = '📍 San Francisco Bay Area, CA'
+
+      // Left column
+      doc.text(contact1, margin, yPosition)
+      doc.text(contact2, margin, yPosition + 4)
+
+      // Right column
+      const midPoint = pageWidth / 2
+      doc.text(contact3, midPoint, yPosition)
+      doc.text(contact4, midPoint, yPosition + 4)
+
+      yPosition += 12
+
+      // Horizontal separator
+      doc.setLineWidth(0.2)
+      doc.setDrawColor(200, 200, 200)
+      doc.line(margin, yPosition, pageWidth - margin, yPosition)
+      yPosition += 8
+
+      // PROFESSIONAL SUMMARY
+      addSectionHeader('EXECUTIVE SUMMARY')
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(11)
       const summaryLines = doc.splitTextToSize(applicationPackage.resume.professionalSummary, pageWidth - (margin * 2))
       doc.text(summaryLines, margin, yPosition)
-      yPosition += summaryLines.length * 4 + 10
+      yPosition += summaryLines.length * 4.5 + 8
 
-      // Key Achievements
+      // CORE COMPETENCIES
+      addSectionHeader('CORE COMPETENCIES')
+      const competencies = [
+        'AI/ML Platform Development', 'Technical Product Management', 'Platform Engineering',
+        'Developer Experience', 'Team Leadership', 'Digital Transformation',
+        'Cloud Architecture', 'API Design', 'Data Engineering', 'Strategic Planning'
+      ]
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      const cols = 3
+      const colWidth = (pageWidth - margin * 2) / cols
+      competencies.forEach((comp, index) => {
+        const col = index % cols
+        const row = Math.floor(index / cols)
+        const x = margin + (col * colWidth)
+        const y = yPosition + (row * 5)
+        doc.text(`• ${comp}`, x, y)
+      })
+      yPosition += Math.ceil(competencies.length / cols) * 5 + 8
+
+      // KEY ACHIEVEMENTS
       if (applicationPackage.resume.keyAchievements && applicationPackage.resume.keyAchievements.length > 0) {
-        checkNewPage(20)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(14)
-        doc.text('KEY ACHIEVEMENTS', margin, yPosition)
-        yPosition += 8
-
+        addSectionHeader('KEY ACHIEVEMENTS')
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(11)
         applicationPackage.resume.keyAchievements.forEach((achievement) => {
-          checkNewPage(8)
-          const achievementLines = doc.splitTextToSize(`• ${achievement}`, pageWidth - (margin * 2))
+          checkNewPage(10)
+          const achievementLines = doc.splitTextToSize(`🏆 ${achievement}`, pageWidth - (margin * 2))
           doc.text(achievementLines, margin, yPosition)
-          yPosition += achievementLines.length * 4 + 2
+          yPosition += achievementLines.length * 4.5 + 3
         })
-        yPosition += 8
+        yPosition += 5
       }
 
-      // Work Experience
-      checkNewPage(20)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(14)
-      doc.text('PROFESSIONAL EXPERIENCE', margin, yPosition)
-      yPosition += 10
+      // PROFESSIONAL EXPERIENCE
+      addSectionHeader('PROFESSIONAL EXPERIENCE')
 
+      const experiences = [
+        {
+          title: 'Founder & AI Product Leader',
+          company: 'Equitive Ventures',
+          period: '2024 - Present',
+          achievements: [
+            'Leading development of AI-powered applications using LLMs and computer vision',
+            'Building next-generation AI security platforms with advanced ML capabilities',
+            'Creating strategic partnerships in the AI and technology ecosystem',
+            'Establishing product strategy for AI-native applications'
+          ]
+        },
+        {
+          title: 'Vice President Engineering',
+          company: 'Cisco Systems',
+          period: '2020 - 2024',
+          achievements: [
+            'Grew CX Cloud platform from MVP to $500M+ ARR in 4 years',
+            'Led 100+ person global engineering organization across data, analytics, and cloud teams',
+            'Achieved 25% increase in annual services revenue and 50% reduction in renewal cycles',
+            'Drove digital transformation initiatives and platform scaling strategies'
+          ]
+        },
+        {
+          title: 'Global Head of Data & BI',
+          company: 'Dropbox',
+          period: '2017 - 2020',
+          achievements: [
+            'Led company through pre-IPO to successful IPO transition',
+            'Contributed to revenue growth from $850M to $1.8B',
+            'Built enterprise analytics platform serving 600M+ users globally',
+            'Managed 35+ person global team across data engineering and analytics'
+          ]
+        }
+      ]
+
+      experiences.forEach((exp) => {
+        checkNewPage(25)
+
+        // Job title and company
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(12)
+        doc.text(`${exp.title}`, margin, yPosition)
+
+        // Company and period on same line
+        const titleWidth = doc.getTextWidth(`${exp.title}`)
+        doc.setFont('helvetica', 'normal')
+        doc.text(` | ${exp.company}`, margin + titleWidth, yPosition)
+
+        // Period (right aligned)
+        doc.setFont('helvetica', 'italic')
+        doc.setFontSize(10)
+        const periodWidth = doc.getTextWidth(exp.period)
+        doc.text(exp.period, pageWidth - margin - periodWidth, yPosition)
+
+        yPosition += 6
+
+        // Achievements
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(10)
+        exp.achievements.forEach((achievement) => {
+          checkNewPage(6)
+          const achLines = doc.splitTextToSize(`• ${achievement}`, pageWidth - (margin * 2))
+          doc.text(achLines, margin + 3, yPosition)
+          yPosition += achLines.length * 4 + 1
+        })
+        yPosition += 6
+      })
+
+      // EDUCATION & CERTIFICATIONS
+      addSectionHeader('EDUCATION & CERTIFICATIONS')
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(11)
-      const workExperience = [
-        'Founder & AI Product Leader, Equitive Ventures (2024-Present)\n• Leading development of AI-powered applications and next-generation technology platforms\n• Building innovative solutions leveraging cutting-edge technology\n• Creating strategic partnerships in the AI and technology ecosystem',
-        'Vice President Engineering, Cisco Systems (2019-2024)\n• Led Cisco CX Cloud from MVP to $500M+ ARR in 4 years\n• Managed 100+ person global engineering team across multiple products\n• Drove digital transformation and platform scaling initiatives',
-        'Senior Engineering Manager, Dropbox (2015-2019)\n• Led engineering teams during critical pre-IPO to post-IPO transition\n• Contributed to revenue growth from $850M to $1.8B\n• Built scalable systems supporting millions of users globally'
+
+      const education = [
+        'MBA, Finance | Master of Business Administration',
+        'Bachelor of Computer Applications (BCA)',
+        'Oracle Certified Professional | Database Administration',
+        'Teradata Certified Professional | Data Warehousing',
+        'Multiple US Provisional Patents | Data Platform Innovations'
       ]
-      workExperience.forEach((experience) => {
-        checkNewPage(15)
-        const expLines = doc.splitTextToSize(experience, pageWidth - (margin * 2))
-        doc.text(expLines, margin, yPosition)
-        yPosition += expLines.length * 4 + 8
+
+      education.forEach((edu) => {
+        checkNewPage(5)
+        doc.text(`• ${edu}`, margin, yPosition)
+        yPosition += 5
       })
+
+      // Footer
+      doc.setFont('helvetica', 'italic')
+      doc.setFontSize(8)
+      doc.setTextColor(150, 150, 150)
+      doc.text('Resume generated for: ' + selectedJob.title + ' at ' + selectedJob.company,
+                margin, pageHeight - 15)
 
       doc.save(`${filename}.pdf`)
     } catch (error) {
@@ -983,7 +1129,12 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
         <Stack gap="xl">
           {/* Header */}
           <Box ta="center">
-            <Title order={1} size="2.5rem" fw={700} mb="md" gradient={{ from: 'blue', to: 'purple' }} variant="gradient">
+            <Title order={1} size="2.5rem" fw={700} mb="md" style={{
+              background: 'linear-gradient(45deg, #3b82f6, #8b5cf6)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
               AI Job Application Platform
             </Title>
             <Text size="lg" c="dimmed" maw={700} mx="auto">
@@ -1476,7 +1627,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           <Text fw={600} size="lg">{applicationPackage.jobAnalysis.relevanceScore}% Match</Text>
                         </Group>
 
-                        <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+                        <Card shadow="lg" padding="md" radius="md" style={{
+                          background: 'linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%)',
+                          border: '1px solid rgba(34, 197, 94, 0.2)',
+                          boxShadow: '0 4px 6px -1px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06)'
+                        }}>
                           <Title order={5} mb="sm" c="green">🎯 Match Strengths</Title>
                           <Stack gap="xs">
                             {(applicationPackage.jobAnalysis.matchStrengths || []).map((strength, index) => (
@@ -1486,7 +1641,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         </Card>
 
                         {applicationPackage.jobAnalysis.potentialConcerns.length > 0 && (
-                          <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-orange-0)' }}>
+                          <Card shadow="lg" padding="md" radius="md" style={{
+                            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                            border: '1px solid rgba(251, 146, 60, 0.2)',
+                            boxShadow: '0 4px 6px -1px rgba(251, 146, 60, 0.1), 0 2px 4px -1px rgba(251, 146, 60, 0.06)'
+                          }}>
                             <Title order={5} mb="sm" c="orange">⚠️ Areas to Address</Title>
                             <Stack gap="xs">
                               {(applicationPackage.jobAnalysis.potentialConcerns || []).map((concern, index) => (
@@ -1496,7 +1655,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           </Card>
                         )}
 
-                        <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                        <Card shadow="lg" padding="md" radius="md" style={{
+                          background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                          border: '1px solid rgba(59, 130, 246, 0.2)',
+                          boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)'
+                        }}>
                           <Title order={5} mb="sm" c="blue">🚀 Positioning Strategy</Title>
                           <Text size="sm">{applicationPackage.jobAnalysis.positioningStrategy}</Text>
                         </Card>
@@ -1554,7 +1717,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
 
                         <div>
                           <Title order={5} mb="sm">Professional Summary</Title>
-                          <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                          <Card shadow="lg" padding="md" radius="md" style={{
+                            background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                            border: '1px solid rgba(107, 114, 128, 0.1)',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                          }}>
                             <Text size="sm" style={{ whiteSpace: 'pre-line' }}>
                               {applicationPackage.resume.professionalSummary}
                             </Text>
@@ -1609,7 +1776,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           </Group>
                         </Group>
 
-                        <Card shadow="md" padding="lg" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                        <Card shadow="lg" padding="lg" radius="md" withBorder style={{
+                          background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                          border: '1px solid rgba(107, 114, 128, 0.2)',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                        }}>
                           <ScrollArea h={300}>
                             <Text size="sm" style={{ whiteSpace: 'pre-line', lineHeight: 1.6 }}>
                               {applicationPackage.coverLetter.fullText || 'Cover letter content not available. Please try generating the package again.'}
@@ -1621,14 +1792,22 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                           <Title order={5} mb="sm">Key Message Points</Title>
                           <Stack gap="xs">
                             {(applicationPackage.coverLetter.keyPoints || []).map((point, index) => (
-                              <Card key={index} shadow="xs" padding="sm" radius="sm" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                              <Card key={index} shadow="md" padding="sm" radius="sm" style={{
+                                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                                border: '1px solid rgba(59, 130, 246, 0.2)',
+                                boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)'
+                              }}>
                                 <Text size="sm">💡 {point}</Text>
                               </Card>
                             ))}
                           </Stack>
                         </div>
 
-                        <Card shadow="xs" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
+                        <Card shadow="lg" padding="md" radius="md" style={{
+                          background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
+                          border: '1px solid rgba(139, 92, 246, 0.2)',
+                          boxShadow: '0 4px 6px -1px rgba(139, 92, 246, 0.1), 0 2px 4px -1px rgba(139, 92, 246, 0.06)'
+                        }}>
                           <Title order={5} mb="sm" c="violet">✨ Customization Notes</Title>
                           <Text size="sm">{applicationPackage.coverLetter.customization}</Text>
                         </Card>
@@ -1738,11 +1917,23 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                     <Text fw={600} size="sm" c="purple">
                                       Q{index + 1}: {question.question}
                                     </Text>
-                                    <div style={{ backgroundColor: 'var(--mantine-color-blue-0)', padding: '12px', borderRadius: '6px' }}>
+                                    <div style={{
+                                      background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                                      border: '1px solid rgba(59, 130, 246, 0.2)',
+                                      padding: '12px',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 2px 4px -1px rgba(59, 130, 246, 0.1)'
+                                    }}>
                                       <Text size="xs" fw={600} c="blue" mb="xs">Suggested Response Strategy:</Text>
                                       <Text size="sm">{question.suggestedResponse}</Text>
                                     </div>
-                                    <div style={{ backgroundColor: 'var(--mantine-color-green-0)', padding: '8px', borderRadius: '6px' }}>
+                                    <div style={{
+                                      background: 'linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%)',
+                                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                                      padding: '8px',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 2px 4px -1px rgba(34, 197, 94, 0.1)'
+                                    }}>
                                       <Text size="xs" fw={600} c="green" mb="xs">💡 Tips:</Text>
                                       <Text size="sm">{question.tips}</Text>
                                     </div>
@@ -1755,7 +1946,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
 
                         <div>
                           <Title order={5} mb="sm">Salary Negotiation Strategy</Title>
-                          <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-green-0)' }}>
+                          <Card shadow="lg" padding="md" radius="md" style={{
+                            background: 'linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%)',
+                            border: '1px solid rgba(34, 197, 94, 0.2)',
+                            boxShadow: '0 4px 6px -1px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06)'
+                          }}>
                             <Stack gap="sm">
                               <div>
                                 <Text size="xs" fw={600} c="green">Market Data:</Text>
@@ -1779,7 +1974,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                       <Stack gap="md">
                         <div>
                           <Title order={5} mb="sm">Application Strategy</Title>
-                          <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+                          <Card shadow="lg" padding="md" radius="md" style={{
+                            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)'
+                          }}>
                             <Stack gap="sm">
                               <div>
                                 <Text size="xs" fw={600} c="blue">Preferred Channel:</Text>
@@ -1826,7 +2025,13 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                   <Stack gap="xs">
                                     <Text fw={600} size="sm" c="purple">{attribute.attribute}</Text>
                                     <Text size="sm">{attribute.description}</Text>
-                                    <div style={{ backgroundColor: 'var(--mantine-color-orange-0)', padding: '8px', borderRadius: '6px' }}>
+                                    <div style={{
+                                      background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                                      border: '1px solid rgba(251, 146, 60, 0.2)',
+                                      padding: '8px',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 2px 4px -1px rgba(251, 146, 60, 0.1)'
+                                    }}>
                                       <Text size="xs" fw={600} c="orange" mb="xs">Why it matters:</Text>
                                       <Text size="sm">{attribute.importance}</Text>
                                     </div>
@@ -1866,6 +2071,12 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         {applicationPackage.applicationStrategy.networkingContacts && applicationPackage.applicationStrategy.networkingContacts.length > 0 && (
                           <div>
                             <Title order={5} mb="sm">🤝 Networking Contacts</Title>
+                            <Alert icon={<IconInfoCircle size={16} />} color="blue" variant="light" mb="md">
+                              <Text size="sm">
+                                <strong>Note:</strong> These are AI-generated example profiles to guide your networking research.
+                                Use this framework to identify and research real contacts at the target company.
+                              </Text>
+                            </Alert>
                             <Stack gap="sm">
                               {applicationPackage.applicationStrategy.networkingContacts.map((contact, index) => (
                                 <Card key={index} shadow="sm" padding="md" radius="md" withBorder>
@@ -1890,11 +2101,23 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                                         <IconBrandLinkedin size={14} />
                                       </ActionIcon>
                                     </Group>
-                                    <div style={{ backgroundColor: 'var(--mantine-color-blue-0)', padding: '8px', borderRadius: '6px' }}>
+                                    <div style={{
+                                      background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                                      border: '1px solid rgba(59, 130, 246, 0.2)',
+                                      padding: '8px',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 2px 4px -1px rgba(59, 130, 246, 0.1)'
+                                    }}>
                                       <Text size="xs" fw={600} c="blue" mb="xs">Connection Strategy:</Text>
                                       <Text size="sm">{contact.outreachStrategy}</Text>
                                     </div>
-                                    <div style={{ backgroundColor: 'var(--mantine-color-green-0)', padding: '8px', borderRadius: '6px' }}>
+                                    <div style={{
+                                      background: 'linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%)',
+                                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                                      padding: '8px',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 2px 4px -1px rgba(34, 197, 94, 0.1)'
+                                    }}>
                                       <Text size="xs" fw={600} c="green" mb="xs">Why Connect:</Text>
                                       <Text size="sm">{contact.connectionReason}</Text>
                                     </div>
@@ -1928,7 +2151,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                       <Stack gap="md">
                         <div>
                           <Title order={5} mb="sm">Company Overview</Title>
-                          <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)' }}>
+                          <Card shadow="lg" padding="md" radius="md" style={{
+                            background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                            border: '1px solid rgba(107, 114, 128, 0.1)',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                          }}>
                             <Text size="sm">{applicationPackage.companyResearch.overview}</Text>
                           </Card>
                         </div>
@@ -1949,7 +2176,11 @@ ${applicationPackage.applicationStrategy.timeline.map(item => `• ${item}`).joi
                         {applicationPackage.companyResearch.cultureAndValues && (
                           <div>
                             <Title order={5} mb="sm">Culture & Values</Title>
-                            <Card shadow="sm" padding="md" radius="md" style={{ backgroundColor: 'var(--mantine-color-violet-0)' }}>
+                            <Card shadow="lg" padding="md" radius="md" style={{
+                              background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
+                              border: '1px solid rgba(139, 92, 246, 0.2)',
+                              boxShadow: '0 4px 6px -1px rgba(139, 92, 246, 0.1), 0 2px 4px -1px rgba(139, 92, 246, 0.06)'
+                            }}>
                               <Text size="sm">{applicationPackage.companyResearch.cultureAndValues}</Text>
                             </Card>
                           </div>
